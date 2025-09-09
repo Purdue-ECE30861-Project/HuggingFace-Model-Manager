@@ -46,25 +46,34 @@ class NetScore:
             else:
                 priority_organized_scores[metric.priority] = [metric.score]
 
-        compressed_scores = self.__compress_priorities(priority_organized_scores)
+        compressed_scores: list[list[float]] = self.__compress_priorities(priority_organized_scores)
+        priority_proportions: list[float] = self.__get_priority_proportions(compressed_scores, num_metrics)
+        aggregated_scores: list[float] = [sum(scores) for scores in compressed_scores]
 
-    def __compress_priorities(self, priority_organized_scores: SortedDict[int, list[float]]) -> SortedDict[int, list[float]]:
+        volume_adjusted_scores: list[float] = [volume * raw_score for volume, raw_score in zip(priority_proportions, aggregated_scores)]
+        normalized_scores: list[float]
+
+    def __compress_priorities(self, priority_organized_scores: SortedDict[int, list[float]]) -> list[list[float]]:
         """
-        Trims out intermediary space. Say you accidentally assigned priority 1 and 3, you would be left with priority 1 and 2
+        Trims out intermediary space. Say you accidentally assigned priority 1 and 3, you would be left with priority 1 and 2. Outputs list where index correspond to prioritiy of scores
         :param priority_organized_scores:
         :return:
         """
-        previous_key = 0
+        scores: list[list[float]] = []
 
-        for key in priority_organized_scores.keys():
-            if key != previous_key + 1:
-                priority_organized_scores[previous_key + 1] = priority_organized_scores.pop(key)
-            previous_key += 1
+        for value in priority_organized_scores.values():
+            scores.append(value)
 
         return priority_organized_scores
 
-    def __weight_priorities_by_size(self, compressed_scores: SortedDict[int, list[float]]):
-        total_metrics =
+    def __get_priority_proportions(self, compressed_scores: list[list[float]], total_size: int) -> list[float]:
+        priority_proportions: list[float] = []
+
+        for scores in compressed_scores:
+            priority_proportions.append(len(scores) / total_size)
+
+        return priority_proportions
+
 
     def append_to_db(self, database_interface: typing.Any) -> bool:
         pass
