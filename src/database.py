@@ -6,6 +6,7 @@ PROD_DATABASE_PATH: Path = Path("models.db")
 
 
 class ModelStats:
+    # TODO: support modular metrics, each having its own score and latency
     def __init__(
         self,
         url: str,
@@ -76,6 +77,7 @@ class SQLiteAccessor:
         self.connection.close()
     
     def db_exists(self) -> bool:
+        # TODO: check that the database schema matches the currently selected metrics
         return PROD_DATABASE_PATH.exists()
 
     def init_database(self):
@@ -83,6 +85,7 @@ class SQLiteAccessor:
         self.cursor: sqlite3.Cursor = self.connection.cursor()
 
         # create the table with schema matching ModelStats, url as PRIMARY KEY
+        # TODO: database schema should match modular metrics and not be hardcoded
         self.cursor.execute(
             """
                 CREATE TABLE IF NOT EXISTS models (
@@ -119,6 +122,7 @@ class SQLiteAccessor:
         return self.cursor.fetchone() is not None
 
     def add_to_db(self, model_stats: ModelStats):
+        # TODO: database schema should match modular metrics and not be hardcoded
         self.cursor.execute(
             """
                 INSERT OR REPLACE INTO models (
@@ -161,6 +165,7 @@ class SQLiteAccessor:
         self.connection.commit()
 
     def get_model_statistics(self, model_url: str) -> ModelStats:
+        # TODO: database schema should match modular metrics and not be hardcoded
         self.cursor.execute("SELECT * FROM models WHERE url = ?", (model_url,))
         row = self.cursor.fetchone()
         if row:
