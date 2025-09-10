@@ -1,26 +1,40 @@
 import abc
 import typing
+from itertools import starmap
 from pydantic import BaseModel
 from sortedcontainers import SortedDict
 
 
-class ModelMetadata(BaseModel):
-    model_url: typing.Optional[str]
-    code_url: typing.Optional[str]
-    dataset_url: typing.Optional[str]
+class ModelURLs(BaseModel):
+    model: typing.Optional[str]
+    codebase: typing.Optional[str]
+    dataset: typing.Optional[str]
 
 
 class BaseMetric(abc.ABC):
     metric_name: str
-    priority: int
-
 
     def __init__(self):
         self.score: float = 0.0
+        self.url: str = ""
+        self.priority = 1
+        self.target_platform: str = ""
 
-    def run(self):
+    def run(self) -> typing.Self:
         self.setup_resources()
         self.score = self.calculate_score()
+
+        return self
+
+    def set_params(self, priority: int, platform: str):
+        self.priority = priority
+        self.target_platform = platform
+
+    def set_url(self, url: str):
+        if not url:
+            raise IOError("The provided URL was invalid") # cli will handle this error if invalid url
+
+        self.url = url
 
     @abc.abstractmethod
     # we make this an abstract method because it may be best to set up necessary resources in multithreaded environment for high speed cli
@@ -32,26 +46,64 @@ class BaseMetric(abc.ABC):
         pass
 
 
-class NetScore:
-    def __init__(self, metrics: typing.Iterable[BaseMetric], model_metadata: ModelMetadata):
-        self.individual_scores: dict[str, float] = {metric.metric_name: metric.score for metric in metrics}
+class PriorityFunction(abc.ABC):
+    @abc.abstractmethod
+    def calculate_priority_weight(self, priority: int) -> float:
+        pass
 
-    def __calculate_net_score(self, metrics: typing.Iterable[BaseMetric]):
+
+class PFExponentialDecay(PriorityFunction):
+    def __init__(self, base_coefficient: int):
+        self.base_coefficient: int = base_coefficient
+
+    def calculate_priority_weight(self, priority: int) -> float:
+        return self.base_coefficient ** -(priority - 1)
+
+
+class PFReciprocal(PriorityFunction):
+    def calculate_priority_weight(self, priority: int) -> float:
+        return 1 / priority
+
+
+PRIORITY_FUNCTIONS: dict[str, typing.Type[PriorityFunction]] = {
+    'PFExponentialDecay': PFExponentialDecay,
+    'PFReciprocal': PFReciprocal
+}
+
+
+class NetScoreCalculator:
+    def __init__(self, priority_function: typing.Type[PriorityFunction]):
+        self.priority_function: typing.Type[PriorityFunction] = priority_function
+
+    def calculate_net_score(self, metrics: list[BaseMetric]):
+        num_metrics: int = len(metrics)
+
+        priority_organized_scores: SortedDict[int, list[float]] = self.__generate_scores_priority_dict(metrics)
+        compressed_scores: list[list[float]] = self.__compress_priorities(priority_organized_scores)
+        priority_weights: list[float] = self.__get_priority_weights(compressed_scores, num_metrics)
+        aggregated_scores: list[float] = [self.__sum_scores(scores) for scores in compressed_scores]
+
+        net_score: float = sum(
+            list(
+                starmap(lambda score, weight: score * weight, zip(aggregated_scores, priority_weights))
+            )
+        )
+
+        return net_score
+
+    def __generate_scores_priority_dict(self, metrics: list[BaseMetric]) -> SortedDict[int, list[float]]:
         priority_organized_scores: SortedDict[int, list[float]] = SortedDict()
-        num_metrics: int = len(priority_organized_scores)
-
         for metric in metrics:
             if metric.priority in priority_organized_scores:
                 priority_organized_scores[metric.priority].append(metric.score)
             else:
                 priority_organized_scores[metric.priority] = [metric.score]
 
-        compressed_scores: list[list[float]] = self.__compress_priorities(priority_organized_scores)
-        priority_proportions: list[float] = self.__get_priority_proportions(compressed_scores, num_metrics)
-        aggregated_scores: list[float] = [sum(scores) for scores in compressed_scores]
+        return priority_organized_scores
 
-        volume_adjusted_scores: list[float] = [volume * raw_score for volume, raw_score in zip(priority_proportions, aggregated_scores)]
-        normalized_scores: list[float]
+    def __sum_scores(self, scores: list[float]) -> float:
+        scores: list[float] = [score / len(scores) for score in scores]
+        return sum(scores)
 
     def __compress_priorities(self, priority_organized_scores: SortedDict[int, list[float]]) -> list[list[float]]:
         """
@@ -64,16 +116,25 @@ class NetScore:
         for value in priority_organized_scores.values():
             scores.append(value)
 
-        return priority_organized_scores
+        return scores
 
-    def __get_priority_proportions(self, compressed_scores: list[list[float]], total_size: int) -> list[float]:
+    def __get_priority_weights(self, compressed_scores: list[list[float]], total_size: int) -> list[float]:
         priority_proportions: list[float] = []
 
-        for scores in compressed_scores:
-            priority_proportions.append(len(scores) / total_size)
+        for priority, scores in enumerate(compressed_scores):
+            priority_weight: float = self.priority_function.calculate_priority_weight(priority)
+            priority_proportions.append(priority_weight * len(scores) / total_size)
 
-        return priority_proportions
+        normalized_weights: list[float] = list(map(lambda x: x / sum(priority_proportions), priority_proportions))
 
+        return normalized_weights
+
+
+class AnalyzerOutput:
+    def __init__(self, priority_function: typing.Type[PriorityFunction], metrics: list[BaseMetric], model_metadata: ModelURLs):
+        self.individual_scores: dict[str, float] = {metric.metric_name: metric.score for metric in metrics}
+        self.model_metadata: ModelURLs = model_metadata
+        self.score: float = NetScoreCalculator(priority_function).calculate_net_score(metrics)
 
     def append_to_db(self, database_interface: typing.Any) -> bool:
         pass
