@@ -2,7 +2,7 @@ from multiprocessing import Pool
 from typing import Literal, Optional
 from pydantic import BaseModel
 import typing
-from metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS, PriorityFunction
+from metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS
 
 
 DATASET = 'dataset'

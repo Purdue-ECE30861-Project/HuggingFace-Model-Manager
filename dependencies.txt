@@ -1,4 +1,4 @@
 pydantic==1.8.2
 sortedcontainers==2.4.0
-poetry==1.1.11
+poetry==2.1.4
 coverage==5.5

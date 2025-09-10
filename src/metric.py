@@ -9,9 +9,9 @@ class ModelURLs(BaseModel):
     """
     Stores URLs related to a model, including model, codebase, and dataset URLs.
     """
-    model: typing.Optional[str]
-    codebase: typing.Optional[str]
-    dataset: typing.Optional[str]
+    model: typing.Optional[str] = None
+    codebase: typing.Optional[str] = None
+    dataset: typing.Optional[str] = None
 
 
 class BaseMetric(abc.ABC):
@@ -26,7 +26,7 @@ class BaseMetric(abc.ABC):
         """
         self.score: float = 0.0
         self.url: str = ""
-        self.priority = 1
+        self.priority: int = 1
         self.target_platform: str = ""
 
     def run(self) -> typing.Self:
@@ -116,6 +116,7 @@ class PFExponentialDecay(PriorityFunction):
         assert(base_coefficient > 1)
         self.base_coefficient: int = base_coefficient
 
+    @typing.override
     def calculate_priority_weight(self, priority: int) -> float:
         """
         Calculates the weight using exponential decay.
@@ -131,6 +132,8 @@ class PFReciprocal(PriorityFunction):
     """
     Priority function using reciprocal weighting.
     """
+
+    @typing.override
     def calculate_priority_weight(self, priority: int) -> float:
         """
         Calculates the weight as the reciprocal of the priority.
@@ -170,7 +173,7 @@ class NetScoreCalculator:
         """
         num_metrics: int = len(metrics)
 
-        priority_organized_scores: SortedDict[int, list[float]] = self.generate_scores_priority_dict(metrics)
+        priority_organized_scores: SortedDict = self.generate_scores_priority_dict(metrics) # sorted dict holds [int, list[float]]
         compressed_scores: list[list[float]] = self.compress_priorities(priority_organized_scores)
         priority_weights: list[float] = self.get_priority_weights(compressed_scores, num_metrics)
         aggregated_scores: list[float] = [self.sum_scores(scores) for scores in compressed_scores]
@@ -183,7 +186,7 @@ class NetScoreCalculator:
 
         return net_score
 
-    def generate_scores_priority_dict(self, metrics: list[BaseMetric]) -> SortedDict[int, list[float]]:
+    def generate_scores_priority_dict(self, metrics: list[BaseMetric]) -> SortedDict:
         """
         Organizes metric scores by their priority.
         Args:
@@ -191,7 +194,7 @@ class NetScoreCalculator:
         Returns:
             SortedDict[int, list[float]]: Scores organized by priority.
         """
-        priority_organized_scores: SortedDict[int, list[float]] = SortedDict()
+        priority_organized_scores: SortedDict = SortedDict()
         for metric in metrics:
             if metric.priority in priority_organized_scores:
                 priority_organized_scores[metric.priority].append(metric.score)
@@ -211,7 +214,7 @@ class NetScoreCalculator:
         scores: list[float] = [score / len(scores) for score in scores]
         return sum(scores)
 
-    def compress_priorities(self, priority_organized_scores: SortedDict[int, list[float]]) -> list[list[float]]:
+    def compress_priorities(self, priority_organized_scores: SortedDict) -> list[list[float]]:
         """
         Compresses priorities to remove gaps and outputs a list where the index corresponds to the priority.
         Args:

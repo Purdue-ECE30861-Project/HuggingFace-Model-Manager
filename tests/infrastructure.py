@@ -1,37 +1,44 @@
 import unittest
-from pydantic import BaseModel
 from workflow import *
 from metric import *
 
 
 class DummyMetric1(BaseMetric):
+    @typing.override
     def calculate_score(self):
         return 0.5
 
+    @typing.override
     def setup_resources(self):
         pass
 
 
 class DummyMetric2(BaseMetric):
+    @typing.override
     def calculate_score(self):
         return 0.7
 
+    @typing.override
     def setup_resources(self):
         pass
 
 
-class DummyMetric3(BaseMetric):
+class DummyMetric4(BaseMetric):
+    @typing.override
     def calculate_score(self):
-        return 0.2
+        return 0.0
 
+    @typing.override
     def setup_resources(self):
         pass
 
 
 class DummyMetric3(BaseMetric):
+    @typing.override
     def calculate_score(self):
         return 1.0
 
+    @typing.override
     def setup_resources(self):
         pass
 
@@ -91,11 +98,11 @@ class TestNetScoreCalculator(unittest.TestCase):
         self.assertAlmostEqual(sum_scores, 0.7333333333333)
 
     def test_compress_priorities(self):
-        priority_organized_scores: SortedDict[int, list[float]] = SortedDict({1: [0.5, 0.7], 2: [1.0]})
+        priority_organized_scores: SortedDict = SortedDict({1: [0.5, 0.7], 2: [1.0]})
         compressed_scores: list[list[float]] = NetScoreCalculator(PFReciprocal).compress_priorities(priority_organized_scores)
         self.assertEqual(compressed_scores, [[0.5, 0.7], [1.0]])
 
-        priority_organized_scores: SortedDict[int, list[float]] = SortedDict({1: [0.5, 0.7], 3: [1.0]})
+        priority_organized_scores: SortedDict = SortedDict({1: [0.5, 0.7], 3: [1.0]})
         compressed_scores: list[list[float]] = NetScoreCalculator(PFReciprocal).compress_priorities(
             priority_organized_scores)
         self.assertEqual(compressed_scores, [[0.5, 0.7], [1.0]])
@@ -107,7 +114,7 @@ class TestNetScoreCalculator(unittest.TestCase):
             DummyMetric3().set_params(3, "").run()
         ]
 
-        priority_organized_scores: SortedDict[int, list[float]] = NetScoreCalculator(PFReciprocal).generate_scores_priority_dict(metrics)
+        priority_organized_scores: SortedDict = NetScoreCalculator(PFReciprocal).generate_scores_priority_dict(metrics)
         self.assertEqual(priority_organized_scores, {1: [0.5], 2: [0.7], 3: [1.0]})
 
     def test_get_priority_weights(self):
@@ -125,3 +132,23 @@ class TestNetScoreCalculator(unittest.TestCase):
 
         net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
         self.assertAlmostEqual(net_score, 0.68)
+
+    def test_net_score_calculation(self):
+        metrics: list[BaseMetric] = [
+            DummyMetric3().set_params(1, "").run(),
+            DummyMetric3().set_params(2, "").run(),
+            DummyMetric3().set_params(3, "").run()
+        ]
+
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        self.assertAlmostEqual(net_score, 1.0)
+
+    def test_net_score_calculation(self):
+        metrics: list[BaseMetric] = [
+            DummyMetric4().set_params(1, "").run(),
+            DummyMetric4().set_params(2, "").run(),
+            DummyMetric4().set_params(3, "").run()
+        ]
+
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        self.assertAlmostEqual(net_score, 0.0)
