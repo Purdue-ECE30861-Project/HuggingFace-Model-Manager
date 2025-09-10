@@ -3,3 +3,4 @@
 ./.venv
 poetry.lock
 ./.coverage
+__pycache__/
