@@ -1,6 +1,8 @@
 from multiprocessing import Pool
 from typing import Literal, Optional
-from metric import *
+from pydantic import BaseModel
+import typing
+from metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS, PriorityFunction
 
 
 DATASET = 'dataset'
@@ -11,7 +13,11 @@ MODEL = 'model'
 class ConfigContract(BaseModel):
     num_processes: int = 1
     priority_function: Literal['PFReciprocal', 'PFExponentialDecay'] = 'PFReciprocal'
-    target_platform: str
+    target_platform: str = ""
+
+
+def run_metric(metric: BaseMetric) -> BaseMetric:
+    return metric.run()
 
 
 class MetricRunner:
@@ -22,7 +28,7 @@ class MetricRunner:
     def run(self) -> list[BaseMetric]:
         if self.multiprocessing_pool:
             with self.multiprocessing_pool as pool:
-                results: list[BaseMetric] = pool.map(lambda metric: metric.run(), self.metrics)
+                results: list[BaseMetric] = pool.map(run_metric, self.metrics)
         else:
             raise Exception("No multiprocessing pool has been created")
 

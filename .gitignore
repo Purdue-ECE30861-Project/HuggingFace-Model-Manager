@@ -1,2 +1,5 @@
 ./.idea
 ./venv
+./.venv
+poetry.lock
+./.coverage

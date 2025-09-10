@@ -26,9 +26,12 @@ class BaseMetric(abc.ABC):
 
         return self
 
-    def set_params(self, priority: int, platform: str):
+    def set_params(self, priority: int, platform: str) -> typing.Self:
+        assert(priority > 0)
         self.priority = priority
         self.target_platform = platform
+        
+        return self
 
     def set_url(self, url: str):
         if not url:
@@ -54,6 +57,7 @@ class PriorityFunction(abc.ABC):
 
 class PFExponentialDecay(PriorityFunction):
     def __init__(self, base_coefficient: int):
+        assert(base_coefficient > 1)
         self.base_coefficient: int = base_coefficient
 
     def calculate_priority_weight(self, priority: int) -> float:
@@ -78,10 +82,10 @@ class NetScoreCalculator:
     def calculate_net_score(self, metrics: list[BaseMetric]):
         num_metrics: int = len(metrics)
 
-        priority_organized_scores: SortedDict[int, list[float]] = self.__generate_scores_priority_dict(metrics)
-        compressed_scores: list[list[float]] = self.__compress_priorities(priority_organized_scores)
-        priority_weights: list[float] = self.__get_priority_weights(compressed_scores, num_metrics)
-        aggregated_scores: list[float] = [self.__sum_scores(scores) for scores in compressed_scores]
+        priority_organized_scores: SortedDict[int, list[float]] = self.generate_scores_priority_dict(metrics)
+        compressed_scores: list[list[float]] = self.compress_priorities(priority_organized_scores)
+        priority_weights: list[float] = self.get_priority_weights(compressed_scores, num_metrics)
+        aggregated_scores: list[float] = [self.sum_scores(scores) for scores in compressed_scores]
 
         net_score: float = sum(
             list(
@@ -91,7 +95,7 @@ class NetScoreCalculator:
 
         return net_score
 
-    def __generate_scores_priority_dict(self, metrics: list[BaseMetric]) -> SortedDict[int, list[float]]:
+    def generate_scores_priority_dict(self, metrics: list[BaseMetric]) -> SortedDict[int, list[float]]:
         priority_organized_scores: SortedDict[int, list[float]] = SortedDict()
         for metric in metrics:
             if metric.priority in priority_organized_scores:
@@ -101,11 +105,11 @@ class NetScoreCalculator:
 
         return priority_organized_scores
 
-    def __sum_scores(self, scores: list[float]) -> float:
+    def sum_scores(self, scores: list[float]) -> float:
         scores: list[float] = [score / len(scores) for score in scores]
         return sum(scores)
 
-    def __compress_priorities(self, priority_organized_scores: SortedDict[int, list[float]]) -> list[list[float]]:
+    def compress_priorities(self, priority_organized_scores: SortedDict[int, list[float]]) -> list[list[float]]:
         """
         Trims out intermediary space. Say you accidentally assigned priority 1 and 3, you would be left with priority 1 and 2. Outputs list where index correspond to prioritiy of scores
         :param priority_organized_scores:
@@ -118,11 +122,11 @@ class NetScoreCalculator:
 
         return scores
 
-    def __get_priority_weights(self, compressed_scores: list[list[float]], total_size: int) -> list[float]:
+    def get_priority_weights(self, compressed_scores: list[list[float]], total_size: int) -> list[float]:
         priority_proportions: list[float] = []
 
         for priority, scores in enumerate(compressed_scores):
-            priority_weight: float = self.priority_function.calculate_priority_weight(priority)
+            priority_weight: float = self.priority_function.calculate_priority_weight(priority + 1)
             priority_proportions.append(priority_weight * len(scores) / total_size)
 
         normalized_weights: list[float] = list(map(lambda x: x / sum(priority_proportions), priority_proportions))
