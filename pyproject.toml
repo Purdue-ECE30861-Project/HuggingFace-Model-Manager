@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "Huggingface-Model-Manager"
+version = "0.0.1"
+packages = [
+    {include = "database.py", from = "src"},
+]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -60,8 +60,11 @@ class DatabaseAccessor(Protocol):
 
 
 class SQLiteAccessor:
-    def __init__(self, metric_schema: list[MetricStats[float|dict[str, float]]]):
-        self.connection: sqlite3.Connection = sqlite3.connect(PROD_DATABASE_PATH)
+    def __init__(self, db_location: Path|None, metric_schema: list[FloatMetric | DictMetric]):
+        if db_location is None:
+            self.connection: sqlite3.Connection = sqlite3.connect(":memory:")
+        else:
+            self.connection: sqlite3.Connection = sqlite3.connect(db_location)
         self.cursor: sqlite3.Cursor = self.connection.cursor()
         self.metric_schema = metric_schema
         if not self.db_exists():
@@ -72,22 +75,22 @@ class SQLiteAccessor:
         self.connection.close()
     
     def db_exists(self) -> bool:
+        # TODO: this should check type too
         self.cursor.execute("PRAGMA table_info(models)")
-        columns = [row[1] for row in self.cursor.fetchall()]
+        columns = {row[1]:row[2] for row in self.cursor.fetchall()}
 
         # Required base columns
-        required_columns = ["url", "name", "net_score", "net_score_latency"]
+        required_columns = {"url": "TEXT", "name": "TEXT", "net_score": "REAL", "net_score_latency": "INTEGER"}
 
         # Add metric columns from metric_schema
         for metric in self.metric_schema:
-            metric_cols = metric.to_sql_schema().replace(" INTEGER", "").replace(" REAL", "").replace(",", "").split()
-            for col in metric_cols:
-                if col != "":
-                    required_columns.append(col)
+            metrics = {name:value for name, value in [item.split() for item in metric.to_sql_schema().split(",")]}
+            for col, type in metrics.items():
+                if col != "" and type != "":
+                    required_columns[col] = type
 
-        # Check that all required columns are present
-        for col in required_columns:
-            if col not in columns:
+        for col, type in required_columns.items():
+            if col not in columns.keys() or columns[col] != type:
                 return False
         return True
 
@@ -100,7 +103,8 @@ class SQLiteAccessor:
                     url TEXT PRIMARY KEY,
                     name TEXT,
                     net_score REAL,
-                    net_score_latency INTEGER{[", " + m.to_sql_schema() for m in self.metric_schema]}
+                    net_score_latency INTEGER,
+                    {", ".join([m.to_sql_schema() for m in self.metric_schema])}
                 )
             """
         )
@@ -157,7 +161,7 @@ class SQLiteAccessor:
                 value = row[col_names.index(metric.name)]
                 latency = row[col_names.index(f"{metric.name}_latency")]
                 metrics.append(FloatMetric(metric.name, value, latency))
-            elif isinstance(metric, DictMetric):
+            else:
                 # Reconstruct dict from known keys in metric.data
                 assert(type(metric.data) is dict[str,float])
                 dict_data: dict[str,float] = {}

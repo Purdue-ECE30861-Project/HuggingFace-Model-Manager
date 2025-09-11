@@ -1,0 +1,2 @@
+poetry==2.1.4
+coverage==5.5
