@@ -31,14 +31,13 @@ class DictMetric(MetricStats[dict[str, float]]):
 
 
 class ModelStats:
-    # TODO: support modular metrics, each having its own score and latency
     def __init__(
         self,
         url: str,
         name: str,
         net_score: float,
         net_score_latency: int,
-        metrics: list[MetricStats[float|dict[str, float]]]
+        metrics: list[FloatMetric | DictMetric]
     ):
         self.url = url
         self.name = name
@@ -62,23 +61,37 @@ class DatabaseAccessor(Protocol):
 
 class SQLiteAccessor:
     def __init__(self, metric_schema: list[MetricStats[float|dict[str, float]]]):
+        self.connection: sqlite3.Connection = sqlite3.connect(PROD_DATABASE_PATH)
+        self.cursor: sqlite3.Cursor = self.connection.cursor()
         self.metric_schema = metric_schema
         if not self.db_exists():
             self.init_database()
-        else:
-            self.connection: sqlite3.Connection = sqlite3.connect(PROD_DATABASE_PATH)
-            self.cursor: sqlite3.Cursor = self.connection.cursor()
+            
     
     def __del__(self):
         self.connection.close()
     
     def db_exists(self) -> bool:
-        # TODO: check that the database schema matches the currently selected metrics
-        return PROD_DATABASE_PATH.exists()
+        self.cursor.execute("PRAGMA table_info(models)")
+        columns = [row[1] for row in self.cursor.fetchall()]
+
+        # Required base columns
+        required_columns = ["url", "name", "net_score", "net_score_latency"]
+
+        # Add metric columns from metric_schema
+        for metric in self.metric_schema:
+            metric_cols = metric.to_sql_schema().replace(" INTEGER", "").replace(" REAL", "").replace(",", "").split()
+            for col in metric_cols:
+                if col != "":
+                    required_columns.append(col)
+
+        # Check that all required columns are present
+        for col in required_columns:
+            if col not in columns:
+                return False
+        return True
 
     def init_database(self):
-        self.connection: sqlite3.Connection = sqlite3.connect(PROD_DATABASE_PATH)
-        self.cursor: sqlite3.Cursor = self.connection.cursor()
 
         # create the table with schema matching ModelStats, url as PRIMARY KEY
         self.cursor.execute(
@@ -98,15 +111,61 @@ class SQLiteAccessor:
         return self.cursor.fetchone() is not None
 
     def add_to_db(self, model_stats: ModelStats):
-        # TODO: database schema should match modular metrics and not be hardcoded
-        
-        raise NotImplemented
+        # Build columns and values for base fields
+        columns = ["url", "name", "net_score", "net_score_latency"]
+        values: list[str|float|int|dict[str,float]] = [model_stats.url, model_stats.name, model_stats.net_score, model_stats.net_score_latency]
+
+        # Add metric columns and values
+        for metric in model_stats.metrics:
+            if isinstance(metric, FloatMetric):
+                columns.append(metric.name)
+                columns.append(f"{metric.name}_latency")
+                values.append(metric.data)
+                values.append(metric.latency)
+            else:
+                for key, val in metric.data.items():
+                    columns.append(f"{metric.name}_{key}")
+                    values.append(val)
+                columns.append(f"{metric.name}_latency")
+                values.append(metric.latency)
+
+        # Build SQL statement
+        col_str = ", ".join(columns)
+        placeholders = ", ".join(["?" for _ in values])
+        sql = f"INSERT OR REPLACE INTO models ({col_str}) VALUES ({placeholders})"
+        self.cursor.execute(sql, values)
+        self.connection.commit()
 
     def get_model_statistics(self, model_url: str) -> ModelStats:
-        # TODO: database schema should match modular metrics and not be hardcoded
         self.cursor.execute("SELECT * FROM models WHERE url = ?", (model_url,))
         row = self.cursor.fetchone()
-        if row:
-            raise NotImplemented
-        else:
+        if not row:
             raise ValueError(f"No entry found in database for URL: {model_url}")
+
+        # Get column names for mapping
+        col_names = [desc[0] for desc in self.cursor.description]
+
+        # Extract base fields
+        url = row[col_names.index("url")]
+        name = row[col_names.index("name")]
+        net_score = row[col_names.index("net_score")]
+        net_score_latency = row[col_names.index("net_score_latency")]
+
+        metrics: list[FloatMetric | DictMetric] = []
+        for metric in self.metric_schema:
+            if isinstance(metric, FloatMetric):
+                value = row[col_names.index(metric.name)]
+                latency = row[col_names.index(f"{metric.name}_latency")]
+                metrics.append(FloatMetric(metric.name, value, latency))
+            elif isinstance(metric, DictMetric):
+                # Reconstruct dict from known keys in metric.data
+                assert(type(metric.data) is dict[str,float])
+                dict_data: dict[str,float] = {}
+                for key in metric.data.keys():
+                    col = f"{metric.name}_{key}"
+                    if col in col_names:
+                        dict_data[key] = row[col_names.index(col)]
+                latency = row[col_names.index(f"{metric.name}_latency")]
+                metrics.append(DictMetric(metric.name, dict_data, latency))
+
+        return ModelStats(url, name, net_score, net_score_latency, metrics)
