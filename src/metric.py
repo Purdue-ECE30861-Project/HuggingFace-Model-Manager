@@ -265,16 +265,6 @@ class AnalyzerOutput:
         self.model_metadata: ModelURLs = model_metadata
         self.score: float = NetScoreCalculator(priority_function).calculate_net_score(metrics)
 
-    def append_to_db(self, database_interface: typing.Any) -> bool:
-        """
-        Appends the analysis output to a database.
-        Args:
-            database_interface (Any): The database interface to use.
-        Returns:
-            bool: True if successful, False otherwise.
-        """
-        pass
-
     def __str__(self):
         """
         Returns a string representation of the analysis output.
