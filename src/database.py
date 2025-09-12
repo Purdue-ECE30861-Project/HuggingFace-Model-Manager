@@ -17,15 +17,15 @@ class MetricStats(Generic[T]):
 class FloatMetric(MetricStats[float]):
     @override
     def to_sql_schema(self) -> str:
-        return f"{self.name} REAL, {self.name}_latency INTEGER"
+        return f"\"{self.name}\" REAL, \"{self.name}_latency\" INTEGER"
 
 class DictMetric(MetricStats[dict[str, float]]):
     @override
     def to_sql_schema(self) -> str:
         schema: str = ""
         for key, _ in self.data.items():
-            schema += (f"{self.name}_{key} REAL, ")
-        schema += f"{self.name}_latency INTEGER"
+            schema += (f"\"{self.name}_{key}\" REAL, ")
+        schema += f"\"{self.name}_latency\" INTEGER"
         return schema
 
 
@@ -75,39 +75,53 @@ class SQLiteAccessor:
         self.connection.close()
     
     def db_exists(self) -> bool:
-        # TODO: this should check type too
-        self.cursor.execute("PRAGMA table_info(models)")
-        columns = {row[1]:row[2] for row in self.cursor.fetchall()}
+        try:
+            self.cursor.execute("PRAGMA table_info(models)")
+            columns = {row[1]:row[2] for row in self.cursor.fetchall()}
+        except sqlite3.OperationalError:
+            return False
 
         # Required base columns
         required_columns = {"url": "TEXT", "name": "TEXT", "net_score": "REAL", "net_score_latency": "INTEGER"}
 
         # Add metric columns from metric_schema
         for metric in self.metric_schema:
-            metrics = {name:value for name, value in [item.split() for item in metric.to_sql_schema().split(",")]}
-            for col, type in metrics.items():
-                if col != "" and type != "":
-                    required_columns[col] = type
+            items = [item.strip() for item in metric.to_sql_schema().split(",") if item.strip()]
+            for item in items:
+                parts = item.split()
+                if len(parts) == 2:
+                    col, typ = parts
+                    col = col.replace("\"", "")
+                    required_columns[col] = typ
 
-        for col, type in required_columns.items():
-            if col not in columns.keys() or columns[col] != type:
+        for col, typ in required_columns.items():
+            if col not in columns.keys() or columns[col] != typ:
                 return False
         return True
 
     def init_database(self):
-
         # create the table with schema matching ModelStats, url as PRIMARY KEY
-        self.cursor.execute(
-            f"""
+        metric_schema_str = ", ".join([m.to_sql_schema() for m in self.metric_schema])
+        if metric_schema_str:
+            sql = f"""
                 CREATE TABLE IF NOT EXISTS models (
                     url TEXT PRIMARY KEY,
                     name TEXT,
                     net_score REAL,
                     net_score_latency INTEGER,
-                    {", ".join([m.to_sql_schema() for m in self.metric_schema])}
+                    {metric_schema_str}
                 )
             """
-        )
+        else:
+            sql = f"""
+                CREATE TABLE IF NOT EXISTS models (
+                    url TEXT PRIMARY KEY,
+                    name TEXT,
+                    net_score REAL,
+                    net_score_latency INTEGER
+                )
+            """
+        self.cursor.execute(sql)
         self.connection.commit()
 
     def check_entry_in_db(self, url: str) -> bool:
@@ -134,7 +148,7 @@ class SQLiteAccessor:
                 values.append(metric.latency)
 
         # Build SQL statement
-        col_str = ", ".join(columns)
+        col_str = ", ".join([f'"{col}"' for col in columns])
         placeholders = ", ".join(["?" for _ in values])
         sql = f"INSERT OR REPLACE INTO models ({col_str}) VALUES ({placeholders})"
         self.cursor.execute(sql, values)
@@ -162,8 +176,6 @@ class SQLiteAccessor:
                 latency = row[col_names.index(f"{metric.name}_latency")]
                 metrics.append(FloatMetric(metric.name, value, latency))
             else:
-                # Reconstruct dict from known keys in metric.data
-                assert(type(metric.data) is dict[str,float])
                 dict_data: dict[str,float] = {}
                 for key in metric.data.keys():
                     col = f"{metric.name}_{key}"

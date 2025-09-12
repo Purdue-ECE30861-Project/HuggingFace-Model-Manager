@@ -85,3 +85,87 @@ class TestDatabaseAccess(unittest.TestCase):
                 "compatibility_latency": "INTEGER",
             },
         )
+
+    def test_add_and_get_model(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        model = ModelStats(
+            url="test_url",
+            name="Test Model",
+            net_score=0.99,
+            net_score_latency=5,
+            metrics=[
+                FloatMetric("size", 0.3, 10),
+                FloatMetric("setup", 0.2, 30),
+                DictMetric(
+                    "compatibility", {"windows": 0.5, "mac": 0.2, "linux": 0.8}, 29
+                ),
+            ],
+        )
+        accessor.add_to_db(model)
+        fetched = accessor.get_model_statistics("test_url")
+        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.name, model.name)
+        self.assertEqual(fetched.net_score, model.net_score)
+        self.assertEqual(fetched.net_score_latency, model.net_score_latency)
+        # Check metrics
+        for m1, m2 in zip(model.metrics, fetched.metrics):
+            self.assertEqual(m1.name, m2.name)
+            self.assertEqual(m1.latency, m2.latency)
+            self.assertEqual(m1.data, m2.data)
+
+    def test_check_entry_in_db(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        model = ModelStats(
+            url="test_url2",
+            name="Test Model 2",
+            net_score=0.88,
+            net_score_latency=7,
+            metrics=[
+                FloatMetric("size", 0.4, 12),
+                FloatMetric("setup", 0.3, 32),
+                DictMetric(
+                    "compatibility", {"windows": 0.6, "mac": 0.3, "linux": 0.9}, 31
+                ),
+            ],
+        )
+        accessor.add_to_db(model)
+        self.assertTrue(accessor.check_entry_in_db("test_url2"))
+        self.assertFalse(accessor.check_entry_in_db("nonexistent_url"))
+
+    def test_db_exists_schema_match(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        self.assertTrue(accessor.db_exists())
+
+    def test_empty_schema(self):
+        accessor = SQLiteAccessor(None, self.schema0)
+        model = ModelStats(
+            url="empty_url",
+            name="Empty Model",
+            net_score=0.0,
+            net_score_latency=0,
+            metrics=[],
+        )
+        accessor.add_to_db(model)
+        fetched = accessor.get_model_statistics("empty_url")
+        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.metrics, [])
+
+    def test_weird_names_schema(self):
+        accessor = SQLiteAccessor(None, self.schema_weird_names)
+        model = ModelStats(
+            url="weird_url",
+            name="Weird Model",
+            net_score=0.5,
+            net_score_latency=1,
+            metrics=self.schema_weird_names,
+        )
+        accessor.add_to_db(model)
+        fetched = accessor.get_model_statistics("weird_url")
+        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.name, model.name)
+        self.assertEqual(fetched.net_score, model.net_score)
+        self.assertEqual(fetched.net_score_latency, model.net_score_latency)
+        for m1, m2 in zip(model.metrics, fetched.metrics):
+            self.assertEqual(m1.name, m2.name)
+            self.assertEqual(m1.latency, m2.latency)
+            self.assertEqual(m1.data, m2.data)
