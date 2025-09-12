@@ -12,7 +12,7 @@ class MetricStats(Generic[T]):
         self.data = data
         self.latency = latency
     def to_sql_schema(self) -> str:
-        raise NotImplementedError("Metric does not have defined SQL type")
+        raise NotImplementedError("Metric does not have defined SQL type") #pragma: no cover
 
 class FloatMetric(MetricStats[float]):
     @override
@@ -60,14 +60,14 @@ class DatabaseAccessor(Protocol):
 
 
 class SQLiteAccessor:
-    def __init__(self, db_location: Path|None, metric_schema: list[FloatMetric | DictMetric]):
+    def __init__(self, db_location: Path|None, metric_schema: list[FloatMetric | DictMetric], create_if_missing: bool=True):
         if db_location is None:
             self.connection: sqlite3.Connection = sqlite3.connect(":memory:")
         else:
             self.connection: sqlite3.Connection = sqlite3.connect(db_location)
         self.cursor: sqlite3.Cursor = self.connection.cursor()
         self.metric_schema = metric_schema
-        if not self.db_exists():
+        if not self.db_exists() and create_if_missing:
             self.init_database()
             
     
@@ -78,8 +78,11 @@ class SQLiteAccessor:
         try:
             self.cursor.execute("PRAGMA table_info(models)")
             columns = {row[1]:row[2] for row in self.cursor.fetchall()}
-        except sqlite3.OperationalError:
+        except sqlite3.OperationalError: #pragma: no cover
             return False
+
+        # Normalize column names (remove quotes)
+        normalized_columns = {col.replace('"', ''): typ for col, typ in columns.items()}
 
         # Required base columns
         required_columns = {"url": "TEXT", "name": "TEXT", "net_score": "REAL", "net_score_latency": "INTEGER"}
@@ -95,7 +98,7 @@ class SQLiteAccessor:
                     required_columns[col] = typ
 
         for col, typ in required_columns.items():
-            if col not in columns.keys() or columns[col] != typ:
+            if col not in normalized_columns.keys() or normalized_columns[col] != typ:
                 return False
         return True
 
@@ -146,6 +149,13 @@ class SQLiteAccessor:
                     values.append(val)
                 columns.append(f"{metric.name}_latency")
                 values.append(metric.latency)
+
+        # Validate columns against database schema
+        self.cursor.execute("PRAGMA table_info(models)")
+        db_columns = set(row[1] for row in self.cursor.fetchall())
+        for col in columns:
+            if col not in db_columns:
+                raise ValueError(f"Column '{col}' not found in database schema.")
 
         # Build SQL statement
         col_str = ", ".join([f'"{col}"' for col in columns])

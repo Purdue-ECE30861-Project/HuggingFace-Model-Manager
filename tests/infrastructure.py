@@ -1,10 +1,12 @@
 import unittest
+import os
 
 from database import *
 
 
 class TestDatabaseAccess(unittest.TestCase):
     def setUp(self):
+        self.test_db = Path("test.db")
         self.maxDiff = None
         # normal schema
         self.schema1: list[FloatMetric | DictMetric] = [
@@ -169,3 +171,46 @@ class TestDatabaseAccess(unittest.TestCase):
             self.assertEqual(m1.name, m2.name)
             self.assertEqual(m1.latency, m2.latency)
             self.assertEqual(m1.data, m2.data)
+    
+    def test_get_nonexistent_model(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        model = ModelStats(
+            url="test_url2",
+            name="Test Model 2",
+            net_score=0.88,
+            net_score_latency=7,
+            metrics=[
+                FloatMetric("size", 0.4, 12),
+                FloatMetric("setup", 0.3, 32),
+                DictMetric(
+                    "compatibility", {"windows": 0.6, "mac": 0.3, "linux": 0.9}, 31
+                ),
+            ],
+        )
+        accessor.add_to_db(model)
+        # test for panics
+        accessor.get_model_statistics("test_url2")
+        with self.assertRaises(ValueError):
+            accessor.get_model_statistics("nonexistent_url")
+    
+    def test_wrong_schema(self):
+        
+        accessor = SQLiteAccessor(self.test_db, self.schema1)
+        del accessor
+        
+        accessor_2 = SQLiteAccessor(self.test_db, self.schema3, create_if_missing=False)
+        self.assertFalse(accessor_2.db_exists())
+        del accessor_2
+        os.remove(self.test_db)
+    
+    def test_add_with_wrong_schema(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        model1 = ModelStats("example.com/correct", "Correct", 0.2, 1225, self.schema1)
+        model2 = ModelStats("example.com/incorrect", "Incorrect", 0.2, 1225, self.schema2)
+        accessor.add_to_db(model1)
+        with self.assertRaises(ValueError):
+            accessor.add_to_db(model2)
+    
+    def test_uninitialized_db(self):
+        accessor = SQLiteAccessor(None, self.schema1, create_if_missing=False)
+        self.assertFalse(accessor.db_exists())
