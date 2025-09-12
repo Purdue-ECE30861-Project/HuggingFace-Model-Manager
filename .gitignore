@@ -1,3 +1,4 @@
 .vscode/settings.json
+src/__pycache__/**
 tests/__pycache__/**
 tests/__pycache__/infrastructure.cpython-313.pyc
