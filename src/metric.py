@@ -196,6 +196,7 @@ class NetScoreCalculator:
         """
         priority_organized_scores: SortedDict = SortedDict()
         for metric in metrics:
+            assert(metric.score >= 0 and metric.score <= 1)
             if metric.priority in priority_organized_scores:
                 priority_organized_scores[metric.priority].append(metric.score)
             else:
