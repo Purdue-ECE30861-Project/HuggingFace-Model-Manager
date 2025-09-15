@@ -1,36 +1,130 @@
 import typer
 from pathlib import Path
-#import metrics, 
+import subprocess
+import sys
+import json
+from typing import List, Optional
+from metric import ModelURLs, BaseMetric, AnalyzerOutput, PFExponentialDecay, PRIORITY_FUNCTIONS
+from database import SQLiteAccessor, FloatMetric, DictMetric, ModelStats, PROD_DATABASE_PATH, ModelSetDatabase
 
+def parse_url_file(url_file: Path) -> List[str]:
+    """
+    Parses a file containing URLs and categorizes them into model, codebase, and dataset URLs.
+    """
+    try:
+        urls = [line.strip() for line in url_file.read_text().splitlines() if line.strip()]
+        return urls
+    except FileNotFoundError:
+        print(f"Error: URL file '{url_file}' not found.", err=True)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error reading URL file: {e}", err=True)
+        sys.exit(1)
+       
 app = typer.Typer()
 
-#Install necessary dependencies
 @app.command()
 def install():
-    import subprocess
-    
+    """
+    Installs necessary dependencies from dependencies.txt
+    """
     print("Installing dependencies...")
     try:
-        subprocess.run(["pip", "install", "--user", "-r", Path(__file__).parent.parent / "dependencies.txt"], check=True)
-        print("Dependencies installed successfully.")
-        raise typer.Exit(code=0)
-    except subprocess.CalledProcessError:
-        print(f"An error occurred while installing dependencies.")
-        raise typer.Exit(code=1)
+        deps_file = Path(__file__).parent.parent / "dependencies.txt"
+        if deps_file.exists():
+            result = subprocess.run(["pip", "install", "--user", "-r", str(deps_file)])# capture_output=True, text=True)
+            if result.returncode != 0:
+                print(f"An error occurred while installing dependencies:\n{result.stderr}", err = True)
+                sys.exit(1)
+            print("Dependencies installed successfully.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}", err = True)
+        sys.exit(1)
     
 @app.command()
 def test(): 
-    import subprocess
-    import sys
+    """
+    Runs the test suite
+    """
     print("Running tests...")
-    test_dir = Path(__file__).parent / "tests"
+    #TODO: implement pytest
     print("Done")
 
-@app.command()
-def URL_FILE(model_name: str, model_url: str, dataset_url: str, code_url: str,):
+@app.callback(invoke_without_command=True)
+def analyze(url_file: Path):
     print("Analyzing model...")
     
-    print("Done")
+    urls = parse_url_file(url_file)
+    if not urls:
+        print("Error: No URLs found in file.", err=True)
+        sys.exit(1)
+    
+    dataset_url, code_url, model_url = None, None, None
+    for url in urls:
+        if "huggingface.co/datasets" in url:
+            dataset_url = url
+        elif "github.com" in url:
+            code_url = url
+        elif "huggingface.co" in url:
+            model_url = url
+    
+    model_name = model_url.split('/')[-1]
+    model_db = ModelSetDatabase()
+    entry_id = model_db.add_if_not_exists(model_url, code_url, dataset_url)
+    
+    
+    basic_schema = [
+        FloatMetric("ramp_up_time", 0.0, 0),
+        FloatMetric("bus_factor", 0.0, 0),
+        FloatMetric("performance_claims", 0.0, 0),
+        FloatMetric("license", 0.0, 0),
+        DictMetric("size_score", {
+            "raspberry_pi": 0.0,
+            "jetson_nano": 0.0,
+            "desktop_pc": 0.0,
+            "aws_server": 0.0
+        }, 0),
+        FloatMetric("dataset_and_code score", 0.0, 0),
+        FloatMetric("dataset_quality", 0.0, 0),
+        FloatMetric("code_quality", 0.0, 0),
+    ]
+    
+    db = SQLiteAccessor(PROD_DATABASE_PATH, basic_schema)
+    
+    try:
+        if db.check_entry_in_db(model_url):
+            print("Model already analyzed. Fetching from database...")
+            stats = db.get_model_statistics(model_url)
+        else:
+            model_urls = ModelURLs(
+                model=model_url,
+                dataset=dataset_url,
+                codebase=code_url
+            )
+            
+            #TODO: implement actual metric calculations
+            stats = ModelStats(model_url, model_name, 0.0, 0, basic_schema)
+            db.add_to_db(stats)
+        
+        results = {
+            "name": stats.name,
+            "category": "MODEL",
+            "net_score": stats.net_score,
+            "net_score_latency": stats.net_score_latency
+            }
 
+        for metric in stats.metrics:
+            if isinstance(metric, FloatMetric):
+                results[metric.metric_name] = metric.data
+                results[f"{metric.metric_name}_latency"] = metric.latency
+            elif isinstance(metric, DictMetric):
+                results[metric.metric_name] = metric.data
+                results[f"{metric.metric_name}_latency"] = metric.latency
+                
+        print(json.dumps(results))
+    except Exception as e:
+        print(f"An error occurred during analysis: {e}", err = True)
+        sys.exit(1)
+        
 if __name__ == "__main__":
     app()
