@@ -11,4 +11,9 @@ class TestCodeQuality(unittest.TestCase):
         score: float = metric.score
         self.assertGreater(score, 0.0)
 
-   # def test_
+    def test_nopython(self):
+        metric: MetricCodeQuality = MetricCodeQuality()
+        metric.local_directory = os.path.dirname(os.path.abspath(__file__)) + "../dummy_bad_dir"
+        metric: MetricCodeQuality = metric.run()
+        score: float = metric.score
+        self.assertAlmostEquals(score, 0.0)

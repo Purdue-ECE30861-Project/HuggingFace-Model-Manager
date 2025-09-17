@@ -1,6 +1,7 @@
 import abc
 import typing
 import os
+import time
 from itertools import starmap
 from pydantic import BaseModel
 from sortedcontainers import SortedDict
@@ -30,6 +31,7 @@ class BaseMetric(abc.ABC):
         self.priority: int = 1
         self.target_platform: typing.Optional[str] = None
         self.local_directory: typing.Optional[str] = None
+        self.runtime: float = 0.0
 
     def run(self) -> typing.Self:
         """
@@ -37,8 +39,10 @@ class BaseMetric(abc.ABC):
         Returns:
             Self: The metric instance with updated score.
         """
+        start: float = time.time()
         self.setup_resources()
         self.score = self.calculate_score()
+        self.runtime = time.time() - start
 
         return self
 

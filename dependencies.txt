@@ -3,3 +3,4 @@ sortedcontainers==2.4.0
 poetry==2.1.4
 coverage==5.5
 pylint==3.3.8
+toml==0.10.2
