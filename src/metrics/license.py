@@ -1,5 +1,4 @@
 from metric import BaseMetric
-from typing import Self, override
 
 license_score: dict[str, float] = {
     # 0.0 means either non-commercial or incompatible with LGPL v2.1 (see https://www.gnu.org/licenses/license-list.html)
@@ -99,19 +98,17 @@ license_score: dict[str, float] = {
 }
 
 class LicenseMetric(BaseMetric):
-
+    metric_name: str = "license"
     def __init__(self):
-        """
-        Initializes the BaseMetric with default values.
-        """
-        self.score: float = 0.0
-        self.metric_name = "license"
-        self.url: str = ""
-        self.priority: int = 1
-        self.target_platform: str = ""
+        super().__init__()
 
-    @override
-    def run(self) -> Self:
+    def calculate_score(self) -> float:
+        """
+        Abstract method to calculate the metric score.
+        Should be implemented by subclasses.
+        Returns:
+            float: The calculated score.
+        """
         ...
 
 

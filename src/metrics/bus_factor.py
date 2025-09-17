@@ -1,17 +1,15 @@
 from metric import BaseMetric
-from typing import Self, override
 
 class BusFactorMetric(BaseMetric):
+    metric_name: str = "bus_factor"
     def __init__(self):
-        """
-        Initializes the BaseMetric with default values.
-        """
-        self.score: float = 0.0
-        self.metric_name = "bus_factor"
-        self.url: str = ""
-        self.priority: int = 2
-        self.target_platform: str = ""
+        super().__init__()
 
-    @override
-    def run(self) -> Self:
+    def calculate_score(self) -> float:
+        """
+        Abstract method to calculate the metric score.
+        Should be implemented by subclasses.
+        Returns:
+            float: The calculated score.
+        """
         ...
