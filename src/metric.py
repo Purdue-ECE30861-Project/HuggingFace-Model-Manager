@@ -27,7 +27,8 @@ class BaseMetric(abc.ABC):
         self.score: float = 0.0
         self.url: str = ""
         self.priority: int = 1
-        self.target_platform: str = ""
+        self.target_platform: typing.Optional[str] = None
+        self.local_directory: typing.Optional[str] = None
 
     def run(self) -> typing.Self:
         """
@@ -67,6 +68,9 @@ class BaseMetric(abc.ABC):
             raise IOError("The provided URL was invalid") # cli will handle this error if invalid url
 
         self.url = url
+
+    def set_local_directory(self, local_directory: str):
+        self.local_directory = local_directory
 
     @abc.abstractmethod
     def setup_resources(self):

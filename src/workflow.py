@@ -101,7 +101,7 @@ class MetricStager:
 
         return self
 
-    def attach_model_urls(self, model_metadata: ModelURLs) -> MetricRunner:
+    def attach_model_urls(self, model_metadata: ModelURLs, local_directory: typing.Optional[str] = None) -> MetricRunner:
         """
         Attaches URLs from model metadata to the corresponding metrics.
         Args:
@@ -116,6 +116,8 @@ class MetricStager:
             if url:
                 for metric in self.metrics[url_type]:
                     metric.set_url(url)
+                    if local_directory:
+                        metric.set_local_directory(local_directory)
                     staged_metrics.append(metric)
 
         return MetricRunner(staged_metrics)
