@@ -1,4 +1,5 @@
 from multiprocessing import Pool
+import os
 from typing import Literal, Optional
 from pydantic import BaseModel
 import typing
@@ -101,6 +102,12 @@ class MetricStager:
 
         return self
 
+    def check_valid_local_directory(self, local_directory: str):
+        if not os.path.isdir(local_directory):
+            raise IOError("The provided local directory is invalid")
+        if not os.access(local_directory, os.R_OK):
+            raise IOError("The provided local directory is not readable")
+
     def attach_model_urls(self, model_metadata: ModelURLs, local_directory: typing.Optional[str] = None) -> MetricRunner:
         """
         Attaches URLs from model metadata to the corresponding metrics.
@@ -111,6 +118,9 @@ class MetricStager:
         """
         dictionary_urls: dict[str, str | None] = model_metadata.dict()
         staged_metrics: list[BaseMetric] = []
+
+        if local_directory:
+            self.check_valid_local_directory(local_directory)
 
         for url_type, url in dictionary_urls.items():
             if url:

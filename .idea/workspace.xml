@@ -5,8 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe1b0a79-21d8-46c2-b81b-d60e2a05a400" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/tests/code_quality.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.coverage" beforeDir="false" afterPath="$PROJECT_DIR$/.coverage" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dependencies.txt" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metric.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/metrics/code_quality.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metrics/code_quality.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

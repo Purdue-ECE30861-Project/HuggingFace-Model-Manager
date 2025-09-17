@@ -1,5 +1,6 @@
 import abc
 import typing
+import os
 from itertools import starmap
 from pydantic import BaseModel
 from sortedcontainers import SortedDict
@@ -70,6 +71,8 @@ class BaseMetric(abc.ABC):
         self.url = url
 
     def set_local_directory(self, local_directory: str):
+        if not local_directory:
+            raise IOError("The provided local directory was invalid")
         self.local_directory = local_directory
 
     @abc.abstractmethod
