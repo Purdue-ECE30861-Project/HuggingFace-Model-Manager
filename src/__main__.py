@@ -3,8 +3,8 @@ from pathlib import Path
 import subprocess
 import sys
 import json
-from typing import List, Optional
-from metric import ModelURLs, BaseMetric, AnalyzerOutput, PFExponentialDecay, PRIORITY_FUNCTIONS
+from typing import List
+from metric import ModelURLs, BaseMetric, AnalyzerOutput, PFExponentialDecay
 from database import SQLiteAccessor, FloatMetric, DictMetric, ModelStats, PROD_DATABASE_PATH, ModelSetDatabase
 
 def parse_url_file(url_file: Path) -> List[str]:
@@ -43,12 +43,66 @@ def install():
     
 @app.command()
 def test(): 
-    """
-    Runs the test suite
-    """
-    print("Running tests...")
-    #TODO: implement pytest
-    print("Done")
+    import unittest
+    import os
+    
+    src_path = Path(__file__).parent.parent / "src"
+    if str(src_path) not in sys.path:
+        sys.path.insert(0, str(src_path))
+        
+    tests_path = Path(__file__).parent.parent / "tests"
+    if str(tests_path) not in sys.path:
+        sys.path.insert(0, str(tests_path))
+        
+    try:
+        import coverage
+        
+        cov = coverage.Coverage(source=[str(src_path)])
+        cov.start()
+        
+        loader = unittest.TestLoader()
+        start_dir = str(tests_path)
+        suite = loader.discover(start_dir, pattern='test*.py')
+        total_tests = 0
+        
+        def count_tests(test_suite):
+            nonlocal total_tests
+            for test in test_suite:
+                if isinstance(test, unittest.TestSuite):
+                    count_tests(test)
+                else:
+                    total_tests += 1
+        
+        count_tests(suite)
+        runner = unittest.TextTestRunner(verbosity=0, stream=open(os.devnull, 'w'))
+        result = runner.run(suite)
+        cov.stop()
+        cov.save()
+        coverage_report = cov.report(show_missing=False, file=open(os.devnull, 'w'))
+        coverage_data = cov.get_data()
+        
+        total_lines = 0
+        covered_lines = 0
+        for filename in coverage_data.measured_files():
+            if str(src_path) in filename:  # Only count source files
+                analysis = cov.analysis2(filename)
+                total_lines += len(analysis[1]) + len(analysis[2])  # executed + missing
+                covered_lines += len(analysis[1])  # executed lines
+        
+        coverage_percent = (covered_lines / total_lines * 100) if total_lines > 0 else 0
+        passed_tests = total_tests - len(result.failures) - len(result.errors)
+        print(f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved.")
+        
+        if result.failures or result.errors:
+            sys.exit(1)
+        sys.exit(0)
+    except ImportError:
+        print("Error: 'coverage' package not installed. Please run 'install' command first.", err=True)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error running tests: {e}", file=sys.stderr)
+        sys.exit(1)
+
 
 @app.callback(invoke_without_command=True)
 def analyze(url_file: Path):
@@ -71,7 +125,6 @@ def analyze(url_file: Path):
     model_name = model_url.split('/')[-1]
     model_db = ModelSetDatabase()
     entry_id = model_db.add_if_not_exists(model_url, code_url, dataset_url)
-    
     
     basic_schema = [
         FloatMetric("ramp_up_time", 0.0, 0),
@@ -122,6 +175,7 @@ def analyze(url_file: Path):
                 results[f"{metric.metric_name}_latency"] = metric.latency
                 
         print(json.dumps(results))
+        
     except Exception as e:
         print(f"An error occurred during analysis: {e}", err = True)
         sys.exit(1)
