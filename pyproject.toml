@@ -4,6 +4,7 @@ version = "0.0.1"
 packages = [
     {include = "metric.py", from = "src"},
     {include = "workflow.py", from = "src"},
+    {include = "code_quality.py", from = "src/metrics"}
 ]
 
 
