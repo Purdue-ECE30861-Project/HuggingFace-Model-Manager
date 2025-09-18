@@ -98,6 +98,8 @@ license_score: dict[str, float] = {
 }
 
 
+# License metric
+# Assumes it is being run in the base directory of the model repository
 class LicenseMetric(BaseMetric):
     metric_name: str = "license"
     license_file: Path

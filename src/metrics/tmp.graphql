@@ -1,0 +1,23 @@
+{
+repository(name:"bert", owner:"google-research"){
+    refs(refPrefix:"refs/heads/", first:30){
+      edges{
+        node{
+          target{
+        ...on Commit{
+          history(first:30, since:"2020-01-01T00:00:00.000Z") {
+            edges {
+              node {
+                author{
+                  email
+                }
+              }
+            }
+          }
+        }
+      }
+        }
+      }
+    }
+  }
+  }

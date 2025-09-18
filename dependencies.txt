@@ -5,3 +5,4 @@ coverage==5.5
 pylint==3.3.8
 toml==0.10.2
 spdx-license-matcher==1.0.10
+dotenv==0.9.9
