@@ -2,9 +2,10 @@ from metric import BaseMetric  # pyright: ignore[reportMissingTypeStubs]
 import requests
 from dotenv import load_dotenv
 import os, re, json
-from sortedcontainers import SortedDict
+import heapq
 
 github_pattern = re.compile(r"^(https:\/\/)?github.com\/([^\/]+)\/([^\/]+)\/?(.*)$")
+
 
 # Bus factor metric
 # Assumes that the url for this metric points to a github codebase
@@ -49,7 +50,7 @@ repository(name:"%s", owner:"%s"){
         """
         if not self.response.ok:
             raise ValueError("Repository is not public or does not exist")
-        
+
         # create dictionary of commit counts
         response_obj = json.loads(self.response.text)
         commit_score: dict[str, int] = {}
@@ -59,12 +60,22 @@ repository(name:"%s", owner:"%s"){
                 author = commit["author"]["email"]
                 commit_score[author] = commit_score.get(author, 0) + 1
                 total_commits += 1
-        
-        # start taking away authors 
+
+        num_contributors = len(commit_score.keys())
+        pqueue = [
+            (total_commits - commits, commits)
+            for _, commits in list(commit_score.items())
+        ]
+        heapq.heapify(pqueue)
+        # start taking away authors
         bus_numerator = 0
         remaining_commits = total_commits
         while remaining_commits / total_commits > 0.5:
-            breakpoint()
+            bussed_author_commits = heapq.heappop(pqueue)[1]
+            remaining_commits -= bussed_author_commits
+            bus_numerator += 1
+
+        return 0.0 if bus_numerator <= 1 else bus_numerator / num_contributors
 
     def setup_resources(self):
         load_dotenv()
@@ -73,7 +84,7 @@ repository(name:"%s", owner:"%s"){
         matches = github_pattern.match(self.url)
         if matches is None:
             raise ValueError("invalid GitHub URL")
-        
+
         owner = matches.group(2)
         name = matches.group(3)
 
