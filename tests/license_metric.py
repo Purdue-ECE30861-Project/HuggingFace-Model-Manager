@@ -12,8 +12,13 @@ class LicenseMetricTest(unittest.TestCase):
     no_readme_dir = TEST_DIR / "extremely_weird_model"
     text_in_readme_dir = TEST_DIR / "theoretically_possible_model"
     no_license_dir = TEST_DIR / "fake_model"
-    mit_license = Path("sample_licenses/MIT.txt")
-    lgpl_v3_license = Path("sample_licenses/lgpl v3.txt")
+    no_license_but_readme_dir = TEST_DIR / "not_a_model"
+    unknown_noncommercial_license_dir = TEST_DIR / "research_model"
+
+    mit_license = Path("tests/sample_licenses/MIT.txt")
+    lgpl_v3_license = Path("tests/sample_licenses/lgpl v3.txt")
+
+    license_instance = LicenseMetric()
 
     def setUp(self) -> None:
         # set up testing directories
@@ -22,20 +27,23 @@ class LicenseMetricTest(unittest.TestCase):
         os.mkdir(self.TEST_DIR)
         os.mkdir(self.in_readme_dir)
         os.mkdir(self.linked_license_dir)
+        os.mkdir(self.linked_license_md_dir)
         os.mkdir(self.no_readme_dir)
         os.mkdir(self.text_in_readme_dir)
         os.mkdir(self.no_license_dir)
+        os.mkdir(self.no_license_but_readme_dir)
+        os.mkdir(self.unknown_noncommercial_license_dir)
 
         # license included in metadata
         readme_file = self.in_readme_dir / "README.md"
         with open(readme_file, "wt") as file:
             file.writelines(
                 [
-                    "---",
-                    "license: lgpl-2.1",
-                    "---",
-                    "# Typical Model",
-                    "This is a normal model :)",
+                    "---\n",
+                    "license: lgpl-2.1\n",
+                    "---\n",
+                    "# Typical Model\n",
+                    "This is a normal model :)\n",
                 ]
             )
 
@@ -44,13 +52,14 @@ class LicenseMetricTest(unittest.TestCase):
         with open(readme_file, "wt") as file:
             file.writelines(
                 [
-                    "---",
-                    "license: other",
-                    "license-name: idk" "---",
-                    "# Proprietary Model",
-                    "This is a big model with weird permission :/",
-                    "# License",
-                    "Lol no actually it's just [LGPL v3](LICENSE)",
+                    "---\n",
+                    "license: other\n",
+                    "license-name: idk\n",
+                    "---\n",
+                    "# Proprietary Model\n",
+                    "This is a big model with weird permission :/\n",
+                    "# License\n",
+                    "Lol no actually it's just [LGPL v3](LICENSE)\n",
                 ]
             )
         shutil.copy(self.lgpl_v3_license, self.linked_license_dir / "LICENSE")
@@ -60,13 +69,14 @@ class LicenseMetricTest(unittest.TestCase):
         with open(readme_file, "wt") as file:
             file.writelines(
                 [
-                    "---",
-                    "license: other",
-                    "license-name: idk" "---",
-                    "# Proprietary Model",
-                    "This is a big model with weird permission :/",
-                    "# License",
-                    "Lol no actually it's just [MIT](LICENSE.md)",
+                    "---\n",
+                    "license: other\n",
+                    "license-name: idk\n",
+                    "---\n",
+                    "# Proprietary Model\n",
+                    "This is a big model with weird permission :/\n",
+                    "# License\n",
+                    "Lol no actually it's just [MIT](LICENSE.md)\n",
                 ]
             )
         shutil.copy(self.mit_license, self.linked_license_md_dir / "LICENSE.md")
@@ -83,30 +93,85 @@ class LicenseMetricTest(unittest.TestCase):
         with open(readme_file, "wt") as file:
             file.writelines(
                 [
-                    "---",
-                    "license: other",
-                    "license-name: idk" "---",
-                    "# Proprietary Model",
-                    "Collect my pages.",
-                    "# License",
+                    "---\n",
+                    "license: other\n",
+                    "license-name: idk\n",
+                    "---\n",
+                    "# Proprietary Model\n",
+                    "Collect my pages.\n",
+                    "# License\n",
                     "",
                 ]
             )
             file.writelines(mit_text)
             file.writelines(
                 [
-                    "# Credits",
-                    "ChatGPT made this entire thing, which is why I can't use a more restrictive license.",
-                    "I don't know if I technically own this code, honestly?",
+                    "\n# Credits\n",
+                    "ChatGPT made this entire thing, which is why I can't use a more restrictive license.\n",
+                    "I don't know if I technically own this code, honestly?\n",
                 ]
             )
 
         # no license
         with open(self.no_license_dir / "todo.txt", "wt") as file:
             file.write("TODO: create model")
+        
+        # no license, but with a readme
+        with open(self.no_license_but_readme_dir / "README.md", "wt") as file:
+            file.writelines(["# Not A Model\n", "This repository is not for a model.\n"])
+        
+        # unknown non-commercial license
+        with open(self.unknown_noncommercial_license_dir / "LICENSE.md", "wt") as file:
+            file.writelines(["This model must be used for non-commercial, research purposes only."])
 
         return super().setUp()
-    
+
     def tearDown(self) -> None:
         shutil.rmtree(self.TEST_DIR)
         return super().tearDown()
+
+    def testReadmeInMetadata(self):
+        self.license_instance.set_local_directory(str(self.in_readme_dir))
+        self.license_instance.run()
+        self.assertAlmostEqual(self.license_instance.parse_license_file(), 0.0)
+        self.assertAlmostEqual(self.license_instance.score, license_score["lgpl-2.1"])
+
+    def testReadmeLinked(self):
+        self.license_instance.set_local_directory(str(self.linked_license_dir))
+        self.license_instance.run()
+        self.assertAlmostEqual(self.license_instance.score, license_score["lgpl-3.0+"])
+    
+    def testReadmeLinked_md(self):
+        self.license_instance.set_local_directory(str(self.linked_license_md_dir))
+        self.license_instance.run()
+        self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
+    
+    def testNoReadme(self):
+        self.license_instance.set_local_directory(str(self.no_readme_dir))
+        self.license_instance.run()
+        self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
+    
+    def testLicenseTextInReadme(self):
+        self.license_instance.set_local_directory(str(self.text_in_readme_dir))
+        self.license_instance.run()
+        self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
+    
+    def testNoLicense(self):
+        self.license_instance.set_local_directory(str(self.no_license_dir))
+        self.license_instance.run()
+        self.assertAlmostEqual(self.license_instance.score, 0.0)
+    
+    def testNoLicenseButReadme(self):
+        self.license_instance.set_local_directory(str(self.no_license_but_readme_dir))
+        self.license_instance.run()
+        self.assertAlmostEqual(self.license_instance.score, 0.0)
+    
+    def testUnknownNoncommercialLicense(self):
+        self.license_instance.set_local_directory(str(self.unknown_noncommercial_license_dir))
+        self.license_instance.run()
+        self.assertAlmostEqual(self.license_instance.score, 0.0)
+    
+    def testNoLocalDirectory(self):
+        incomplete_instance = LicenseMetric()
+        with self.assertRaises(ValueError):
+            incomplete_instance.run()

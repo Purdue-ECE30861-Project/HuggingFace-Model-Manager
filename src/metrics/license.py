@@ -59,10 +59,14 @@ license_score: dict[str, float] = {
     # remember all code is distributed under LGPL v2.1
     # see https://www.gnu.org/licenses/gpl-faq.html#AllCompatibility
     "gpl-2.0": 0,
+    "gpl-2.0+": 0,
     "gpl-3.0": 0.0,
+    "gpl-3.0+": 0.0,
     "lgpl": 1.0,  #  lgpl says you can choose whatever lgpl license you want if it isn't specified by the distributor
     "lgpl-2.1": 1.0,
+    "lgpl-2.1+": 1.0,
     "lgpl-3.0": 0.7,  # re-use is allowed, but modification will require the code to be relicensed.
+    "lgpl-3.0+": 0.7,  # re-use is allowed, but modification will require the code to be relicensed.
     "isc": 1.0,
     "h-research": 0.0,  # non commercial
     "intel-research": 0.0,  # restrictions on redistribution.
@@ -139,9 +143,10 @@ class LicenseMetric(BaseMetric):
             if len(matches) > 0:
                 readme_score = self.parse_license_file()
             else:
-                matches: list[dict[str, str]] = find_license(license_text)  # type: ignore
+                matches: list[dict[str, str]] = find_license(license_section)  # type: ignore
                 if matches:
-                    spdx_id = matches[0]["spdx_license_key"]
+                    
+                    spdx_id = matches[0]["spdx_id"]
                     readme_score = license_score.get(spdx_id.lower(), 0.0)
 
         if readme_score is not None:
@@ -160,10 +165,10 @@ class LicenseMetric(BaseMetric):
             return 0.0
         matches: list[dict[str, str]] = find_license(license_text)  # type: ignore
         if matches:
-            spdx_id = matches[0]["spdx_license_key"]
+            spdx_id = matches[0]["spdx_id"]
             score = license_score.get(spdx_id.lower(), 0.0)
             return score
-        return 0.0
+        return 0.0 # pragma: no cover
 
     def calculate_score(self) -> float:
         if self.local_directory is None:
@@ -173,12 +178,9 @@ class LicenseMetric(BaseMetric):
         if not self.license_file.exists():
             self.license_file = self.model_dir / "LICENSE.md"
         self.readme_file = self.model_dir / "README.md"
-        model_dir = Path(self.local_directory)
-        license_file = model_dir / "LICENSE"
-        readme_file = model_dir / "README.md"
-        if readme_file.exists():
+        if self.readme_file.exists():
             return self.parse_readme()
-        elif license_file.exists():
+        elif self.license_file.exists():
             return self.parse_license_file()
         else:
             return 0.0
