@@ -4,7 +4,8 @@ version = "0.0.1"
 packages = [
     {include = "metric.py", from = "src"},
     {include = "workflow.py", from = "src"},
-    {include = "code_quality.py", from = "src/metrics"}
+    {include = "code_quality.py", from = "src/metrics"},
+    {include = "bus_factor.py", from = "src/metrics"}
 ]
 
 
@@ -15,5 +16,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.coverage.run]
 omit = [
-    "tests/*"
+    "tests/*",
+    "venv/*"
 ]
