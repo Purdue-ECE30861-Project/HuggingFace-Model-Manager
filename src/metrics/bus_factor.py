@@ -1,4 +1,4 @@
-from metric import BaseMetric
+from metric import BaseMetric # pyright: ignore[reportMissingTypeStubs]
 
 class BusFactorMetric(BaseMetric):
     metric_name: str = "bus_factor"
