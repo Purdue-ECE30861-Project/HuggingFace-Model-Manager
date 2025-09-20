@@ -8,7 +8,7 @@ from pylint.reporters.text import TextReporter
 from metric import BaseMetric
 
 
-class MetricCodeQuality(BaseMetric):
+class CodeQualityMetric(BaseMetric):
     metric_name: str = "CodeQuality"
     def __init__(self):
         super().__init__()
