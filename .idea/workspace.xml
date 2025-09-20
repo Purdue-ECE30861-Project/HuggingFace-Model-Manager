@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fe1b0a79-21d8-46c2-b81b-d60e2a05a400" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/metrics/code_quality.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metrics/code_quality.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/metrics/ramp_up_time.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metrics/ramp_up_time.py" afterDir="false" />
-    </list>
+    <list default="true" id="fe1b0a79-21d8-46c2-b81b-d60e2a05a400" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

@@ -14,16 +14,18 @@ class RampUpMetric(BaseMetric):
     metric_name: str = "RampUpTime"
     def __init__(self):
         super().__init__()
+        self.model_name: str
 
     @override
     def setup_resources(self):
-        pass
+        split_url = self.url.split('huggingface.co/')
+        self.model_name: str = split_url[1]
 
     @override
     def calculate_score(self) -> float:
         start_load_time = time.time()
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        model = AutoModelForCausalLM.from_pretrained(self.model_name).to(device)
         end_load_time = time.time()
         load_time = end_load_time - start_load_time
 
