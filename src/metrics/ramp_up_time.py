@@ -13,7 +13,7 @@ from metric import BaseMetric
 class RampUpMetric(BaseMetric):
     metric_name: str = "RampUpTime"
     def __init__(self):
-        pass
+        super().__init__()
 
     @override
     def setup_resources(self):
@@ -33,4 +33,8 @@ class RampUpMetric(BaseMetric):
         warmup_time = end_warmup_time - start_warmup_time
 
         total_time = load_time + warmup_time
-        minutes
+        minutes = total_time / 60
+
+        if minutes <= 1:
+            return 1.0
+        return 1.0 / minutes
