@@ -11,9 +11,8 @@ class PerformanceClaimsMetric(BaseMetric):
     
     def __init__(self):
         super().__init__()
-        self.model_dir: Path
-        self.readme_file: Path
-        self.config_file: Path
+        self.model_name: str = ""
+        self.readme_content: str = ""
 
     @override
     def setup_resources(self):
