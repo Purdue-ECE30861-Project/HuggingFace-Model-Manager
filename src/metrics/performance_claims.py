@@ -1,54 +1,56 @@
-from metric import BaseMetric  # pyright: ignore[reportMissingTypeStubs]
-from pathlib import Path
+from metric import BaseMetric
 import re
-import json
 from typing import override
-import time
-
+import Path
 
 class PerformanceClaimsMetric(BaseMetric):
     metric_name: str = "performance_claims"
+    model_dir: Path
+    readme_file: Path
     
     def __init__(self):
         super().__init__()
-        self.model_name: str = ""
-        self.readme_content: str = ""
 
     @override
     def setup_resources(self):
-        #read from readme
+        if self.local_directory is None:
+            raise ValueError("Local directory not specified")
+        self.model_dir = Path(self.local_directory)
+        self.readme_file = self.model_dir / "README.md"
         
     @override    
     def calculate_score(self) -> float:
-        score = 0.0
-        readme_lower = self.readme_content.lower()
+        if not self.readme_file.exists():
+            return 0.0
         
-        benchmark_start = time.time()
+        readme_content = self.readme_file.read_text(encoding='utf-8').lower()
+        
+        #Benchmark keywords
         benchmark_keywords = [
                 'benchmark', 'evaluation', 'performance', 'accuracy', 'f1', 
                 'bleu', 'rouge', 'perplexity', 'score', 'metric', 'eval',
-                'test', 'validation', 'leaderboard', 'sota', 'baseline',
-                'glue', 'squad', 'superglue', 'hellaswag'
+                'test', 'validation', 'leaderboard', 'sota', 'baseline'
             ]
         benchmark_score = 0.0
         for keyword in benchmark_keywords:
-                if keyword in readme_lower:
-                    benchmark_score += 0.025  # Each keyword adds points
+            if keyword in readme_content:
+                benchmark_score += 0.03
         benchmark_score = min(0.4, benchmark_score)
-        benchmark_end = time.time()
-        benchmark_time = benchmark_end - benchmark_start
         
-        numeric_start = time.time()
-        number_patterns = [
-                r'\b\d{1,2}\.\d{1,3}%',      # 85.7%
-                r'\b0\.\d{2,3}\b',           # 0.85 (F1 scores, etc.)
-                r'\b[5-9]\d\.\d%',           # 85.5% (accuracy)
-                r'\b\d{1,2}\.\d{1,2}\s*(?:bleu|rouge|f1)', # 42.1 BLEU
-        ]
+        #Numerical results
+        numbers = re.findall(r'\b\d+\.?\d*%?\b', self.readme_content)
         numeric_results = []
-        for pattern in number_patterns:
-            matches = re.findall(pattern, self.readme_content, re.IGNORECASE)
-            numeric_results.extend(matches)
+        for num in numbers:
+            try:
+                clean_num = num.replace('%', '')
+                val = float(clean_num)
+                # Filter for likely performance scores
+                if (('%' in num and 0 <= val <= 100) or 
+                    ('.' in num and 0 <= val <= 1) or
+                    (not '%' in num and not '.' in num and 50 <= val <= 100)):
+                    numeric_results.append(num)
+            except ValueError:
+                continue
         
         numeric_score = 0.0
         if len(numeric_results) >= 5:
@@ -57,56 +59,34 @@ class PerformanceClaimsMetric(BaseMetric):
             numeric_score = 0.2
         elif len(numeric_results) >= 1:
             numeric_score = 0.1
-        numeric_end = time.time()
-        numeric_time = numeric_end - numeric_start
         
-        academic_start = time.time()
-        academic_patterns = [
-            r'arxiv\.org/\w+/\d+\.\d+',     # ArXiv links
-            r'doi\.org/\w+',                 # DOI links  
-            r'proceedings\s+of\s+\w+',      # Conference proceedings
-            r'published\s+in\s+\w+',        # Published in X
-            r'cite\s+as:|citation:', # Citation sections
-        ]
-        
-        academic_keywords = [
+        #Academic references
+        paper_indicators = [
             'paper', 'arxiv', 'doi:', 'citation', 'published', 
-            'conference', 'journal', 'acl', 'emnlp', 'icml',
-            'neurips', 'iclr', 'naacl', 'aaai'
+            'conference', 'journal', 'acl', 'emnlp', 'icml'
         ]
-        
         academic_score = 0.0
-        for pattern in academic_patterns:
-            if re.search(pattern, self.readme_content, re.IGNORECASE):
+        for indicator in paper_indicators:
+            if indicator in readme_content:
                 academic_score = 0.2
                 break
         
-        if academic_score == 0.0:
-            for keyword in academic_keywords:
-                if keyword in readme_lower:
-                    academic_score = 0.1
-                    break
-        
-        academic_end = time.time()
-        academic_time = academic_end - academic_start
-    
-        dataset_start = time.time()
+        #Dataset evaluation
         dataset_keywords = [
             'dataset', 'corpus', 'test set', 'validation set', 
-            'evaluated on', 'tested on', 'benchmarked on',
-            'common crawl', 'wikipedia', 'bookcorpus', 'pile'
+            'eval', 'glue', 'squad', 'coco'
         ]
         dataset_score = 0.0
         for keyword in dataset_keywords:
-            if keyword in readme_lower:
+            if keyword in readme_content:
                 dataset_score = 0.1
                 break
-        dataset_end = time.time()
-        dataset_time = dataset_end - dataset_start
         
+        # Calculate total score and time
         total_score = benchmark_score + numeric_score + academic_score + dataset_score
-        total_analysis_time = benchmark_time + numeric_time + academic_time + dataset_time
         
+        # Normalize score
         final_score = min(1.0, max(0.0, total_score))
         
         return final_score
+    
