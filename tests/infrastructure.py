@@ -43,26 +43,38 @@ class DummyMetric3(BaseMetric):
         pass
 
 
-MODEL_URLS_1: ModelURLs = ModelURLs(model='https://github.com/user/repo')
-MODEL_URLS_2: ModelURLs = ModelURLs(model='https://github.com/user/repo', dataset='https://github.com/user/repo')
-MODEL_URLS_3: ModelURLs = ModelURLs(model='https://github.com/user/repo', dataset='https://github.com/user/repo', codebase='https://github.com/user/repo')
+MODEL_URLS_1: ModelURLs = ModelURLs(model="https://github.com/user/repo")
+MODEL_URLS_2: ModelURLs = ModelURLs(
+    model="https://github.com/user/repo", dataset="https://github.com/user/repo"
+)
+MODEL_URLS_3: ModelURLs = ModelURLs(
+    model="https://github.com/user/repo",
+    dataset="https://github.com/user/repo",
+    codebase="https://github.com/user/repo",
+)
 
-CONFIG_1 = ConfigContract(num_processes=1, priority_function='PFReciprocal', target_platform='pc')
-CONFIG_2 = ConfigContract(num_processes=2, priority_function='PFReciprocal', target_platform='pc')
-CONFIG_3 = ConfigContract(num_processes=2, priority_function='PFExponentialDecay', target_platform='pc')
+CONFIG_1 = ConfigContract(
+    num_processes=1, priority_function="PFReciprocal", target_platform="pc"
+)
+CONFIG_2 = ConfigContract(
+    num_processes=2, priority_function="PFReciprocal", target_platform="pc"
+)
+CONFIG_3 = ConfigContract(
+    num_processes=2, priority_function="PFExponentialDecay", target_platform="pc"
+)
 
 
 class TestMetricStaging(unittest.TestCase):
     def test_staging_valid(self):
         stager: MetricStager = MetricStager(CONFIG_1)
-        stager.attach_metric('dataset', DummyMetric1(), 1)
-        stager.attach_metric('dataset', DummyMetric1(), 2)
-        stager.attach_metric('codebase', DummyMetric2(), 2)
-        stager.attach_metric('model', DummyMetric3(), 3)
+        stager.attach_metric("dataset", DummyMetric1(), 1)
+        stager.attach_metric("dataset", DummyMetric1(), 2)
+        stager.attach_metric("codebase", DummyMetric2(), 2)
+        stager.attach_metric("model", DummyMetric3(), 3)
 
-        self.assertEqual(len(stager.metrics['dataset']), 2)
-        self.assertEqual(len(stager.metrics['codebase']), 1)
-        self.assertEqual(len(stager.metrics['model']), 1)
+        self.assertEqual(len(stager.metrics["dataset"]), 2)
+        self.assertEqual(len(stager.metrics["codebase"]), 1)
+        self.assertEqual(len(stager.metrics["model"]), 1)
 
         runner = stager.attach_model_urls(MODEL_URLS_1)
         self.assertEqual(len(runner.metrics), 1)
@@ -76,12 +88,14 @@ class TestMetricStaging(unittest.TestCase):
     def test_staging_invalid(self):
         stager: MetricStager = MetricStager(CONFIG_1)
         with self.assertRaises(KeyError):
-            stager.attach_metric('invalid', DummyMetric1(), 1)
+            stager.attach_metric("invalid", DummyMetric1(), 1)
 
 
 class TestMetricRunner(unittest.TestCase):
     def test_run_single_threaded(self):
-        runner: MetricRunner = MetricRunner([DummyMetric1(), DummyMetric2(), DummyMetric3()])
+        runner: MetricRunner = MetricRunner(
+            [DummyMetric1(), DummyMetric2(), DummyMetric3()]
+        )
         runner.set_num_processes(3)
         results: list[BaseMetric] = runner.run()
 
@@ -99,56 +113,328 @@ class TestNetScoreCalculator(unittest.TestCase):
 
     def test_compress_priorities(self):
         priority_organized_scores: SortedDict = SortedDict({1: [0.5, 0.7], 2: [1.0]})
-        compressed_scores: list[list[float]] = NetScoreCalculator(PFReciprocal).compress_priorities(priority_organized_scores)
+        compressed_scores: list[list[float]] = NetScoreCalculator(
+            PFReciprocal
+        ).compress_priorities(priority_organized_scores)
         self.assertEqual(compressed_scores, [[0.5, 0.7], [1.0]])
 
         priority_organized_scores: SortedDict = SortedDict({1: [0.5, 0.7], 3: [1.0]})
-        compressed_scores: list[list[float]] = NetScoreCalculator(PFReciprocal).compress_priorities(
-            priority_organized_scores)
+        compressed_scores: list[list[float]] = NetScoreCalculator(
+            PFReciprocal
+        ).compress_priorities(priority_organized_scores)
         self.assertEqual(compressed_scores, [[0.5, 0.7], [1.0]])
 
     def test_generate_scores_priority_dict(self):
         metrics: list[BaseMetric] = [
             DummyMetric1().set_params(1, "").run(),
             DummyMetric2().set_params(2, "").run(),
-            DummyMetric3().set_params(3, "").run()
+            DummyMetric3().set_params(3, "").run(),
         ]
 
-        priority_organized_scores: SortedDict = NetScoreCalculator(PFReciprocal).generate_scores_priority_dict(metrics)
+        priority_organized_scores: SortedDict = NetScoreCalculator(
+            PFReciprocal
+        ).generate_scores_priority_dict(metrics)
         self.assertEqual(priority_organized_scores, {1: [0.5], 2: [0.7], 3: [1.0]})
 
     def test_get_priority_weights(self):
         compressed_scores: list[list[float]] = [[0.5, 0.7], [1.0]]
         total_size: int = 2
-        priority_weights: list[float] = NetScoreCalculator(PFReciprocal()).get_priority_weights(compressed_scores, total_size)
-        self.assertAlmostEqual(priority_weights, [12/15, 3/15])
+        priority_weights: list[float] = NetScoreCalculator(
+            PFReciprocal()
+        ).get_priority_weights(compressed_scores, total_size)
+        self.assertAlmostEqual(priority_weights, [12 / 15, 3 / 15])
 
     def test_net_score_calculation(self):
         metrics: list[BaseMetric] = [
             DummyMetric1().set_params(1, "").run(),
             DummyMetric2().set_params(1, "").run(),
-            DummyMetric3().set_params(3, "").run()
+            DummyMetric3().set_params(3, "").run(),
         ]
 
-        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(
+            metrics
+        )
         self.assertAlmostEqual(net_score, 0.68)
 
     def test_net_score_calculation(self):
         metrics: list[BaseMetric] = [
             DummyMetric3().set_params(1, "").run(),
             DummyMetric3().set_params(2, "").run(),
-            DummyMetric3().set_params(3, "").run()
+            DummyMetric3().set_params(3, "").run(),
         ]
 
-        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(
+            metrics
+        )
         self.assertAlmostEqual(net_score, 1.0)
 
     def test_net_score_calculation(self):
         metrics: list[BaseMetric] = [
             DummyMetric4().set_params(1, "").run(),
             DummyMetric4().set_params(2, "").run(),
-            DummyMetric4().set_params(3, "").run()
+            DummyMetric4().set_params(3, "").run(),
         ]
 
-        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(
+            metrics
+        )
         self.assertAlmostEqual(net_score, 0.0)
+
+
+import os
+
+from database import *
+
+
+class TestDatabaseAccess(unittest.TestCase):
+    def setUp(self):
+        self.test_db = Path("test.db")
+        self.maxDiff = None
+        # normal schema
+        self.schema1: list[FloatMetric | DictMetric] = [
+            FloatMetric("size", 0.3, 10),
+            FloatMetric("setup", 0.2, 30),
+            DictMetric("compatibility", {"windows": 0.5, "mac": 0.2, "linux": 0.8}, 29),
+        ]
+        self.schema2: list[FloatMetric | DictMetric] = [
+            FloatMetric("size", 0.3, 10),
+            FloatMetric("setup", 0.2, 30),
+            FloatMetric("speed", 0.7, 49),
+            FloatMetric("accuracy", 0.1, 10),
+            DictMetric("compatibility", {"windows": 0.5, "mac": 0.2, "linux": 0.8}, 29),
+            FloatMetric("team_size", 0.9, 9),
+            FloatMetric("team_balance", 0.6, 41),
+            FloatMetric("funding", 0.8, 1000),
+            FloatMetric("compliance", 0.1, 943),
+            FloatMetric("license", 0.5, 234),
+        ]
+        self.schema3: list[FloatMetric | DictMetric] = [
+            DictMetric(
+                "size", {"raspberry_pi": 0.5, "desktop_pc": 0.7, "aws_server": 1.0}, 54
+            ),
+            DictMetric("compatibility", {"windows": 0.5, "mac": 0.2, "linux": 0.8}, 29),
+            DictMetric(
+                "documentation",
+                {"english": 0.9, "spanish": 0.5, "french": 0.2, "mandarin": 0.0},
+                1094,
+            ),
+            DictMetric("license", {"distribution": 1.0, "modification": 0.3}, 297),
+            FloatMetric("setup", 0.2, 30),
+            FloatMetric("speed", 0.7, 49),
+            FloatMetric("accuracy", 0.1, 10),
+            DictMetric("database", {"size": 0.2, "quality": 0.9}, 964),
+            FloatMetric("team_size", 0.9, 9),
+        ]
+
+        # edge cases
+
+        self.schema0: list[FloatMetric | DictMetric] = []
+        self.schema_weird_names: list[FloatMetric | DictMetric] = [
+            FloatMetric("valid sql header, actually", 0.3, 11),
+            DictMetric(
+                "this one too",
+                {
+                    "and this": 0.0,
+                    "and that": 1.0,
+                    "and this again": 0.5,
+                    "fourth one": 0.1,
+                },
+                3939,
+            ),
+        ]
+
+    # database initialization
+    def testCreateNewDatabase(self):
+
+        accessor = SQLiteAccessor(None, self.schema1)
+        accessor.cursor.execute("PRAGMA table_info(models)")
+        columns = {row[1]: row[2] for row in accessor.cursor.fetchall()}
+
+        self.assertDictEqual(
+            columns,
+            {
+                "url": "TEXT",
+                "name": "TEXT",
+                "net_score": "REAL",
+                "net_score_latency": "INTEGER",
+                "size": "REAL",
+                "size_latency": "INTEGER",
+                "setup": "REAL",
+                "setup_latency": "INTEGER",
+                "compatibility_windows": "REAL",
+                "compatibility_mac": "REAL",
+                "compatibility_linux": "REAL",
+                "compatibility_latency": "INTEGER",
+            },
+        )
+
+    def test_add_and_get_model(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        model = ModelStats(
+            url="example.com/test_url",
+            name="Test Model",
+            net_score=0.99,
+            net_score_latency=5,
+            metrics=[
+                FloatMetric("size", 0.3, 10),
+                FloatMetric("setup", 0.2, 30),
+                DictMetric(
+                    "compatibility", {"windows": 0.5, "mac": 0.2, "linux": 0.8}, 29
+                ),
+            ],
+        )
+        accessor.add_to_db(model)
+        fetched = accessor.get_model_statistics("example.com/test_url")
+        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.name, model.name)
+        self.assertEqual(fetched.net_score, model.net_score)
+        self.assertEqual(fetched.net_score_latency, model.net_score_latency)
+        # Check metrics
+        for m1, m2 in zip(model.metrics, fetched.metrics):
+            self.assertEqual(m1.name, m2.name)
+            self.assertEqual(m1.latency, m2.latency)
+            self.assertEqual(m1.data, m2.data)
+
+    def test_add_and_get_model_schema2(self):
+        accessor = SQLiteAccessor(None, self.schema2)
+        model2 = ModelStats(
+            url="example.com/test_url",
+            name="Test Model",
+            net_score=0.99,
+            net_score_latency=5,
+            metrics=self.schema2,
+        )
+        accessor.add_to_db(model2)
+        fetched = accessor.get_model_statistics("example.com/test_url")
+        self.assertEqual(fetched.url, model2.url)
+        self.assertEqual(fetched.name, model2.name)
+        self.assertEqual(fetched.net_score, model2.net_score)
+        self.assertEqual(fetched.net_score_latency, model2.net_score_latency)
+        # Check metrics
+        for m1, m2 in zip(model2.metrics, fetched.metrics):
+            self.assertEqual(m1.name, m2.name)
+            self.assertEqual(m1.latency, m2.latency)
+            self.assertEqual(m1.data, m2.data)
+
+    def test_add_and_get_model_schema3(self):
+        accessor = SQLiteAccessor(None, self.schema3)
+        model3 = ModelStats(
+            url="example.com/test_url",
+            name="Test Model",
+            net_score=0.99,
+            net_score_latency=5,
+            metrics=self.schema3,
+        )
+        accessor.add_to_db(model3)
+        fetched = accessor.get_model_statistics("example.com/test_url")
+        self.assertEqual(fetched.url, model3.url)
+        self.assertEqual(fetched.name, model3.name)
+        self.assertEqual(fetched.net_score, model3.net_score)
+        self.assertEqual(fetched.net_score_latency, model3.net_score_latency)
+        # Check metrics
+        for m1, m2 in zip(model3.metrics, fetched.metrics):
+            self.assertEqual(m1.name, m2.name)
+            self.assertEqual(m1.latency, m2.latency)
+            self.assertEqual(m1.data, m2.data)
+
+    def test_check_entry_in_db(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        model = ModelStats(
+            url="example.com/test_url",
+            name="Test Model 2",
+            net_score=0.88,
+            net_score_latency=7,
+            metrics=[
+                FloatMetric("size", 0.4, 12),
+                FloatMetric("setup", 0.3, 32),
+                DictMetric(
+                    "compatibility", {"windows": 0.6, "mac": 0.3, "linux": 0.9}, 31
+                ),
+            ],
+        )
+        accessor.add_to_db(model)
+        self.assertTrue(accessor.check_entry_in_db("example.com/test_url"))
+        self.assertFalse(accessor.check_entry_in_db("nonexistent_url"))
+
+    def test_db_exists_schema_match(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        self.assertTrue(accessor.db_exists())
+
+    def test_empty_schema(self):
+        accessor = SQLiteAccessor(None, self.schema0)
+        model = ModelStats(
+            url="example.com/test_url",
+            name="Empty Model",
+            net_score=0.0,
+            net_score_latency=0,
+            metrics=[],
+        )
+        accessor.add_to_db(model)
+        fetched = accessor.get_model_statistics("example.com/test_url")
+        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.metrics, [])
+
+    def test_weird_names_schema(self):
+        accessor = SQLiteAccessor(None, self.schema_weird_names)
+        model = ModelStats(
+            url="example.com/weird_url",
+            name="Weird Model",
+            net_score=0.5,
+            net_score_latency=1,
+            metrics=self.schema_weird_names,
+        )
+        accessor.add_to_db(model)
+        fetched = accessor.get_model_statistics("example.com/weird_url")
+        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.name, model.name)
+        self.assertEqual(fetched.net_score, model.net_score)
+        self.assertEqual(fetched.net_score_latency, model.net_score_latency)
+        for m1, m2 in zip(model.metrics, fetched.metrics):
+            self.assertEqual(m1.name, m2.name)
+            self.assertEqual(m1.latency, m2.latency)
+            self.assertEqual(m1.data, m2.data)
+
+    def test_get_nonexistent_model(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        model = ModelStats(
+            url="example.com/test_url2",
+            name="Test Model 2",
+            net_score=0.88,
+            net_score_latency=7,
+            metrics=[
+                FloatMetric("size", 0.4, 12),
+                FloatMetric("setup", 0.3, 32),
+                DictMetric(
+                    "compatibility", {"windows": 0.6, "mac": 0.3, "linux": 0.9}, 31
+                ),
+            ],
+        )
+        accessor.add_to_db(model)
+        # test for panics
+        accessor.get_model_statistics("example.com/test_url2")
+        with self.assertRaises(ValueError):
+            accessor.get_model_statistics("nonexistent_url")
+
+    def test_wrong_schema(self):
+
+        accessor = SQLiteAccessor(self.test_db, self.schema1)
+        del accessor
+
+        accessor_2 = SQLiteAccessor(self.test_db, self.schema3, create_if_missing=False)
+        self.assertFalse(accessor_2.db_exists())
+        del accessor_2
+        os.remove(self.test_db)
+
+    def test_add_with_wrong_schema(self):
+        accessor = SQLiteAccessor(None, self.schema1)
+        model1 = ModelStats("example.com/correct", "Correct", 0.2, 1225, self.schema1)
+        model2 = ModelStats(
+            "example.com/incorrect", "Incorrect", 0.2, 1225, self.schema2
+        )
+        accessor.add_to_db(model1)
+        with self.assertRaises(ValueError):
+            accessor.add_to_db(model2)
+
+    def test_uninitialized_db(self):
+        accessor = SQLiteAccessor(None, self.schema1, create_if_missing=False)
+        self.assertFalse(accessor.db_exists())

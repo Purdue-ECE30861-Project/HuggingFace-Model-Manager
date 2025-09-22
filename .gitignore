@@ -5,3 +5,7 @@ poetry.lock
 ./.coverage
 __pycache__/
 .env
+.vscode/settings.json
+src/__pycache__/**
+tests/__pycache__/**
+tests/__pycache__/infrastructure.cpython-313.pyc
