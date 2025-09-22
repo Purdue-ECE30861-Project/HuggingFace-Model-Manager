@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from database import *
+from database import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
 
 
 class TestDatabaseAccess(unittest.TestCase):
@@ -71,8 +71,10 @@ class TestDatabaseAccess(unittest.TestCase):
         self.assertDictEqual(
             columns,
             {
-                "url": "TEXT",
+                "model_url": "TEXT",
                 "name": "TEXT",
+                "database_url": "TEXT",
+                "code_url": "TEXT",
                 "net_score": "REAL",
                 "net_score_latency": "INTEGER",
                 "size": "REAL",
@@ -89,8 +91,10 @@ class TestDatabaseAccess(unittest.TestCase):
     def test_add_and_get_model(self):
         accessor = SQLiteAccessor(None, self.schema1)
         model = ModelStats(
-            url="example.com/test_url",
+            model_url="example.com/test_url",
             name="Test Model",
+            database_url="example.com/database_url",
+            code_url="github.com/me/too",
             net_score=0.99,
             net_score_latency=5,
             metrics=[
@@ -103,8 +107,10 @@ class TestDatabaseAccess(unittest.TestCase):
         )
         accessor.add_to_db(model)
         fetched = accessor.get_model_statistics("example.com/test_url")
-        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.model_url, model.model_url)
         self.assertEqual(fetched.name, model.name)
+        self.assertEqual(fetched.database_url, model.database_url)
+        self.assertEqual(fetched.code_url, model.code_url)
         self.assertEqual(fetched.net_score, model.net_score)
         self.assertEqual(fetched.net_score_latency, model.net_score_latency)
         # Check metrics
@@ -112,20 +118,24 @@ class TestDatabaseAccess(unittest.TestCase):
             self.assertEqual(m1.name, m2.name)
             self.assertEqual(m1.latency, m2.latency)
             self.assertEqual(m1.data, m2.data)
-    
+
     def test_add_and_get_model_schema2(self):
         accessor = SQLiteAccessor(None, self.schema2)
         model2 = ModelStats(
-            url="example.com/test_url",
+            model_url="example.com/test_url",
             name="Test Model",
+            database_url="example.com/test_url_2",
+            code_url="github.com/second/url",
             net_score=0.99,
             net_score_latency=5,
-            metrics=self.schema2
+            metrics=self.schema2,
         )
         accessor.add_to_db(model2)
         fetched = accessor.get_model_statistics("example.com/test_url")
-        self.assertEqual(fetched.url, model2.url)
+        self.assertEqual(fetched.model_url, model2.model_url)
         self.assertEqual(fetched.name, model2.name)
+        self.assertEqual(fetched.database_url, model2.database_url)
+        self.assertEqual(fetched.code_url, model2.code_url)
         self.assertEqual(fetched.net_score, model2.net_score)
         self.assertEqual(fetched.net_score_latency, model2.net_score_latency)
         # Check metrics
@@ -133,20 +143,24 @@ class TestDatabaseAccess(unittest.TestCase):
             self.assertEqual(m1.name, m2.name)
             self.assertEqual(m1.latency, m2.latency)
             self.assertEqual(m1.data, m2.data)
-    
+
     def test_add_and_get_model_schema3(self):
         accessor = SQLiteAccessor(None, self.schema3)
         model3 = ModelStats(
-            url="example.com/test_url",
+            model_url="example.com/test_url",
             name="Test Model",
+            database_url="example.com/test_url",
+            code_url="example.com/test_url",
             net_score=0.99,
             net_score_latency=5,
-            metrics=self.schema3
+            metrics=self.schema3,
         )
         accessor.add_to_db(model3)
         fetched = accessor.get_model_statistics("example.com/test_url")
-        self.assertEqual(fetched.url, model3.url)
+        self.assertEqual(fetched.model_url, model3.model_url)
         self.assertEqual(fetched.name, model3.name)
+        self.assertEqual(fetched.database_url, model3.database_url)
+        self.assertEqual(fetched.code_url, model3.code_url)
         self.assertEqual(fetched.net_score, model3.net_score)
         self.assertEqual(fetched.net_score_latency, model3.net_score_latency)
         # Check metrics
@@ -158,8 +172,10 @@ class TestDatabaseAccess(unittest.TestCase):
     def test_check_entry_in_db(self):
         accessor = SQLiteAccessor(None, self.schema1)
         model = ModelStats(
-            url="example.com/test_url",
+            model_url="example.com/test_url",
             name="Test Model 2",
+            database_url="example.com/test_url",
+            code_url="example.com/test_url",
             net_score=0.88,
             net_score_latency=7,
             metrics=[
@@ -181,29 +197,39 @@ class TestDatabaseAccess(unittest.TestCase):
     def test_empty_schema(self):
         accessor = SQLiteAccessor(None, self.schema0)
         model = ModelStats(
-            url="example.com/test_url",
+            model_url="example.com/test_url",
             name="Empty Model",
+            database_url="example.com/test_ur2l",
+            code_url="example.com/test_ur2l",
             net_score=0.0,
             net_score_latency=0,
             metrics=[],
         )
         accessor.add_to_db(model)
         fetched = accessor.get_model_statistics("example.com/test_url")
-        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.model_url, model.model_url)
+        self.assertEqual(fetched.name, model.name)
+        self.assertEqual(fetched.database_url, model.database_url)
+        self.assertEqual(fetched.code_url, model.code_url)
         self.assertEqual(fetched.metrics, [])
 
     def test_weird_names_schema(self):
         accessor = SQLiteAccessor(None, self.schema_weird_names)
         model = ModelStats(
-            url="example.com/weird_url",
+            model_url="example.com/weird_url",
             name="Weird Model",
+            database_url="example.com/weird_url",
+            code_url="example.com/weird_url",
             net_score=0.5,
             net_score_latency=1,
             metrics=self.schema_weird_names,
         )
         accessor.add_to_db(model)
         fetched = accessor.get_model_statistics("example.com/weird_url")
-        self.assertEqual(fetched.url, model.url)
+        self.assertEqual(fetched.model_url, model.model_url)
+        self.assertEqual(fetched.name, model.name)
+        self.assertEqual(fetched.database_url, model.database_url)
+        self.assertEqual(fetched.code_url, model.code_url)
         self.assertEqual(fetched.name, model.name)
         self.assertEqual(fetched.net_score, model.net_score)
         self.assertEqual(fetched.net_score_latency, model.net_score_latency)
@@ -211,12 +237,14 @@ class TestDatabaseAccess(unittest.TestCase):
             self.assertEqual(m1.name, m2.name)
             self.assertEqual(m1.latency, m2.latency)
             self.assertEqual(m1.data, m2.data)
-    
+
     def test_get_nonexistent_model(self):
         accessor = SQLiteAccessor(None, self.schema1)
         model = ModelStats(
-            url="example.com/test_url2",
+            model_url="example.com/test_url2",
             name="Test Model 2",
+            database_url="example.com/test_url2",
+            code_url="example.com/test_url2",
             net_score=0.88,
             net_score_latency=7,
             metrics=[
@@ -232,25 +260,41 @@ class TestDatabaseAccess(unittest.TestCase):
         accessor.get_model_statistics("example.com/test_url2")
         with self.assertRaises(ValueError):
             accessor.get_model_statistics("nonexistent_url")
-    
+
     def test_wrong_schema(self):
-        
+
         accessor = SQLiteAccessor(self.test_db, self.schema1)
         del accessor
-        
+
         accessor_2 = SQLiteAccessor(self.test_db, self.schema3, create_if_missing=False)
         self.assertFalse(accessor_2.db_exists())
         del accessor_2
         os.remove(self.test_db)
-    
+
     def test_add_with_wrong_schema(self):
         accessor = SQLiteAccessor(None, self.schema1)
-        model1 = ModelStats("example.com/correct", "Correct", 0.2, 1225, self.schema1)
-        model2 = ModelStats("example.com/incorrect", "Incorrect", 0.2, 1225, self.schema2)
+        model1 = ModelStats(
+            "example.com/correct",
+            "Correct",
+            "example.com/correct",
+            "example.com/correct",
+            0.2,
+            1225,
+            self.schema1,
+        )
+        model2 = ModelStats(
+            "example.com/incorrect",
+            "Incorrect",
+            "example.com/incorrect",
+            "example.com/incorrect",
+            0.2,
+            1225,
+            self.schema2,
+        )
         accessor.add_to_db(model1)
         with self.assertRaises(ValueError):
             accessor.add_to_db(model2)
-    
+
     def test_uninitialized_db(self):
         accessor = SQLiteAccessor(None, self.schema1, create_if_missing=False)
         self.assertFalse(accessor.db_exists())

@@ -4,43 +4,52 @@ from pathlib import Path
 
 PROD_DATABASE_PATH: Path = Path("models.db")
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 class MetricStats(Generic[T]):
     def __init__(self, name: str, data: T, latency: int):
         self.name = name
         self.data = data
         self.latency = latency
+
     def to_sql_schema(self) -> str:
-        raise NotImplementedError("Metric does not have defined SQL type") #pragma: no cover
+        raise NotImplementedError(
+            "Metric does not have defined SQL type"
+        )  # pragma: no cover
+
 
 class FloatMetric(MetricStats[float]):
     @override
     def to_sql_schema(self) -> str:
-        return f"\"{self.name}\" REAL, \"{self.name}_latency\" INTEGER"
+        return f'"{self.name}" REAL, "{self.name}_latency" INTEGER'
+
 
 class DictMetric(MetricStats[dict[str, float]]):
     @override
     def to_sql_schema(self) -> str:
         schema: str = ""
         for key, _ in self.data.items():
-            schema += (f"\"{self.name}_{key}\" REAL, ")
-        schema += f"\"{self.name}_latency\" INTEGER"
+            schema += f'"{self.name}_{key}" REAL, '
+        schema += f'"{self.name}_latency" INTEGER'
         return schema
-
 
 
 class ModelStats:
     def __init__(
         self,
-        url: str,
+        model_url: str,
         name: str,
+        database_url: str,
+        code_url: str,
         net_score: float,
         net_score_latency: int,
-        metrics: list[FloatMetric | DictMetric]
+        metrics: list[FloatMetric | DictMetric],
     ):
-        self.url = url
+        self.model_url = model_url
         self.name = name
+        self.database_url = database_url
+        self.code_url = code_url
         self.net_score = net_score
         self.net_score_latency = net_score_latency
         self.metrics = metrics
@@ -60,7 +69,12 @@ class DatabaseAccessor(Protocol):
 
 
 class SQLiteAccessor:
-    def __init__(self, db_location: Path|None, metric_schema: list[FloatMetric | DictMetric], create_if_missing: bool=True):
+    def __init__(
+        self,
+        db_location: Path | None,
+        metric_schema: list[FloatMetric | DictMetric],
+        create_if_missing: bool = True,
+    ):
         if db_location is None:
             self.connection: sqlite3.Connection = sqlite3.connect(":memory:")
         else:
@@ -69,32 +83,42 @@ class SQLiteAccessor:
         self.metric_schema = metric_schema
         if not self.db_exists() and create_if_missing:
             self.init_database()
-            
-    
+
     def __del__(self):
         self.connection.close()
-    
+
     def db_exists(self) -> bool:
         try:
             self.cursor.execute("PRAGMA table_info(models)")
-            columns = {row[1]:row[2] for row in self.cursor.fetchall()}
-        except sqlite3.OperationalError: #pragma: no cover
+            columns = {row[1]: row[2] for row in self.cursor.fetchall()}
+        except sqlite3.OperationalError:  # pragma: no cover
             return False
 
         # Normalize column names (remove quotes)
-        normalized_columns = {col.replace('"', ''): typ for col, typ in columns.items()}
+        normalized_columns = {col.replace('"', ""): typ for col, typ in columns.items()}
 
         # Required base columns
-        required_columns = {"url": "TEXT", "name": "TEXT", "net_score": "REAL", "net_score_latency": "INTEGER"}
+        required_columns = {
+            "model_url": "TEXT",
+            "name": "TEXT",
+            "database_url": "TEXT",
+            "code_url": "TEXT",
+            "net_score": "REAL",
+            "net_score_latency": "INTEGER",
+        }
 
         # Add metric columns from metric_schema
         for metric in self.metric_schema:
-            items = [item.strip() for item in metric.to_sql_schema().split(",") if item.strip()]
+            items = [
+                item.strip()
+                for item in metric.to_sql_schema().split(",")
+                if item.strip()
+            ]
             for item in items:
                 parts = item.split()
                 if len(parts) == 2:
                     col, typ = parts
-                    col = col.replace("\"", "")
+                    col = col.replace('"', "")
                     required_columns[col] = typ
 
         for col, typ in required_columns.items():
@@ -108,8 +132,10 @@ class SQLiteAccessor:
         if metric_schema_str:
             sql = f"""
                 CREATE TABLE IF NOT EXISTS models (
-                    url TEXT PRIMARY KEY,
+                    model_url TEXT PRIMARY KEY,
                     name TEXT,
+                    database_url TEXT,
+                    code_url TEXT,
                     net_score REAL,
                     net_score_latency INTEGER,
                     {metric_schema_str}
@@ -118,8 +144,10 @@ class SQLiteAccessor:
         else:
             sql = f"""
                 CREATE TABLE IF NOT EXISTS models (
-                    url TEXT PRIMARY KEY,
+                    model_url TEXT PRIMARY KEY,
                     name TEXT,
+                    database_url TEXT,
+                    code_url TEXT,
                     net_score REAL,
                     net_score_latency INTEGER
                 )
@@ -128,13 +156,27 @@ class SQLiteAccessor:
         self.connection.commit()
 
     def check_entry_in_db(self, url: str) -> bool:
-        self.cursor.execute("SELECT url from models WHERE url = ?", (url,))
+        self.cursor.execute("SELECT model_url from models WHERE model_url = ?", (url,))
         return self.cursor.fetchone() is not None
 
     def add_to_db(self, model_stats: ModelStats):
         # Build columns and values for base fields
-        columns = ["url", "name", "net_score", "net_score_latency"]
-        values: list[str|float|int|dict[str,float]] = [model_stats.url, model_stats.name, model_stats.net_score, model_stats.net_score_latency]
+        columns = [
+            "model_url",
+            "name",
+            "database_url",
+            "code_url",
+            "net_score",
+            "net_score_latency",
+        ]
+        values: list[str | float | int | dict[str, float]] = [
+            model_stats.model_url,
+            model_stats.name,
+            model_stats.database_url,
+            model_stats.code_url,
+            model_stats.net_score,
+            model_stats.net_score_latency,
+        ]
 
         # Add metric columns and values
         for metric in model_stats.metrics:
@@ -165,7 +207,7 @@ class SQLiteAccessor:
         self.connection.commit()
 
     def get_model_statistics(self, model_url: str) -> ModelStats:
-        self.cursor.execute("SELECT * FROM models WHERE url = ?", (model_url,))
+        self.cursor.execute("SELECT * FROM models WHERE model_url = ?", (model_url,))
         row = self.cursor.fetchone()
         if not row:
             raise ValueError(f"No entry found in database for URL: {model_url}")
@@ -174,8 +216,10 @@ class SQLiteAccessor:
         col_names = [desc[0] for desc in self.cursor.description]
 
         # Extract base fields
-        url = row[col_names.index("url")]
+        model_url = row[col_names.index("model_url")]
         name = row[col_names.index("name")]
+        database_url = row[col_names.index("database_url")]
+        code_url = row[col_names.index("code_url")]
         net_score = row[col_names.index("net_score")]
         net_score_latency = row[col_names.index("net_score_latency")]
 
@@ -186,7 +230,7 @@ class SQLiteAccessor:
                 latency = row[col_names.index(f"{metric.name}_latency")]
                 metrics.append(FloatMetric(metric.name, value, latency))
             else:
-                dict_data: dict[str,float] = {}
+                dict_data: dict[str, float] = {}
                 for key in metric.data.keys():
                     col = f"{metric.name}_{key}"
                     if col in col_names:
@@ -194,4 +238,12 @@ class SQLiteAccessor:
                 latency = row[col_names.index(f"{metric.name}_latency")]
                 metrics.append(DictMetric(metric.name, dict_data, latency))
 
-        return ModelStats(url, name, net_score, net_score_latency, metrics)
+        return ModelStats(
+            model_url,
+            name,
+            database_url,
+            code_url,
+            net_score,
+            net_score_latency,
+            metrics,
+        )
