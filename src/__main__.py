@@ -4,22 +4,94 @@ import subprocess
 import sys
 import json
 from typing import List
-from metric import ModelURLs, BaseMetric, AnalyzerOutput, PFExponentialDecay
-from database import SQLiteAccessor, FloatMetric, DictMetric, ModelStats, PROD_DATABASE_PATH, ModelSetDatabase
+from metric import ModelURLs, BaseMetric
+from database import SQLiteAccessor, FloatMetric, DictMetric, ModelStats, PROD_DATABASE_PATH
+from metrics.performance_claims import PerformanceClaimsMetric
+from metrics.dataset_and_code import DatasetAndCodeScoreMetric
+from metrics.bus_factor import BusFactorMetric
+from metrics.ramp_up_time import RampUpMetric
+from metrics.license import LicenseMetric
+from metrics.code_quality import CodeQualityMetric
+from metrics.size_score import SizeScoreMetric
 
-def parse_url_file(url_file: Path) -> List[str]:
+def parse_url_file(url_file: Path) -> List[ModelURLs]:
     """
-    Parses a file containing URLs and categorizes them into model, codebase, and dataset URLs.
+    Parses a file containing comma-separated URLs and returns ModelURLs objects.
+    Format: code_link, dataset_link, model_link (per line)
     """
     try:
-        urls = [line.strip() for line in url_file.read_text().splitlines() if line.strip()]
-        return urls
+        model_groups = []
+        
+        lines = url_file.read_text().splitlines()
+        for line_num, line in enumerate(lines, 1):
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Split by comma and clean up whitespace
+            parts = [part.strip() for part in line.split(',')]
+                
+            code_link, dataset_link, model_link = parts[0], parts[1], parts[2]
+            
+            # Clean up empty strings and "blank" indicators
+            code_link = code_link if code_link and code_link.lower() not in ['', 'blank', 'none', 'n/a'] else None
+            dataset_link = dataset_link if dataset_link and dataset_link.lower() not in ['', 'blank', 'none', 'n/a'] else None
+            model_link = model_link if model_link and model_link.lower() not in ['', 'blank', 'none', 'n/a'] else None
+            
+            model_urls = ModelURLs(
+                model=model_link,
+                dataset=dataset_link,
+                codebase=code_link
+            )
+            model_groups.append(model_urls)
+            
+        return model_groups
+        
     except FileNotFoundError:
-        print(f"Error: URL file '{url_file}' not found.", err=True)
-        sys.exit(1)
+        typer.echo(f"Error: URL file '{url_file}' not found.", err=True)
+        raise typer.Exit(code=1)
     except Exception as e:
-        print(f"Error reading URL file: {e}", err=True)
-        sys.exit(1)
+        typer.echo(f"Error reading URL file: {e}", err=True)
+        raise typer.Exit(code=1)
+    
+def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
+    """
+    Calculate all metrics for a given model
+    """
+    metrics = create_metrics()
+    model_name = model_urls.model.split('/')[-1] if '/' in model_urls.model else model_urls.model
+    
+    for metric in metrics:
+        # Set dataset URL for metrics that need it
+        if hasattr(metric, 'dataset_url') and model_urls.dataset:
+            metric.dataset_url = model_urls.dataset
+        
+        # Set codebase URL for metrics that need it
+        if hasattr(metric, 'codebase_url') and model_urls.codebase:
+            metric.codebase_url = model_urls.codebase
+        
+    #TODO: calculate each metric
+    
+    return ModelStats(
+        url=model_urls.model,
+        name=model_name, 
+        net_score=analyzer_output.score,
+        net_score_latency=net_latency,
+        metrics=db_metrics
+    )
+def create_metrics() -> List[BaseMetric]:
+    """
+    Create all metric instances
+    """
+    return [
+        RampUpMetric(),
+        BusFactorMetric(), 
+        PerformanceClaimsMetric(),
+        LicenseMetric(),
+        SizeScoreMetric(),
+        DatasetAndCodeScoreMetric(),
+        CodeQualityMetric()
+    ]
        
 app = typer.Typer()
 
@@ -28,18 +100,18 @@ def install():
     """
     Installs necessary dependencies from dependencies.txt
     """
-    print("Installing dependencies...")
+    typer.echo("Installing dependencies...")
     try:
         deps_file = Path(__file__).parent.parent / "dependencies.txt"
         if deps_file.exists():
             result = subprocess.run(["pip", "install", "--user", "-r", str(deps_file)])# capture_output=True, text=True)
             if result.returncode != 0:
-                print(f"An error occurred while installing dependencies:\n{result.stderr}", err = True)
-                sys.exit(1)
-            print("Dependencies installed successfully.")
+                typer.echo(f"An error occurred while installing dependencies:\n{result.stderr}", err = True)
+                raise typer.Exit(code=1)
+            typer.echo("Dependencies installed successfully.")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}", err = True)
-        sys.exit(1)
+        typer.echo(f"An unexpected error occurred: {e}", err = True)
+        raise typer.Exit(code=1)
     
 @app.command()
 def test(): 
@@ -62,9 +134,10 @@ def test():
         
         loader = unittest.TestLoader()
         start_dir = str(tests_path)
-        suite = loader.discover(start_dir, pattern='test*.py')
+        suite = loader.discover(start_dir, pattern='*.py')
         total_tests = 0
         
+        #Count total tests
         def count_tests(test_suite):
             nonlocal total_tests
             for test in test_suite:
@@ -81,104 +154,93 @@ def test():
         coverage_report = cov.report(show_missing=False, file=open(os.devnull, 'w'))
         coverage_data = cov.get_data()
         
+        #Find line coverage
         total_lines = 0
         covered_lines = 0
         for filename in coverage_data.measured_files():
-            if str(src_path) in filename:  # Only count source files
+            if str(src_path) in filename:
                 analysis = cov.analysis2(filename)
-                total_lines += len(analysis[1]) + len(analysis[2])  # executed + missing
-                covered_lines += len(analysis[1])  # executed lines
+                total_lines += len(analysis[1]) + len(analysis[2])
+                covered_lines += len(analysis[1])
         
         coverage_percent = (covered_lines / total_lines * 100) if total_lines > 0 else 0
         passed_tests = total_tests - len(result.failures) - len(result.errors)
-        print(f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved.")
+        typer.echo(f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved.")
         
         if result.failures or result.errors:
-            sys.exit(1)
-        sys.exit(0)
+            raise typer.Exit(code=1)
+        raise typer.Exit(code=1)
     except ImportError:
-        print("Error: 'coverage' package not installed. Please run 'install' command first.", err=True)
-        sys.exit(1)
+        typer.echo("Error: 'coverage' package not installed. Please run 'install' command first.", err=True)
+        raise typer.Exit(code=1)
     except Exception as e:
-        print(f"Error running tests: {e}", file=sys.stderr)
-        sys.exit(1)
+        typer.echo(f"Error running tests: {e}", file=sys.stderr)
+        raise typer.Exit(code=1)
 
 
 @app.callback(invoke_without_command=True)
 def analyze(url_file: Path):
-    print("Analyzing model...")
-    
-    urls = parse_url_file(url_file)
-    if not urls:
-        print("Error: No URLs found in file.", err=True)
-        sys.exit(1)
-    
-    dataset_url, code_url, model_url = None, None, None
-    for url in urls:
-        if "huggingface.co/datasets" in url:
-            dataset_url = url
-        elif "github.com" in url:
-            code_url = url
-        elif "huggingface.co" in url:
-            model_url = url
-    
-    model_name = model_url.split('/')[-1]
-    model_db = ModelSetDatabase()
-    entry_id = model_db.add_if_not_exists(model_url, code_url, dataset_url)
-    
-    basic_schema = [
-        FloatMetric("ramp_up_time", 0.0, 0),
-        FloatMetric("bus_factor", 0.0, 0),
-        FloatMetric("performance_claims", 0.0, 0),
-        FloatMetric("license", 0.0, 0),
-        DictMetric("size_score", {
-            "raspberry_pi": 0.0,
-            "jetson_nano": 0.0,
-            "desktop_pc": 0.0,
-            "aws_server": 0.0
-        }, 0),
-        FloatMetric("dataset_and_code score", 0.0, 0),
-        FloatMetric("dataset_quality", 0.0, 0),
-        FloatMetric("code_quality", 0.0, 0),
-    ]
-    
-    db = SQLiteAccessor(PROD_DATABASE_PATH, basic_schema)
+    """
+    Analyzes models based on URLs provided in a file. 
+    Will add model to database if not already present.
+    """
+    typer.echo("Analyzing model...")
     
     try:
-        if db.check_entry_in_db(model_url):
-            print("Model already analyzed. Fetching from database...")
-            stats = db.get_model_statistics(model_url)
-        else:
-            model_urls = ModelURLs(
-                model=model_url,
-                dataset=dataset_url,
-                codebase=code_url
-            )
-            
-            #TODO: implement actual metric calculations
-            stats = ModelStats(model_url, model_name, 0.0, 0, basic_schema)
-            db.add_to_db(stats)
+        model_groups = parse_url_file(url_file)
+        if not model_groups:
+            typer.echo("Error: No valid model URLs found in file.", err=True)
+            raise typer.Exit(code=1)
         
-        results = {
-            "name": stats.name,
-            "category": "MODEL",
-            "net_score": stats.net_score,
-            "net_score_latency": stats.net_score_latency
-            }
+        basic_schema = [
+                FloatMetric("ramp_up_time", 0.0, 0),
+                FloatMetric("bus_factor", 0.0, 0),
+                FloatMetric("performance_claims", 0.0, 0),
+                FloatMetric("license", 0.0, 0),
+                DictMetric("size_score", {
+                    "raspberry_pi": 0.0,
+                    "jetson_nano": 0.0,
+                    "desktop_pc": 0.0,
+                    "aws_server": 0.0
+                }, 0),
+                FloatMetric("dataset_and_code score", 0.0, 0),
+                FloatMetric("dataset_quality", 0.0, 0),
+                FloatMetric("code_quality", 0.0, 0),
+            ]
+        
+        db = SQLiteAccessor(PROD_DATABASE_PATH, basic_schema)
+        
+        for model_urls in model_groups:
+            model_url = model_urls.model
+            
+            #Check if model already analyzed
+            if db.check_entry_in_db(model_url):
+                typer.echo("Model already analyzed. Fetching from database...")
+                stats = db.get_model_statistics(model_url)
+            else:
+                stats = calculate_metrics(model_urls) #TODO: implement actual metric calculations
+                db.add_to_db(stats)
+            
+            results = {
+                "name": stats.name,
+                "category": "MODEL",
+                "net_score": stats.net_score,
+                "net_score_latency": stats.net_score_latency
+                }
 
-        for metric in stats.metrics:
-            if isinstance(metric, FloatMetric):
-                results[metric.metric_name] = metric.data
-                results[f"{metric.metric_name}_latency"] = metric.latency
-            elif isinstance(metric, DictMetric):
-                results[metric.metric_name] = metric.data
-                results[f"{metric.metric_name}_latency"] = metric.latency
-                
-        print(json.dumps(results))
+            for metric in stats.metrics:
+                if isinstance(metric, FloatMetric):
+                    results[metric.metric_name] = metric.data
+                    results[f"{metric.metric_name}_latency"] = metric.latency
+                elif isinstance(metric, DictMetric):
+                    results[metric.metric_name] = metric.data
+                    results[f"{metric.metric_name}_latency"] = metric.latency
+                    
+            typer.echo(json.dumps(results))
         
     except Exception as e:
-        print(f"An error occurred during analysis: {e}", err = True)
-        sys.exit(1)
+        typer.echo(f"An error occurred during analysis: {e}", err = True)
+        raise typer.Exit(code=1)
         
 if __name__ == "__main__":
     app()
