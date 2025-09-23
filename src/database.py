@@ -155,6 +155,30 @@ class SQLiteAccessor:
         self.cursor.execute(sql)
         self.connection.commit()
 
+    def get_database_metrics_if_exists(
+        self, url: str, schema: list[FloatMetric | DictMetric]
+    ) -> list[FloatMetric | DictMetric] | None:
+        self.cursor.execute("SELECT * FROM models WHERE database_url = ?", (url,))
+        row = self.cursor.fetchone()
+        if row is None:
+            return None
+        col_names = [desc[0] for desc in self.cursor.description]
+        scores: list[FloatMetric | DictMetric] = []
+        for metric in schema:
+            if isinstance(metric, FloatMetric):
+                value = row[col_names.index(metric.name)]
+                latency = row[col_names.index(f"{metric.name}_latency")]
+                scores.append(FloatMetric(metric.name, value, latency))
+            else:
+                dict_data: dict[str, float] = {}
+                for key in metric.data.keys():
+                    col = f"{metric.name}_{key}"
+                    if col in col_names:
+                        dict_data[key] = row[col_names.index(col)]
+                latency = row[col_names.index(f"{metric.name}_latency")]
+                scores.append(DictMetric(metric.name, dict_data, latency))
+        return scores
+
     def check_entry_in_db(self, url: str) -> bool:
         self.cursor.execute("SELECT model_url from models WHERE model_url = ?", (url,))
         return self.cursor.fetchone() is not None

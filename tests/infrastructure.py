@@ -298,3 +298,47 @@ class TestDatabaseAccess(unittest.TestCase):
     def test_uninitialized_db(self):
         accessor = SQLiteAccessor(None, self.schema1, create_if_missing=False)
         self.assertFalse(accessor.db_exists())
+
+    def test_get_database_metrics(self):
+        accessor = SQLiteAccessor(None, self.schema3)
+        model3 = ModelStats(
+            model_url="example.com/test_url",
+            name="Test Model",
+            database_url="example.com/test_url",
+            code_url="example.com/test_url",
+            net_score=0.99,
+            net_score_latency=5,
+            metrics=self.schema3,
+        )
+        database_metrics = self.schema3[0::2]
+        accessor.add_to_db(model3)
+        fetched = accessor.get_database_metrics_if_exists(
+            model3.database_url, database_metrics
+        )
+        self.assertIsNotNone(fetched)
+        if fetched is None:
+            # purely to make the linter happy
+            raise ValueError("fetched is None")
+        # Check metrics
+        for m1, m2 in zip(database_metrics, fetched):
+            self.assertEqual(m1.name, m2.name)
+            self.assertEqual(m1.latency, m2.latency)
+            self.assertEqual(m1.data, m2.data)
+
+    def test_get_unknown_database(self):
+        accessor = SQLiteAccessor(None, self.schema3)
+        model3 = ModelStats(
+            model_url="example.com/test_url",
+            name="Test Model",
+            database_url="example.com/test_url",
+            code_url="example.com/test_url",
+            net_score=0.99,
+            net_score_latency=5,
+            metrics=self.schema3,
+        )
+        database_metrics = self.schema3[0::2]
+        accessor.add_to_db(model3)
+        fetched = accessor.get_database_metrics_if_exists(
+            "example.com/new_url", database_metrics
+        )
+        self.assertIsNone(fetched)
