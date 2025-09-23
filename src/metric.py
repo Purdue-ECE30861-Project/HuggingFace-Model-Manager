@@ -1,5 +1,7 @@
 import abc
 import typing
+import os
+import time
 from itertools import starmap
 from pydantic import BaseModel
 from sortedcontainers import SortedDict
@@ -27,7 +29,9 @@ class BaseMetric(abc.ABC):
         self.score: float = 0.0
         self.url: str = ""
         self.priority: int = 1
-        self.target_platform: str = ""
+        self.target_platform: typing.Optional[str] = None
+        self.local_directory: typing.Optional[str] = None
+        self.runtime: float = 0.0
 
     def run(self) -> typing.Self:
         """
@@ -35,8 +39,10 @@ class BaseMetric(abc.ABC):
         Returns:
             Self: The metric instance with updated score.
         """
+        start: float = time.time()
         self.setup_resources()
         self.score = self.calculate_score()
+        self.runtime = time.time() - start
 
         return self
 
@@ -67,6 +73,11 @@ class BaseMetric(abc.ABC):
             raise IOError("The provided URL was invalid") # cli will handle this error if invalid url
 
         self.url = url
+
+    def set_local_directory(self, local_directory: str):
+        if not local_directory:
+            raise IOError("The provided local directory was invalid")
+        self.local_directory = local_directory
 
     @abc.abstractmethod
     def setup_resources(self):
@@ -196,6 +207,7 @@ class NetScoreCalculator:
         """
         priority_organized_scores: SortedDict = SortedDict()
         for metric in metrics:
+            assert(metric.score >= 0 and metric.score <= 1)
             if metric.priority in priority_organized_scores:
                 priority_organized_scores[metric.priority].append(metric.score)
             else:
@@ -264,16 +276,6 @@ class AnalyzerOutput:
         self.individual_scores: dict[str, float] = {metric.metric_name: metric.score for metric in metrics}
         self.model_metadata: ModelURLs = model_metadata
         self.score: float = NetScoreCalculator(priority_function).calculate_net_score(metrics)
-
-    def append_to_db(self, database_interface: typing.Any) -> bool:
-        """
-        Appends the analysis output to a database.
-        Args:
-            database_interface (Any): The database interface to use.
-        Returns:
-            bool: True if successful, False otherwise.
-        """
-        pass
 
     def __str__(self):
         """
