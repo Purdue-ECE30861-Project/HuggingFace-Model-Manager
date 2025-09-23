@@ -3,6 +3,8 @@ from pathlib import Path
 import subprocess
 import sys
 import json
+import os
+import logging
 from typing import List
 from metric import ModelURLs
 from database import SQLiteAccessor, FloatMetric, DictMetric, ModelStats, PROD_DATABASE_PATH
@@ -14,6 +16,28 @@ from metrics.ramp_up_time import RampUpMetric
 from metrics.license import LicenseMetric
 from metrics.code_quality import CodeQualityMetric
 from metrics.size_score import SizeScoreMetric
+
+def setup_logging():
+    """
+    Setup logging based on environment variables
+    """
+    log_level = int(os.environ.get('LOG_LEVEL', 0))
+    log_file = os.environ.get('LOG_FILE')
+    
+    if log_level == 0:
+        logging.disable(logging.CRITICAL)
+        return
+    
+    level = logging.INFO if log_level == 1 else logging.DEBUG
+    
+    if log_file:
+        logging.basicConfig(
+            filename=log_file,
+            level=level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+    else:
+        logging.basicConfig(level=level)
 
 def parse_url_file(url_file: Path) -> List[ModelURLs]:
     """
@@ -39,6 +63,10 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
             dataset_link = dataset_link if dataset_link and dataset_link.lower() not in ['', 'blank', 'none', 'n/a'] else None
             model_link = model_link if model_link and model_link.lower() not in ['', 'blank', 'none', 'n/a'] else None
             
+            if not model_link:
+                logging.warning(f"Line {line_num}: No model link found, skipping")
+                continue
+            
             model_urls = ModelURLs(
                 model=model_link,
                 dataset=dataset_link,
@@ -46,6 +74,7 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
             )
             model_groups.append(model_urls)
             
+        logging.info(f"Parsed {len(model_groups)} models from {url_file}")  
         return model_groups
         
     except FileNotFoundError:
@@ -225,6 +254,8 @@ def analyze(url_file: Path):
             typer.echo("Error: No valid model URLs found in file.", err=True)
             raise typer.Exit(code=1)
         
+        setup_logging()
+        
         basic_schema = [
                 FloatMetric("ramp_up_time", 0.0, 0),
                 FloatMetric("bus_factor", 0.0, 0),
@@ -248,10 +279,12 @@ def analyze(url_file: Path):
             
             #Check if model already analyzed
             if db.check_entry_in_db(model_url):
-                typer.echo("Model already analyzed. Fetching from database...")
+                logging.info(f"Model {model_url} already analyzed. Fetching from database...")
                 stats = db.get_model_statistics(model_url)
             else:
-            #Calculate metrics and add to database
+                logging.info(f"Analyzing model {model_url}...")
+                
+                #Calculate metrics and add to database
                 stats = calculate_metrics(model_urls)
                 db.add_to_db(stats)
             
