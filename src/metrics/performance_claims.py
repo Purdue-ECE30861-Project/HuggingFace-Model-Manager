@@ -1,7 +1,10 @@
 from metric import BaseMetric
-import re
-from typing import override
 import Path
+from typing import override
+import requests
+
+API_KEY = "sk-c089cffb672740b4b99d38dad7c97677"
+LLM_API_URL = "https://genai.rcac.purdue.edu/api/chat/completions"
 
 class PerformanceClaimsMetric(BaseMetric):
     metric_name: str = "performance_claims"
@@ -25,68 +28,21 @@ class PerformanceClaimsMetric(BaseMetric):
         
         readme_content = self.readme_file.read_text(encoding='utf-8').lower()
         
-        #Benchmark keywords
-        benchmark_keywords = [
-                'benchmark', 'evaluation', 'performance', 'accuracy', 'f1', 
-                'bleu', 'rouge', 'perplexity', 'score', 'metric', 'eval',
-                'test', 'validation', 'leaderboard', 'sota', 'baseline'
-            ]
-        benchmark_score = 0.0
-        for keyword in benchmark_keywords:
-            if keyword in readme_content:
-                benchmark_score += 0.03
-        benchmark_score = min(0.4, benchmark_score)
+        prompt = """Use the following README content to score the model's performance claims on a scale of 0 to 1. Look for 
+        benchmark keywords, numerical results, academic references, and performance comparisons. The benchmark score has a weight 
+        of 0.4, numerical results have a weight of 0.3, academic references have a weight of 0.2, and performance comparisions have a 
+        weight of 0.1. Output the calculated score as a floating point and nothing else. README content: """ + readme_content
         
-        #Numerical results
-        numbers = re.findall(r'\b\d+\.?\d*%?\b', self.readme_content)
-        numeric_results = []
-        for num in numbers:
-            try:
-                clean_num = num.replace('%', '')
-                val = float(clean_num)
-                # Filter for likely performance scores
-                if (('%' in num and 0 <= val <= 100) or 
-                    ('.' in num and 0 <= val <= 1) or
-                    (not '%' in num and not '.' in num and 50 <= val <= 100)):
-                    numeric_results.append(num)
-            except ValueError:
-                continue
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": "llama3.1:latest",
+            "prompt": prompt
+        }
         
-        numeric_score = 0.0
-        if len(numeric_results) >= 5:
-            numeric_score = 0.3
-        elif len(numeric_results) >= 3:
-            numeric_score = 0.2
-        elif len(numeric_results) >= 1:
-            numeric_score = 0.1
-        
-        #Academic references
-        paper_indicators = [
-            'paper', 'arxiv', 'doi:', 'citation', 'published', 
-            'conference', 'journal', 'acl', 'emnlp', 'icml'
-        ]
-        academic_score = 0.0
-        for indicator in paper_indicators:
-            if indicator in readme_content:
-                academic_score = 0.2
-                break
-        
-        #Dataset evaluation
-        dataset_keywords = [
-            'dataset', 'corpus', 'test set', 'validation set', 
-            'eval', 'glue', 'squad', 'coco'
-        ]
-        dataset_score = 0.0
-        for keyword in dataset_keywords:
-            if keyword in readme_content:
-                dataset_score = 0.1
-                break
-        
-        # Calculate total score and time
-        total_score = benchmark_score + numeric_score + academic_score + dataset_score
-        
-        # Normalize score
-        final_score = min(1.0, max(0.0, total_score))
-        
+        final_score = requests.post(LLM_API_URL, headers=headers, json=data)
+        final_score = float(final_score.json()['choices'][0]['message']['content'].strip())
         return final_score
     
