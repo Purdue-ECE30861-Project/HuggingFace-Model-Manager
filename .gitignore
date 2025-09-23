@@ -9,8 +9,6 @@ venv/
 .venv/
 ./venv/
 .env
-
-.env
 .vscode/settings.json
 src/__pycache__/**
 tests/__pycache__/**
