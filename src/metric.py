@@ -196,6 +196,7 @@ class NetScoreCalculator:
         """
         priority_organized_scores: SortedDict = SortedDict()
         for metric in metrics:
+            assert(metric.score >= 0 and metric.score <= 1)
             if metric.priority in priority_organized_scores:
                 priority_organized_scores[metric.priority].append(metric.score)
             else:
@@ -264,16 +265,6 @@ class AnalyzerOutput:
         self.individual_scores: dict[str, float] = {metric.metric_name: metric.score for metric in metrics}
         self.model_metadata: ModelURLs = model_metadata
         self.score: float = NetScoreCalculator(priority_function).calculate_net_score(metrics)
-
-    def append_to_db(self, database_interface: typing.Any) -> bool:
-        """
-        Appends the analysis output to a database.
-        Args:
-            database_interface (Any): The database interface to use.
-        Returns:
-            bool: True if successful, False otherwise.
-        """
-        pass
 
     def __str__(self):
         """
