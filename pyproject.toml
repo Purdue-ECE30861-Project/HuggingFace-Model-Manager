@@ -5,7 +5,11 @@ packages = [
     {include = "metric.py", from = "src"},
     {include = "workflow.py", from = "src"},
     {include = "database.py", from = "src"},
+    {include = "__main__.py", from = "src"}
 ]
+
+[tool.poetry.scripts]
+huggingface-model-manager = "__main__:run"
 
 
 [build-system]
