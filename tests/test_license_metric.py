@@ -1,5 +1,5 @@
 import unittest
-from metrics.license import *  # pyright: ignore[reportWildcardImportFromLibrary]
+from src.metrics.license import *  # pyright: ignore[reportWildcardImportFromLibrary]
 from pathlib import Path
 import os, shutil
 

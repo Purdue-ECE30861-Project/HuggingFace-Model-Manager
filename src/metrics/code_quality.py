@@ -5,7 +5,7 @@ from typing import override
 from pylint.lint import pylinter, Run
 from pylint.reporters.text import TextReporter
 
-from metric import BaseMetric
+from src.metric import BaseMetric
 
 
 class CodeQualityMetric(BaseMetric):
@@ -19,11 +19,14 @@ class CodeQualityMetric(BaseMetric):
         for root, _, files in os.walk(self.local_directory):
             for file in files:
                 if file.endswith(".py"):
-                    print(file)
+                    #print(file)
                     self.file_list.append(os.path.join(root, file))
 
     @override
     def calculate_score(self) -> float:
+        if not self.file_list:
+            return 0.0
+
         pylinter.MANAGER.clear_cache()
 
         output_stream: StringIO = StringIO()

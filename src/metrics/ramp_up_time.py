@@ -1,42 +1,50 @@
-import os
-import re
+import typing
+import time
 from io import StringIO
-from typing import override
-from pylint.lint import pylinter, Run
-from pylint.reporters.text import TextReporter
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from math import exp, log
+from typing import override, Literal
 
-from metric import BaseMetric
+import contextlib
+from transformers import AutoTokenizer, AutoModel
+
+from src.metric import BaseMetric
 
 
 class RampUpMetric(BaseMetric):
     metric_name: str = "RampUpTime"
-    def __init__(self):
+    def __init__(self, half_score_time_minutes: float, device_type: Literal["cpu", "mps", "cuda", "cuda:0"]):
         super().__init__()
-        self.model_name: str
+        assert(half_score_time_minutes > 0.0)
+        self.device_type: Literal["cpu", "mps", "cuda", "cuda:0"] = device_type
+        self.exponential_coefficient: float = -log(0.5) / half_score_time_minutes
+        self.model_name: str = ""
 
     @override
     def setup_resources(self):
-        split_url = self.url.split('huggingface.co/')
-        self.model_name: str = split_url[1]
+        try:
+            split_url = self.url.split('huggingface.co/')
+            self.model_name = split_url[1]
+        except Exception:
+            raise NameError(f"URL provided to RampUpMetric {self.url} is of invalid format")
+
+    def installation_spin_up_score(self, force_download: bool):
+        start_load_time: float = time.time()
+        buf: StringIO = StringIO()
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            tokenizer: typing.Any = AutoTokenizer.from_pretrained(self.model_name, force_download=force_download)
+            model: typing.Any = AutoModel.from_pretrained(self.model_name, force_download=force_download).to(self.device_type)
+
+            total_time: float = time.time() - start_load_time
+
+        return exp(-self.exponential_coefficient * (total_time / 60))
 
     @override
     def calculate_score(self) -> float:
-        start_load_time = time.time()
-        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        model = AutoModelForCausalLM.from_pretrained(self.model_name).to(device)
-        end_load_time = time.time()
-        load_time = end_load_time - start_load_time
+        try:
+            initial_install: float = self.installation_spin_up_score(True)
+            cache_install: float = self.installation_spin_up_score(False)
 
-        start_warmup_time = time.time()
-        _ = model.generate(**inputs, max_new_tokens=10, num_return_sequences=1)
-        end_warmup_time = time.time()
-        warmup_time = end_warmup_time - start_warmup_time
-
-        total_time = load_time + warmup_time
-        minutes = total_time / 60
-
-        if minutes <= 1:
-            return 1.0
-        return 1.0 / minutes
+            return (initial_install + cache_install) / 2
+        except ValueError:
+            print("No URL access to specified model")
+            return 0.0
