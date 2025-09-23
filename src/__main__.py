@@ -4,7 +4,7 @@ import subprocess
 import sys
 import json
 from typing import List
-from metric import ModelURLs, BaseMetric
+from metric import ModelURLs
 from database import SQLiteAccessor, FloatMetric, DictMetric, ModelStats, PROD_DATABASE_PATH
 from workflow import MetricStager, ConfigContract, run_workflow
 from metrics.performance_claims import PerformanceClaimsMetric
@@ -251,7 +251,8 @@ def analyze(url_file: Path):
                 typer.echo("Model already analyzed. Fetching from database...")
                 stats = db.get_model_statistics(model_url)
             else:
-                stats = calculate_metrics(model_urls) #TODO: implement actual metric calculations
+            #Calculate metrics and add to database
+                stats = calculate_metrics(model_urls)
                 db.add_to_db(stats)
             
             results = {
