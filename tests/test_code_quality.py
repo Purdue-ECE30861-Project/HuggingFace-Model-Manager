@@ -1,5 +1,4 @@
 import unittest
-import os
 from src.metrics.code_quality import *
 
 
