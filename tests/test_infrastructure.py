@@ -1,6 +1,6 @@
 import unittest
-from workflow import *
-from metric import *
+from src.workflow import *
+from src.metric import *
 
 
 class DummyMetric1(BaseMetric):

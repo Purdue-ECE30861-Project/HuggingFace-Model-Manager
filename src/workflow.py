@@ -3,7 +3,7 @@ import os
 from typing import Literal, Optional
 from pydantic import BaseModel
 import typing
-from metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS
+from src.metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS
 
 
 DATASET = 'dataset'

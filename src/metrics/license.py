@@ -1,4 +1,4 @@
-from metric import BaseMetric  # pyright: ignore[reportMissingTypeStubs]
+from src.metric import BaseMetric  # pyright: ignore[reportMissingTypeStubs]
 from pathlib import Path
 import re
 from spdx_license_matcher.find import find_license  # type: ignore

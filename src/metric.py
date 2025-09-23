@@ -1,7 +1,7 @@
 import abc
 import typing
-import os
 import time
+from typing import Self
 from itertools import starmap
 from pydantic import BaseModel
 from sortedcontainers import SortedDict
@@ -33,20 +33,25 @@ class BaseMetric(abc.ABC):
         self.local_directory: typing.Optional[str] = None
         self.runtime: float = 0.0
 
-    def run(self) -> typing.Self:
+    def run(self) -> Self:
         """
         Sets up resources and calculates the metric score.
         Returns:
             Self: The metric instance with updated score.
         """
         start: float = time.time()
-        self.setup_resources()
-        self.score = self.calculate_score()
+        try:
+            self.setup_resources()
+            self.score = self.calculate_score()
+        except Exception as e:
+            self.score = 0.0
+            print(str(e))
+
         self.runtime = time.time() - start
 
         return self
 
-    def set_params(self, priority: int, platform: str) -> typing.Self:
+    def set_params(self, priority: int, platform: str) -> Self:
         """
         Sets the priority and target platform for the metric.
         Args:
