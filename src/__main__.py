@@ -6,6 +6,7 @@ import json
 from typing import List
 from metric import ModelURLs, BaseMetric
 from database import SQLiteAccessor, FloatMetric, DictMetric, ModelStats, PROD_DATABASE_PATH
+from workflow import MetricStager, ConfigContract, run_workflow
 from metrics.performance_claims import PerformanceClaimsMetric
 from metrics.dataset_and_code import DatasetAndCodeScoreMetric
 from metrics.bus_factor import BusFactorMetric
@@ -28,12 +29,12 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
             if not line:
                 continue
                 
-            # Split by comma and clean up whitespace
+            #Split by comma and clean up whitespace
             parts = [part.strip() for part in line.split(',')]
                 
             code_link, dataset_link, model_link = parts[0], parts[1], parts[2]
             
-            # Clean up empty strings and "blank" indicators
+            #Clean up empty strings and "blank" indicators
             code_link = code_link if code_link and code_link.lower() not in ['', 'blank', 'none', 'n/a'] else None
             dataset_link = dataset_link if dataset_link and dataset_link.lower() not in ['', 'blank', 'none', 'n/a'] else None
             model_link = model_link if model_link and model_link.lower() not in ['', 'blank', 'none', 'n/a'] else None
@@ -58,32 +59,10 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
     """
     Calculate all metrics for a given model
     """
-    metrics = create_metrics()
-    model_name = model_urls.model.split('/')[-1] if '/' in model_urls.model else model_urls.model
+    #Using these values for now, will have to use config file to actually configure
+    config = ConfigContract(num_processes=1, priority_function='PFReciprocal',target_platform='desktop_pc')
     
-    for metric in metrics:
-        # Set dataset URL for metrics that need it
-        if hasattr(metric, 'dataset_url') and model_urls.dataset:
-            metric.dataset_url = model_urls.dataset
-        
-        # Set codebase URL for metrics that need it
-        if hasattr(metric, 'codebase_url') and model_urls.codebase:
-            metric.codebase_url = model_urls.codebase
-        
-    #TODO: calculate each metric
-    
-    return ModelStats(
-        url=model_urls.model,
-        name=model_name, 
-        net_score=analyzer_output.score,
-        net_score_latency=net_latency,
-        metrics=db_metrics
-    )
-def create_metrics() -> List[BaseMetric]:
-    """
-    Create all metric instances
-    """
-    return [
+    metrics = [
         RampUpMetric(),
         BusFactorMetric(), 
         PerformanceClaimsMetric(),
@@ -92,6 +71,60 @@ def create_metrics() -> List[BaseMetric]:
         DatasetAndCodeScoreMetric(),
         CodeQualityMetric()
     ]
+    model_name = model_urls.model.split('/')[-1] if '/' in model_urls.model else model_urls.model
+    
+    for metric in metrics:
+        #Set dataset URL for metrics that need it
+        if hasattr(metric, 'dataset_url') and model_urls.dataset:
+            metric.dataset_url = model_urls.dataset
+        
+        #Set codebase URL for metrics that need it
+        if hasattr(metric, 'codebase_url') and model_urls.codebase:
+            metric.codebase_url = model_urls.codebase
+        
+    stager = MetricStager(config)
+    
+    stager.attach_metric('model', metrics[0], 1)
+    stager.attach_metric('model', metrics[1], 2)
+    stager.attach_metric('model', metrics[2], 2)
+    stager.attach_metric('model', metrics[3], 1)
+    stager.attach_metric('model', metrics[4], 3)
+    stager.attach_metric('model', metrics[5], 2)
+    
+    if model_urls.codebase:
+        stager.attach_metric('codebase', metrics[6], 2)
+        
+    analyzer_output = run_workflow(stager, model_urls, config)
+    
+    db_metrics = []
+    for metric in metrics:
+        metric_name = metric.metric_name
+        if metric_name == "size_score":
+            #Handle special case for size_score (returns dictionary)
+            size_scores = analyzer_output.individual_scores.get(metric_name, {
+                "raspberry_pi": 0.0,
+                "jetson_nano": 0.0,
+                "desktop_pc": 0.0,
+                "aws_server": 0.0
+            })
+            latency_ms = int(metric.runtime * 1000) if hasattr(metric, 'runtime') else 0
+            db_metrics.append(DictMetric(metric_name, size_scores, latency_ms))
+        else:
+            #Regular float metrics
+            score = analyzer_output.individual_scores.get(metric_name, 0.0)
+            latency_ms = int(metric.runtime * 1000) if hasattr(metric, 'runtime') else 0
+            db_metrics.append(FloatMetric(metric_name, score, latency_ms))
+    
+    # Calculate net score latency
+    net_latency = sum(m.latency for m in db_metrics)
+    
+    return ModelStats(
+        url=model_urls.model,
+        name=model_name, 
+        net_score=analyzer_output.score,
+        net_score_latency=net_latency,
+        metrics=db_metrics
+    )
        
 app = typer.Typer()
 
@@ -104,7 +137,7 @@ def install():
     try:
         deps_file = Path(__file__).parent.parent / "dependencies.txt"
         if deps_file.exists():
-            result = subprocess.run(["pip", "install", "--user", "-r", str(deps_file)])# capture_output=True, text=True)
+            result = subprocess.run(["pip", "install", "--user", "-r", str(deps_file)])
             if result.returncode != 0:
                 typer.echo(f"An error occurred while installing dependencies:\n{result.stderr}", err = True)
                 raise typer.Exit(code=1)
