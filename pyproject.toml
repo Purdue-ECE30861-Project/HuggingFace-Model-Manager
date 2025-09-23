@@ -4,13 +4,13 @@ version = "0.0.1"
 packages = [
     {include = "metric.py", from = "src"},
     {include = "workflow.py", from = "src"},
+    {include = "database.py", from = "src"},
 ]
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
 
 [tool.coverage.run]
 omit = [
