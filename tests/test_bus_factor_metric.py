@@ -97,7 +97,7 @@ class TestBustFactor(unittest.TestCase):
     def test_invalid_url(self):
         self.metric_instance.set_url("sdvx.org")
         with self.assertRaises(ValueError):
-            self.metric_instance.run()
+            self.metric_instance.setup_resources()
 
     def test_no_http(self):
         self.metric_instance.set_url("github.com/silica-dev/TerrorCTF")
