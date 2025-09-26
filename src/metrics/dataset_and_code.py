@@ -67,5 +67,6 @@ class DatasetAndCodeScoreMetric(BaseMetric):
             for marker in section:
                 if marker in readme_content:
                     doc_score += 0.2 / len(documentation_markers)
+        doc_score = min(0.2, doc_score)
 
         return min(1, score + doc_score)
