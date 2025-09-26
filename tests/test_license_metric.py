@@ -115,14 +115,18 @@ class LicenseMetricTest(unittest.TestCase):
         # no license
         with open(self.no_license_dir / "todo.txt", "wt") as file:
             file.write("TODO: create model")
-        
+
         # no license, but with a readme
         with open(self.no_license_but_readme_dir / "README.md", "wt") as file:
-            file.writelines(["# Not A Model\n", "This repository is not for a model.\n"])
-        
+            file.writelines(
+                ["# Not A Model\n", "This repository is not for a model.\n"]
+            )
+
         # unknown non-commercial license
         with open(self.unknown_noncommercial_license_dir / "LICENSE.md", "wt") as file:
-            file.writelines(["This model must be used for non-commercial, research purposes only."])
+            file.writelines(
+                ["This model must be used for non-commercial, research purposes only."]
+            )
 
         return super().setUp()
 
@@ -140,38 +144,41 @@ class LicenseMetricTest(unittest.TestCase):
         self.license_instance.set_local_directory(str(self.linked_license_dir))
         self.license_instance.run()
         self.assertAlmostEqual(self.license_instance.score, license_score["lgpl-3.0+"])
-    
+
     def testReadmeLinked_md(self):
         self.license_instance.set_local_directory(str(self.linked_license_md_dir))
         self.license_instance.run()
         self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
-    
+
     def testNoReadme(self):
         self.license_instance.set_local_directory(str(self.no_readme_dir))
         self.license_instance.run()
         self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
-    
+
     def testLicenseTextInReadme(self):
         self.license_instance.set_local_directory(str(self.text_in_readme_dir))
         self.license_instance.run()
         self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
-    
+
     def testNoLicense(self):
         self.license_instance.set_local_directory(str(self.no_license_dir))
         self.license_instance.run()
         self.assertAlmostEqual(self.license_instance.score, 0.0)
-    
+
     def testNoLicenseButReadme(self):
         self.license_instance.set_local_directory(str(self.no_license_but_readme_dir))
         self.license_instance.run()
         self.assertAlmostEqual(self.license_instance.score, 0.0)
-    
+
     def testUnknownNoncommercialLicense(self):
-        self.license_instance.set_local_directory(str(self.unknown_noncommercial_license_dir))
+        self.license_instance.set_local_directory(
+            str(self.unknown_noncommercial_license_dir)
+        )
         self.license_instance.run()
         self.assertAlmostEqual(self.license_instance.score, 0.0)
-    
+
     def testNoLocalDirectory(self):
         incomplete_instance = LicenseMetric()
         with self.assertRaises(ValueError):
-            incomplete_instance.run()
+            incomplete_instance.setup_resources()
+            incomplete_instance.calculate_score()

@@ -60,13 +60,17 @@ license_score: dict[str, float] = {
     # see https://www.gnu.org/licenses/gpl-faq.html#AllCompatibility
     "gpl-2.0": 0,
     "gpl-2.0+": 0,
+    "gpl-2.0-or-later": 0,
     "gpl-3.0": 0.0,
     "gpl-3.0+": 0.0,
+    "gpl-3.0-or-later": 0,
     "lgpl": 1.0,  #  lgpl says you can choose whatever lgpl license you want if it isn't specified by the distributor
     "lgpl-2.1": 1.0,
     "lgpl-2.1+": 1.0,
+    "lgpl-2.1-or-later": 1.0,
     "lgpl-3.0": 0.7,  # re-use is allowed, but modification will require the code to be relicensed.
     "lgpl-3.0+": 0.7,  # re-use is allowed, but modification will require the code to be relicensed.
+    "lgpl-3.0-or-later": 0.7,
     "isc": 1.0,
     "h-research": 0.0,  # non commercial
     "intel-research": 0.0,  # restrictions on redistribution.
@@ -145,7 +149,6 @@ class LicenseMetric(BaseMetric):
             else:
                 matches: list[dict[str, str]] = find_license(license_section)  # type: ignore
                 if matches:
-                    
                     spdx_id = matches[0]["spdx_id"]
                     readme_score = license_score.get(spdx_id.lower(), 0.0)
 
@@ -168,7 +171,7 @@ class LicenseMetric(BaseMetric):
             spdx_id = matches[0]["spdx_id"]
             score = license_score.get(spdx_id.lower(), 0.0)
             return score
-        return 0.0 # pragma: no cover
+        return 0.0  # pragma: no cover
 
     def calculate_score(self) -> float:
         if self.local_directory is None:
