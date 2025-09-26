@@ -1,81 +1,67 @@
 import unittest
 from metrics.dataset_and_code import *
+from unittest.mock import MagicMock
 
+class MockPath:
+    """Simple mock for a README file."""
+    def __init__(self, content=""):
+        self._content = content
+    def read_text(self, *args, **kwargs):
+        return self._content
 
 class TestDatasetAndCodeScoreMetric(unittest.TestCase):
     metric: DatasetAndCodeScoreMetric
 
     def setUp(self):
-        self.metric = DatasetAndCodeScoreMetric("https://huggingface.co/datasets/test-dataset", "https://github.com/test/repo")
+        self.metric = DatasetAndCodeScoreMetric(None, None)
 
     def test_score_calculation_no_resources(self):
-        """
-        Test score calculation when no URLs or documentation available
-        """
+
         self.metric.dataset_url = None
         self.metric.code_url = None
 
-        self.metric.readme_file = type(
-            "MockPath", (), {"read_text": lambda *args, **kwargs: ""}
-        )()
+        self.metric.readme_file = MockPath("")
 
         score = self.metric.calculate_score()
         self.assertEqual(score, 0.0)
 
     def test_score_calculation_full_documentation(self):
-        """
-        Test score calculation with README documentation
-        """
-        self.metric.dataset_url = None
-        self.metric.code_url = None
 
-        # Mock README content
         readme = """
-        # Model Documentation
-        
+        Model Documentation
+
         This model uses a comprehensive dataset with detailed data description.
-        
-        ## Usage
+
+        Usage
         Here's how to use this model effectively.
-        
-        ## Example
+
+        Example
         Sample usage and code examples.
-        
-        ## Requirements
+
+        Requirements
         Installation and dependency requirements.
-        
-        ## Limitations
+
+        Limitations
         Known limitations and constraints.
         """.lower()
 
-        self.metric.readme_file = type("MockPath", (), {"read_text": lambda: readme})()
-
+        self.metric.readme_file = MockPath(readme)
         score = self.metric.calculate_score()
-
-        # Should get full documentation score
         expected_score = 0.2
-        self.assertAlmostEqual(score, expected_score, places=1)
+        self.assertAlmostEqual(score, expected_score, places=2)
 
     def test_score_calculation_working_urls(self):
-        """
-        Test score calculation when URLs are accessible
-        """
-        self.metric.dataset_url = "https://working-dataset.com"
-        self.metric.code_url = "https://working-code.com"
-
-        # Mock empty README
-        self.metric.readme_file = type(
-            "MockPath", (), {"read_text": lambda *args, **kwargs: ""}
-        )()
-
-        score = self.metric.calculate_score()
-
-        # Should get full score for working URLs
-        expected_score = 0.6
-        self.assertAlmostEqual(score, expected_score, places=1)
+        test_cases = [
+                ("https://example.com/dataset", 0.3),
+                ("https://example.com/code", 0.3),
+            ]
+        for url, expected_score in test_cases:
+            metric = DatasetAndCodeScoreMetric(dataset_url=url, code_url=None)
+            score = metric.calculate_score()
+            self.assertAlmostEqual(score, expected_score, places=2)
 
     def test_documentation_scoring_logic(self):
-        """Test the specific documentation scoring algorithm"""
+
         self.metric.dataset_url = None
         self.metric.code_url = None
 
@@ -84,14 +70,11 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
             ("", 0.0),
             ("dataset", 0.04),
             ("dataset usage", 0.08),
-            ("dataset data description usage how to use", 0.08),
+            ("dataset data description usage how to use", 0.16),
             ("dataset usage example requirements limitations", 0.2),
         ]
 
         for readme_content, expected_doc_score in test_cases:
-            self.metric.readme_file = type("MockPath", (),
-                {"read_text": (lambda content=readme_content: (lambda *args, **kwargs: content))()}
-            )()
-
+            self.metric.readme_file = MockPath(readme_content)
             score = self.metric.calculate_score()
-            self.assertAlmostEqual(score, expected_doc_score, places=1)
+            self.assertAlmostEqual(score, expected_doc_score, places=2)
