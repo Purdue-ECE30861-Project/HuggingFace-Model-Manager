@@ -6,7 +6,10 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
     metric: DatasetAndCodeScoreMetric
 
     def setUp(self):
-        self.metric = DatasetAndCodeScoreMetric("https://huggingface.co/datasets/test-dataset", "https://github.com/test/repo")
+        self.metric = DatasetAndCodeScoreMetric(
+            "https://huggingface.co/datasets/test-dataset",
+            "https://github.com/test/repo",
+        )
 
     def test_score_calculation_no_resources(self):
         """
@@ -48,7 +51,9 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
         Known limitations and constraints.
         """.lower()
 
-        self.metric.readme_file = type("MockPath", (), {"read_text": lambda: readme})()
+        self.metric.readme_file = type(
+            "MockPath", (), {"read_text": lambda *args, **kwargs: readme}
+        )()
 
         score = self.metric.calculate_score()
 
@@ -89,8 +94,14 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
         ]
 
         for readme_content, expected_doc_score in test_cases:
-            self.metric.readme_file = type("MockPath", (),
-                {"read_text": (lambda content=readme_content: (lambda *args, **kwargs: content))()}
+            self.metric.readme_file = type(
+                "MockPath",
+                (),
+                {
+                    "read_text": (
+                        lambda content=readme_content: (lambda *args, **kwargs: content)
+                    )()
+                },
             )()
 
             score = self.metric.calculate_score()
