@@ -5,14 +5,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fe1b0a79-21d8-46c2-b81b-d60e2a05a400" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/metrics/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_ramp_up.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.coverage" beforeDir="false" afterPath="$PROJECT_DIR$/.coverage" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Fun-ECE-Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Fun-ECE-Project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dependencies.txt" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/metrics/bus_factor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metrics/bus_factor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/metrics/code_quality.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metrics/code_quality.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/metrics/license.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metrics/license.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/metrics/ramp_up_time.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metrics/ramp_up_time.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/workflow.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/workflow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/bus_factor_metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_bus_factor_metric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/code_quality.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_code_quality.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/infrastructure.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_infrastructure.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/license_metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_license_metric.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -28,21 +49,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python tests.Python tests for tests.infrastructure.TestNetScoreCalculator.test_net_score_calculation.executor&quot;: &quot;Run&quot;,
-    &quot;Python tests.Python tests in infrastructure.py.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;thread__pool__infrastructure__dev&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/malinkyzubr/Desktop/ECE30861/Fun-ECE-Project&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python tests.Python tests for ramp_up.TestRampUpTime.test_with_url.executor": "Run",
+    "Python tests.Python tests for tests.infrastructure.TestNetScoreCalculator.test_net_score_calculation.executor": "Run",
+    "Python tests.Python tests in infrastructure.py.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "metric__operationalization",
+    "last_opened_file_path": "/home/malinkyzubr/Desktop/ECE30861/Fun-ECE-Project",
+    "settings.editor.selected.configurable": "configurable.group.editor"
   }
-}</component>
-  <component name="RunManager">
-    <configuration name="Python tests for tests.infrastructure.TestNetScoreCalculator.test_net_score_calculation" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+}]]></component>
+  <component name="RunManager" selected="Python tests.Python tests for tests.test_ramp_up.TestRampUpTime.test_with_url">
+    <configuration name="Python tests for tests.test_infrastructure.TestNetScoreCalculator.test_net_score_calculation" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Fun-ECE-Project" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -53,20 +75,36 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;tests.infrastructure.TestNetScoreCalculator.test_net_score_calculation&quot;" />
+      <option name="_new_target" value="&quot;tests.test_infrastructure.TestNetScoreCalculator.test_net_score_calculation&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.test_ramp_up.TestRampUpTime.test_with_url" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Fun-ECE-Project" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.test_ramp_up.TestRampUpTime.test_with_url&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.Python tests for tests.infrastructure.TestNetScoreCalculator.test_net_score_calculation" />
+        <item itemvalue="Python tests.Python tests for tests.test_ramp_up.TestRampUpTime.test_with_url" />
+        <item itemvalue="Python tests.Python tests for tests.test_infrastructure.TestNetScoreCalculator.test_net_score_calculation" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-8753aad8314d-d902c0275401-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-252.25557.178" />
+        <option value="bundled-python-sdk-9f8e2b94138c-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26094.141" />
       </set>
     </attachedChunks>
   </component>
@@ -79,5 +117,15 @@
       <updated>1757545714812</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/metrics/bus_factor.py</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -175,7 +175,9 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
     net_latency = sum(m.latency for m in db_metrics)
 
     return ModelStats(
-        url=model_urls.model,
+        model_url=model_urls.model,
+        database_url=model_urls.dataset,
+        code_url=model_urls.codebase,
         name=model_name,
         net_score=analyzer_output.score,
         net_score_latency=net_latency,
@@ -195,7 +197,7 @@ def install():
     try:
         deps_file = Path(__file__).parent.parent / "dependencies.txt"
         if deps_file.exists():
-            result = subprocess.run(["pip", "install", "--user", "-r", str(deps_file)])
+            result = subprocess.run(["pip", "install", "-r", str(deps_file)])
             if result.returncode != 0:
                 typer.echo(
                     f"An error occurred while installing dependencies:\n{result.stderr}",
@@ -229,24 +231,13 @@ def test():
 
         loader = unittest.TestLoader()
         start_dir = str(tests_path)
-        suite = loader.discover(start_dir, pattern="*.py")
-        total_tests = 0
+        suite = loader.discover(start_dir, pattern="test*.py")
+        total_tests = suite.countTestCases()
 
-        # Count total tests
-        def count_tests(test_suite):
-            nonlocal total_tests
-            for test in test_suite:
-                if isinstance(test, unittest.TestSuite):
-                    count_tests(test)
-                else:
-                    total_tests += 1
-
-        count_tests(suite)
-        runner = unittest.TextTestRunner(verbosity=0, stream=open(os.devnull, "w"))
+        runner = unittest.TextTestRunner(verbosity=2)#, stream=open(os.devnull, "w"))
         result = runner.run(suite)
         cov.stop()
         cov.save()
-        coverage_report = cov.report(show_missing=False, file=open(os.devnull, "w"))
         coverage_data = cov.get_data()
 
         # Find line coverage
@@ -263,22 +254,25 @@ def test():
         typer.echo(
             f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved."
         )
-
+        
+        if result.failures:
+            typer.echo(f"\nFailures: {len(result.failures)}")
+        if result.errors:
+            typer.echo(f"Errors: {len(result.errors)}")
+        
         if result.failures or result.errors:
             raise typer.Exit(code=1)
-        raise typer.Exit(code=1)
+        else:
+            raise typer.Exit(code=0)
+        
     except ImportError:
         typer.echo(
             "Error: 'coverage' package not installed. Please run 'install' command first.",
             err=True,
         )
         raise typer.Exit(code=1)
-    except Exception as e:
-        typer.echo(f"Error running tests: {e}", file=sys.stderr)
-        raise typer.Exit(code=1)
 
-
-@app.callback(invoke_without_command=True)
+@app.command()
 def analyze(url_file: Path):
     """
     Analyzes models based on URLs provided in a file.
@@ -344,8 +338,8 @@ def analyze(url_file: Path):
                     results[metric.name] = metric.data
                     results[f"{metric.name}_latency"] = metric.latency
                 elif isinstance(metric, DictMetric):
-                    results[metric.name] = metric.data
-                    results[f"{metric.name}_latency"] = metric.latency
+                    results[metric.metric_name] = metric.data
+                    results[f"{metric.metric_name}_latency"] = metric.latency
 
             typer.echo(json.dumps(results))
 
