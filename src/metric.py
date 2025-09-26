@@ -1,5 +1,7 @@
 import abc
 import typing
+import time
+from typing import Self
 from itertools import starmap
 from pydantic import BaseModel
 from sortedcontainers import SortedDict
@@ -27,20 +29,29 @@ class BaseMetric(abc.ABC):
         self.score: float = 0.0
         self.url: str = ""
         self.priority: int = 1
-        self.target_platform: str = ""
+        self.target_platform: typing.Optional[str] = None
+        self.local_directory: typing.Optional[str] = None
+        self.runtime: float = 0.0
 
-    def run(self) -> typing.Self:
+    def run(self) -> Self:
         """
         Sets up resources and calculates the metric score.
         Returns:
             Self: The metric instance with updated score.
         """
-        self.setup_resources()
-        self.score = self.calculate_score()
+        start: float = time.time()
+        try:
+            self.setup_resources()
+            self.score = self.calculate_score()
+        except Exception as e:
+            self.score = 0.0
+            print(str(e))
+
+        self.runtime = time.time() - start
 
         return self
 
-    def set_params(self, priority: int, platform: str) -> typing.Self:
+    def set_params(self, priority: int, platform: str) -> Self:
         """
         Sets the priority and target platform for the metric.
         Args:
@@ -67,6 +78,11 @@ class BaseMetric(abc.ABC):
             raise IOError("The provided URL was invalid") # cli will handle this error if invalid url
 
         self.url = url
+
+    def set_local_directory(self, local_directory: str):
+        if not local_directory:
+            raise IOError("The provided local directory was invalid")
+        self.local_directory = local_directory
 
     @abc.abstractmethod
     def setup_resources(self):

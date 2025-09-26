@@ -2,4 +2,13 @@ typer==0.12.3
 pydantic==1.8.2
 sortedcontainers==2.4.0
 poetry==2.1.4
+coverage==5.5
+pylint==3.3.8
+toml==0.10.2
+spdx-license-matcher==1.0.10
+dotenv==0.9.9
+torch==2.8.0
+transformers==4.56.2
+accelerate==1.10.1
+huggingface_hub==0.35.1
 coverage[toml]==5.5
