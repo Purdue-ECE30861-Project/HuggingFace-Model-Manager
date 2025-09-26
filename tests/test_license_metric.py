@@ -24,7 +24,7 @@ class LicenseMetricTest(unittest.TestCase):
         # set up testing directories
         if self.TEST_DIR.exists():
             shutil.rmtree(self.TEST_DIR)
-        os.mkdir(self.TEST_DIR)
+        os.makedirs(self.TEST_DIR)
         os.mkdir(self.in_readme_dir)
         os.mkdir(self.linked_license_dir)
         os.mkdir(self.linked_license_md_dir)
