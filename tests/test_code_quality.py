@@ -1,5 +1,5 @@
 import unittest
-from src.metrics.code_quality import *
+from metrics.code_quality import *
 
 
 class TestCodeQuality(unittest.TestCase):

@@ -1,5 +1,5 @@
 import unittest
-from src.metrics.ramp_up_time import *
+from metrics.ramp_up_time import *
 
 
 class TestRampUpTime(unittest.TestCase):

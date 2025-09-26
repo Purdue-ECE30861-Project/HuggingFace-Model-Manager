@@ -1,14 +1,12 @@
 import unittest
-from src.metrics.dataset_and_code import *
+from metrics.dataset_and_code import *
 
 
 class TestDatasetAndCodeScoreMetric(unittest.TestCase):
     metric: DatasetAndCodeScoreMetric
 
     def setUp(self):
-        self.metric = DatasetAndCodeScoreMetric()
-        self.metric.dataset_url = "https://huggingface.co/datasets/test-dataset"
-        self.metric.code_url = "https://github.com/test/repo"
+        self.metric = DatasetAndCodeScoreMetric("https://huggingface.co/datasets/test-dataset", "https://github.com/test/repo")
 
     def test_score_calculation_no_resources(self):
         """
@@ -18,7 +16,7 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
         self.metric.code_url = None
 
         self.metric.readme_file = type(
-            "MockPath", (), {"read_text": lambda: ""}  # Empty README
+            "MockPath", (), {"read_text": lambda *args, **kwargs: ""}
         )()
 
         score = self.metric.calculate_score()
@@ -66,7 +64,9 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
         self.metric.code_url = "https://working-code.com"
 
         # Mock empty README
-        self.metric.readme_file = type("MockPath", (), {"read_text": lambda: ""})()
+        self.metric.readme_file = type(
+            "MockPath", (), {"read_text": lambda *args, **kwargs: ""}
+        )()
 
         score = self.metric.calculate_score()
 
@@ -89,8 +89,8 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
         ]
 
         for readme_content, expected_doc_score in test_cases:
-            self.metric.readme_file = type(
-                "MockPath", (), {"read_text": lambda content=readme_content: content}
+            self.metric.readme_file = type("MockPath", (),
+                {"read_text": (lambda content=readme_content: (lambda *args, **kwargs: content))()}
             )()
 
             score = self.metric.calculate_score()
