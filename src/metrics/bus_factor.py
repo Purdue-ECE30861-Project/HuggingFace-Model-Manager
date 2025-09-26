@@ -1,4 +1,4 @@
-from src.metric import BaseMetric  # pyright: ignore[reportMissingTypeStubs]
+from metric import BaseMetric  # pyright: ignore[reportMissingTypeStubs]
 import requests
 from dotenv import load_dotenv
 import os, re, json

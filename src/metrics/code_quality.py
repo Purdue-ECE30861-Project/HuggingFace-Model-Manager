@@ -5,11 +5,12 @@ from typing import override
 from pylint.lint import pylinter, Run
 from pylint.reporters.text import TextReporter
 
-from src.metric import BaseMetric
+from metric import BaseMetric
 
 
 class CodeQualityMetric(BaseMetric):
     metric_name: str = "CodeQuality"
+
     def __init__(self):
         super().__init__()
         self.file_list: list[str] = []
@@ -19,7 +20,7 @@ class CodeQualityMetric(BaseMetric):
         for root, _, files in os.walk(self.local_directory):
             for file in files:
                 if file.endswith(".py"):
-                    #print(file)
+                    # print(file)
                     self.file_list.append(os.path.join(root, file))
 
     @override
@@ -32,7 +33,9 @@ class CodeQualityMetric(BaseMetric):
         output_stream: StringIO = StringIO()
         reporter: TextReporter = TextReporter(output_stream)
 
-        Run(["--disable=line-too- long"] + self.file_list, reporter=reporter, exit=False)
+        Run(
+            ["--disable=line-too- long"] + self.file_list, reporter=reporter, exit=False
+        )
 
         match = re.search(r"rated at ([0-9]+\.[0-9]+)/10", output_stream.getvalue())
         if match is None:

@@ -3,12 +3,12 @@ import os
 from typing import Literal, Optional
 from pydantic import BaseModel
 import typing
-from src.metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS
+from metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS
 
 
-DATASET = 'dataset'
-CODEBASE = 'codebase'
-MODEL = 'model'
+DATASET = "dataset"
+CODEBASE = "codebase"
+MODEL = "model"
 
 
 class ConfigContract(BaseModel):
@@ -16,8 +16,9 @@ class ConfigContract(BaseModel):
     Configuration contract for the workflow, specifying number of processes,
     priority function, and target platform.
     """
+
     num_processes: int = 1
-    priority_function: Literal['PFReciprocal', 'PFExponentialDecay'] = 'PFReciprocal'
+    priority_function: Literal["PFReciprocal", "PFExponentialDecay"] = "PFReciprocal"
     target_platform: str = ""
 
 
@@ -33,7 +34,7 @@ def run_metric(metric: BaseMetric) -> BaseMetric:
 
 
 class MetricRunner:
-    def __init__(self, metrics: list[BaseMetric]): # single threaded by default
+    def __init__(self, metrics: list[BaseMetric]):  # single threaded by default
         self.metrics: list[BaseMetric] = metrics
         self.multiprocessing_pool: Optional[Pool] = None
 
@@ -69,6 +70,7 @@ class MetricStager:
     """
     Stages metrics by grouping them and attaching configuration and URLs.
     """
+
     def __init__(self, config: ConfigContract):
         """
         Initializes the MetricStager.
@@ -76,13 +78,15 @@ class MetricStager:
             config (ConfigContract): Configuration for staging metrics.
         """
         self.metrics: dict[str, list[BaseMetric]] = {
-            'dataset': [],
-            'codebase': [],
-            'model': []
+            "dataset": [],
+            "codebase": [],
+            "model": [],
         }
         self.config: ConfigContract = config
 
-    def attach_metric(self, group: str, metric: BaseMetric, priority: int) -> typing.Self:
+    def attach_metric(
+        self, group: str, metric: BaseMetric, priority: int
+    ) -> typing.Self:
         """
         Attaches a metric to a group with a given priority and platform.
         Args:
@@ -108,7 +112,9 @@ class MetricStager:
         if not os.access(local_directory, os.R_OK):
             raise IOError("The provided local directory is not readable")
 
-    def attach_model_urls(self, model_metadata: ModelURLs, local_directory: typing.Optional[str] = None) -> MetricRunner:
+    def attach_model_urls(
+        self, model_metadata: ModelURLs, local_directory: typing.Optional[str] = None
+    ) -> MetricRunner:
         """
         Attaches URLs from model metadata to the corresponding metrics.
         Args:
@@ -133,7 +139,9 @@ class MetricStager:
         return MetricRunner(staged_metrics)
 
 
-def run_workflow(metric_stager: MetricStager, input_urls: ModelURLs, config: ConfigContract) -> AnalyzerOutput:
+def run_workflow(
+    metric_stager: MetricStager, input_urls: ModelURLs, config: ConfigContract
+) -> AnalyzerOutput:
     """
     Runs the complete workflow: attaches URLs, sets up multiprocessing, runs metrics,
     and returns the analysis output.
@@ -145,10 +153,11 @@ def run_workflow(metric_stager: MetricStager, input_urls: ModelURLs, config: Con
         AnalyzerOutput: The output of the analysis.
     """
     # HERE it should check if the inputted models are already stored locally
-    metric_runner: MetricRunner = metric_stager.attach_model_urls(input_urls).set_num_processes(config.num_processes)
+    metric_runner: MetricRunner = metric_stager.attach_model_urls(
+        input_urls
+    ).set_num_processes(config.num_processes)
     processed_metrics: list[BaseMetric] = metric_runner.run()
 
-    return AnalyzerOutput(PRIORITY_FUNCTIONS[config.priority_function], processed_metrics, input_urls)
-
-
-
+    return AnalyzerOutput(
+        PRIORITY_FUNCTIONS[config.priority_function], processed_metrics, input_urls
+    )
