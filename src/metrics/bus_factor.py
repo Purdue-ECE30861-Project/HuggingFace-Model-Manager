@@ -11,6 +11,7 @@ github_pattern = re.compile(r"^(.*)?github.com\/([^\/]+)\/([^\/]+)\/?(.*)$")
 # Assumes that the url for this metric points to a github codebase
 class BusFactorMetric(BaseMetric):
     metric_name: str = "bus_factor"
+    codebase_url: str = ""
     response: requests.Response
     # get most recent 30 commits on (most) branches since 2020
     graphql_query = """
@@ -94,7 +95,7 @@ repository(name:"%s", owner:"%s"){
         load_dotenv()
 
         # parse out name and owner
-        matches = github_pattern.match(self.url)
+        matches = github_pattern.match(self.codebase_url)
         if matches is None:
             raise ValueError("invalid GitHub URL")
 

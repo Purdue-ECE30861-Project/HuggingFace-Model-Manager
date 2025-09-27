@@ -114,7 +114,7 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
     )
 
     metrics = [
-        RampUpMetric(),
+        RampUpMetric(1.0, "cpu"),
         BusFactorMetric(),
         PerformanceClaimsMetric(),
         LicenseMetric(),
