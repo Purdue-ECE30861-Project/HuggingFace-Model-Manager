@@ -158,6 +158,9 @@ def run_workflow(
     ).set_num_processes(config.num_processes)
     processed_metrics: list[BaseMetric] = metric_runner.run()
 
+    priority_class = PRIORITY_FUNCTIONS[config.priority_function]
+    priority_fn = priority_class() 
+    
     return AnalyzerOutput(
-        PRIORITY_FUNCTIONS[config.priority_function], processed_metrics, input_urls
+        priority_fn, processed_metrics, input_urls
     )
