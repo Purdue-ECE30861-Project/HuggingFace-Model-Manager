@@ -59,7 +59,7 @@ class TestBustFactor(unittest.TestCase):
     # test repo parsing
     def test_team_repo(self):
         # archived project, unlikely to change much
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.codebase = "https://github.com/silica-dev/TerrorCTF"
         self.metric_instance.set_url(urls)
         commit_score = {
@@ -76,7 +76,7 @@ class TestBustFactor(unittest.TestCase):
 
     def test_solo_repo(self):
         # you can't remove commits from a repository
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.codebase = "https://www.github.com/silica-dev/2nd_to_ft_conversion_script"
         self.metric_instance.set_url(urls)
         total_commits = 25
@@ -89,7 +89,7 @@ class TestBustFactor(unittest.TestCase):
         )
 
     def test_nonexistent_repo(self):
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.codebase = "https://github.com/silica-dev/PLEASEDONTACTUALLYMAKETHIS"
         self.metric_instance.set_url(urls)
         self.metric_instance.setup_resources()
@@ -98,24 +98,30 @@ class TestBustFactor(unittest.TestCase):
 
     # url parsing
     def test_invalid_url(self):
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.codebase = "sdvx.org"
         self.metric_instance.set_url(urls)
         with self.assertRaises(ValueError):
             self.metric_instance.setup_resources()
 
     def test_no_http(self):
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.codebase = "github.com/silica-dev/TerrorCTF"
         self.metric_instance.set_url(urls)
         self.metric_instance.setup_resources()
+        self.assertIsNotNone(self.metric_instance.response)
+        if self.metric_instance.response is None:
+            return
         self.assertTrue(self.metric_instance.response.ok)
 
     def test_specific_branch(self):
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.codebase = "https://github.com/leftwm/leftwm/tree/flake_update"
         self.metric_instance.set_url(urls)
         self.metric_instance.setup_resources()
+        self.assertIsNotNone(self.metric_instance.response)
+        if self.metric_instance.response is None:
+            return
         self.assertTrue(self.metric_instance.response.ok)
 
     # full integration
@@ -123,7 +129,7 @@ class TestBustFactor(unittest.TestCase):
     # test repo parsing
     def test_team_repo_full(self):
         # archived project, unlikely to change much
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.codebase = "https://github.com/silica-dev/TerrorCTF"
         self.metric_instance.set_url(urls)
         # commit_score = {
@@ -138,3 +144,26 @@ class TestBustFactor(unittest.TestCase):
         if isinstance(self.metric_instance.score, dict):
             return
         self.assertAlmostEqual(self.metric_instance.score, 0.0)
+
+    def test_huggingface_url(self):
+        # almost all huggingface models have pretty horrendous bus factors, this one isn't awful
+        urls = ModelURLs(model="https://huggingface.co/google-bert/bert-base-uncased")
+        self.metric_instance.set_url(urls)
+        self.metric_instance.run()
+        self.assertIsInstance(self.metric_instance.score, float)
+        if isinstance(self.metric_instance.score, dict):
+            return
+        self.assertAlmostEqual(self.metric_instance.score, 3 / 15 * 2)
+
+    def test_weighted_sum(self):
+        # almost all huggingface models have pretty horrendous bus factors
+        factor_1 = 0.5
+        commits_1 = 100
+        factor_2 = 0.25
+        commits_2 = 50
+        self.assertAlmostEqual(
+            self.metric_instance.calc_weighted_sum(
+                commits_1, commits_2, factor_1, factor_2
+            ),
+            0.416666667,
+        )
