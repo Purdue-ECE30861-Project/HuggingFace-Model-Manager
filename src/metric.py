@@ -3,7 +3,6 @@ import typing
 import time
 from typing import Self
 from itertools import starmap
-from pathlib import Path
 from sortedcontainers import SortedDict
 from config import *
 
@@ -38,7 +37,7 @@ class BaseMetric(abc.ABC):
             self.score = self.calculate_score()
         except Exception as e:
             self.score = 0.0
-
+            print(f"{self.metric_name} === {e}")
 
         self.runtime = time.time() - start
 
