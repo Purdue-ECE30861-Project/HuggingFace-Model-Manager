@@ -110,8 +110,14 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
     """
     # Using these values for now, will have to use config file to actually configure
     config = ConfigContract(
-        num_processes=1, priority_function="PFReciprocal", target_platform="desktop_pc"
-    )
+    num_processes=1,
+    priority_function="PFReciprocal",
+    target_platform="desktop_pc",
+    local_storage_directory="C:/Users/12605/HuggingFace-Model-Manager/src",
+    model_path_name="model",
+    code_path_name="code",
+    dataset_path_name="dataset"
+)
 
     metrics = [
         RampUpMetric(1.0, "cpu"),

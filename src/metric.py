@@ -5,7 +5,7 @@ from typing import Self
 from itertools import starmap
 from pathlib import Path
 from sortedcontainers import SortedDict
-from src.config import *
+from config import *
 
 
 class BaseMetric(abc.ABC):
