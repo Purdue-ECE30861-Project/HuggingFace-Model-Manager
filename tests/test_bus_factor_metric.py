@@ -1,5 +1,6 @@
 import unittest
 from metrics.bus_factor import *  # pyright: ignore[reportWildcardImportFromLibrary]
+from metric import ModelURLs
 
 
 class TestBustFactor(unittest.TestCase):
@@ -58,7 +59,9 @@ class TestBustFactor(unittest.TestCase):
     # test repo parsing
     def test_team_repo(self):
         # archived project, unlikely to change much
-        self.metric_instance.set_url("https://github.com/silica-dev/TerrorCTF")
+        urls = ModelURLs()
+        urls.codebase = "https://github.com/silica-dev/TerrorCTF"
+        self.metric_instance.set_url(urls)
         commit_score = {
             "silicasandwhich@github.com": 18,
             "marinom@rose-hulman.edu": 6,
@@ -73,9 +76,9 @@ class TestBustFactor(unittest.TestCase):
 
     def test_solo_repo(self):
         # you can't remove commits from a repository
-        self.metric_instance.set_url(
-            "https://www.github.com/silica-dev/2nd_to_ft_conversion_script"
-        )
+        urls = ModelURLs()
+        urls.codebase = "https://www.github.com/silica-dev/2nd_to_ft_conversion_script"
+        self.metric_instance.set_url(urls)
         total_commits = 25
         self.metric_instance.setup_resources()
         parsed_response = self.metric_instance.parse_response()
@@ -86,28 +89,32 @@ class TestBustFactor(unittest.TestCase):
         )
 
     def test_nonexistent_repo(self):
-        self.metric_instance.set_url(
-            "https://github.com/silica-dev/PLEASEDONTACTUALLYMAKETHIS"
-        )
+        urls = ModelURLs()
+        urls.codebase = "https://github.com/silica-dev/PLEASEDONTACTUALLYMAKETHIS"
+        self.metric_instance.set_url(urls)
         self.metric_instance.setup_resources()
         with self.assertRaises(ValueError):
             self.metric_instance.parse_response()
 
     # url parsing
     def test_invalid_url(self):
-        self.metric_instance.set_url("sdvx.org")
+        urls = ModelURLs()
+        urls.codebase = "sdvx.org"
+        self.metric_instance.set_url(urls)
         with self.assertRaises(ValueError):
             self.metric_instance.setup_resources()
 
     def test_no_http(self):
-        self.metric_instance.set_url("github.com/silica-dev/TerrorCTF")
+        urls = ModelURLs()
+        urls.codebase = "github.com/silica-dev/TerrorCTF"
+        self.metric_instance.set_url(urls)
         self.metric_instance.setup_resources()
         self.assertTrue(self.metric_instance.response.ok)
 
     def test_specific_branch(self):
-        self.metric_instance.set_url(
-            "https://github.com/leftwm/leftwm/tree/flake_update"
-        )
+        urls = ModelURLs()
+        urls.codebase = "https://github.com/leftwm/leftwm/tree/flake_update"
+        self.metric_instance.set_url(urls)
         self.metric_instance.setup_resources()
         self.assertTrue(self.metric_instance.response.ok)
 
@@ -116,7 +123,9 @@ class TestBustFactor(unittest.TestCase):
     # test repo parsing
     def test_team_repo_full(self):
         # archived project, unlikely to change much
-        self.metric_instance.set_url("https://github.com/silica-dev/TerrorCTF")
+        urls = ModelURLs()
+        urls.codebase = "https://github.com/silica-dev/TerrorCTF"
+        self.metric_instance.set_url(urls)
         # commit_score = {
         #    "silicasandwhich@github.com": 18,
         #    "marinom@rose-hulman.edu": 6,
@@ -125,4 +134,7 @@ class TestBustFactor(unittest.TestCase):
         # }
         # remove silicasandwhich@github.com and more than 50% is gone
         self.metric_instance.run()
+        self.assertIsInstance(self.metric_instance.score, float)
+        if isinstance(self.metric_instance.score, dict):
+            return
         self.assertAlmostEqual(self.metric_instance.score, 0.0)
