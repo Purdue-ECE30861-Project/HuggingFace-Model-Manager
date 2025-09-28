@@ -110,6 +110,6 @@ repository(name:"%s", owner:"%s"){
 
         url = "https://api.github.com/graphql"
         json = {"query": self.graphql_query % (name, owner)}
-        headers = {"Authorization": f"bearer {os.getenv("GRAPHQL_TOKEN")}"}
+        headers = {"Authorization": f"bearer {os.getenv("GITHUB_TOKEN")}"}
         self.response = requests.post(url=url, json=json, headers=headers)
         return super().setup_resources()
