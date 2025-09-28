@@ -1,11 +1,10 @@
 import unittest
 import tempfile
-import shutil
 from pathlib import Path
 from metric import ModelPaths
 
 from huggingface_hub import snapshot_download
-from src.metrics.ramp_up_time import RampUpMetric
+from metrics.ramp_up_time import RampUpMetric
 
 
 class TestRampUp(unittest.TestCase):

@@ -154,24 +154,18 @@ def install():
 
 @app.command()
 def test():
-    setup_logging()
     
     import unittest
     import io
 
-    src_path = Path(__file__).parent.parent / "src"
-    if str(src_path) not in sys.path:
-        sys.path.insert(0, str(src_path))
-
-    tests_path = Path(__file__).parent.parent / "tests"
-    if str(tests_path) not in sys.path:
-        sys.path.insert(0, str(tests_path))
+    src_path = (Path(__file__).parent.parent / "src").resolve()
+    tests_path = (Path(__file__).parent.parent / "tests").resolve()
 
     try:
         import coverage
 
         cov = coverage.Coverage(
-            source=[str(src_path.resolve())],  # Only measure files in src/
+            source=[str(src_path)],  # Only measure files in src/
             omit=[
                 "*/tests/*",
                 "*/test_*",
@@ -184,10 +178,10 @@ def test():
         )
         cov.start()
         
+        setup_logging()
 
         loader = unittest.TestLoader()
         start_dir = str(tests_path)
-        print(start_dir)
         suite = loader.discover(start_dir, pattern="test*.py")
         total_tests = suite.countTestCases()
         
