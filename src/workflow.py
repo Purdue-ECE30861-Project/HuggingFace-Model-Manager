@@ -1,25 +1,16 @@
 from multiprocessing import Pool
 import os
 from typing import Literal, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator, ValidationError
+from pathlib import Path
 import typing
-from metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS
+from metric import BaseMetric, AnalyzerOutput, PRIORITY_FUNCTIONS
+from config import ConfigContract, ModelPaths, ModelURLs, PriorityFunction, PRIORITY_FUNCTIONS
 
 
 DATASET = "dataset"
 CODEBASE = "codebase"
 MODEL = "model"
-
-
-class ConfigContract(BaseModel):
-    """
-    Configuration contract for the workflow, specifying number of processes,
-    priority function, and target platform.
-    """
-
-    num_processes: int = 1
-    priority_function: Literal["PFReciprocal", "PFExponentialDecay"] = "PFReciprocal"
-    target_platform: str = ""
 
 
 def run_metric(metric: BaseMetric) -> BaseMetric:
@@ -106,14 +97,8 @@ class MetricStager:
 
         return self
 
-    def check_valid_local_directory(self, local_directory: str):
-        if not os.path.isdir(local_directory):
-            raise IOError("The provided local directory is invalid")
-        if not os.access(local_directory, os.R_OK):
-            raise IOError("The provided local directory is not readable")
-
     def attach_model_urls(
-        self, model_metadata: ModelURLs, local_directory: typing.Optional[str] = None
+        self, model_urls: ModelURLs, model_paths: ModelPaths
     ) -> MetricRunner:
         """
         Attaches URLs from model metadata to the corresponding metrics.
@@ -122,18 +107,15 @@ class MetricStager:
         Returns:
             MetricRunner: A MetricRunner instance with staged metrics.
         """
-        dictionary_urls: dict[str, str | None] = model_metadata.dict()
+        dictionary_urls: dict[str, str | None] = model_urls.dict()
+        dictionary_paths: dict[str, Path | None] = model_paths.dict()
         staged_metrics: list[BaseMetric] = []
 
-        if local_directory:
-            self.check_valid_local_directory(local_directory)
-
-        for url_type, url in dictionary_urls.items():
+        for metric_type, url in dictionary_urls.items():
             if url:
-                for metric in self.metrics[url_type]:
+                for metric in self.metrics[metric_type]:
                     metric.set_url(url)
-                    if local_directory:
-                        metric.set_local_directory(local_directory)
+                    metric.set_local_directory(dictionary_paths[metric_type])
                     staged_metrics.append(metric)
 
         return MetricRunner(staged_metrics)
@@ -158,8 +140,7 @@ def run_workflow(
     ).set_num_processes(config.num_processes)
     processed_metrics: list[BaseMetric] = metric_runner.run()
 
-    priority_class = PRIORITY_FUNCTIONS[config.priority_function]
-    priority_fn = priority_class() 
+    priority_fn: PriorityFunction = PRIORITY_FUNCTIONS[config.priority_function]
     
     return AnalyzerOutput(
         priority_fn, processed_metrics, input_urls

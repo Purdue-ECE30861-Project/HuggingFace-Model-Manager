@@ -3,18 +3,9 @@ import typing
 import time
 from typing import Self
 from itertools import starmap
-from pydantic import BaseModel
+from pathlib import Path
 from sortedcontainers import SortedDict
-
-
-class ModelURLs(BaseModel):
-    """
-    Stores URLs related to a model, including model, codebase, and dataset URLs.
-    """
-
-    model: typing.Optional[str] = None
-    codebase: typing.Optional[str] = None
-    dataset: typing.Optional[str] = None
+from src.config import *
 
 
 class BaseMetric(abc.ABC):
@@ -32,7 +23,7 @@ class BaseMetric(abc.ABC):
         self.url: str = ""
         self.priority: int = 1
         self.target_platform: typing.Optional[str] = None
-        self.local_directory: typing.Optional[str] = None
+        self.local_directory: typing.Optional[Path] = None
         self.runtime: float = 0.0
 
     def run(self) -> Self:
@@ -83,7 +74,7 @@ class BaseMetric(abc.ABC):
 
         self.url = url
 
-    def set_local_directory(self, local_directory: str):
+    def set_local_directory(self, local_directory: Path):
         if not local_directory:
             raise IOError("The provided local directory was invalid")
         self.local_directory = local_directory
@@ -107,84 +98,18 @@ class BaseMetric(abc.ABC):
         pass
 
 
-class PriorityFunction(abc.ABC):
-    """
-    Abstract base class for priority weighting functions.
-    """
-
-    @abc.abstractmethod
-    def calculate_priority_weight(self, priority: int) -> float:
-        """
-        Calculates the weight for a given priority.
-        Args:
-            priority (int): The priority value.
-        Returns:
-            float: The calculated weight.
-        """
-        pass
-
-
-class PFExponentialDecay(PriorityFunction):
-    """
-    Priority function using exponential decay.
-    """
-
-    def __init__(self, base_coefficient: int):
-        """
-        Initializes the exponential decay function.
-        Args:
-            base_coefficient (int): The base coefficient (> 1).
-        """
-        assert base_coefficient > 1
-        self.base_coefficient: int = base_coefficient
-
-    @typing.override
-    def calculate_priority_weight(self, priority: int) -> float:
-        """
-        Calculates the weight using exponential decay.
-        Args:
-            priority (int): The priority value.
-        Returns:
-            float: The calculated weight.
-        """
-        return self.base_coefficient ** -(priority - 1)
-
-
-class PFReciprocal(PriorityFunction):
-    """
-    Priority function using reciprocal weighting.
-    """
-
-    @typing.override
-    def calculate_priority_weight(self, priority: int) -> float:
-        """
-        Calculates the weight as the reciprocal of the priority.
-        Args:
-            priority (int): The priority value.
-        Returns:
-            float: The calculated weight.
-        """
-        return 1 / priority
-
-
-PRIORITY_FUNCTIONS: dict[str, typing.Type[PriorityFunction]] = {
-    "PFExponentialDecay": PFExponentialDecay,
-    "PFReciprocal": PFReciprocal,
-}
-
-
 class NetScoreCalculator:
     """
     Calculates the net score for a set of metrics using a priority function.
     """
 
-    def __init__(self, priority_function: typing.Type[PriorityFunction]):
+    def __init__(self, priority_function: PriorityFunction):
         """
         Initializes the NetScoreCalculator.
         Args:
             priority_function (Type[PriorityFunction]): The priority function class to use.
         """
-        self.priority_function: typing.Type[PriorityFunction] = priority_function
+        self.priority_function: PriorityFunction = priority_function
 
     def calculate_net_score(self, metrics: list[BaseMetric]):
         """
@@ -299,7 +224,7 @@ class AnalyzerOutput:
 
     def __init__(
         self,
-        priority_function: typing.Type[PriorityFunction],
+        priority_function: PriorityFunction,
         metrics: list[BaseMetric],
         model_metadata: ModelURLs,
     ):
