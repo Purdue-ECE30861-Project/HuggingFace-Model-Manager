@@ -34,10 +34,11 @@ class CodeQualityMetric(BaseMetric):
         reporter: TextReporter = TextReporter(output_stream)
 
         Run(
-            ["--disable=line-too-long"] + self.file_list, reporter=reporter, exit=False
+            ["--disable=line-too-long", "--disable=bad-indentation", "--disable=import-error"] + self.file_list, reporter=reporter, exit=False
         )
         match = re.search(r"rated at ([0-9]+\.[0-9]+)/10", output_stream.getvalue())
 
         if match is None:
             return 0.0
+
         return float(match.group(1)) / 10
