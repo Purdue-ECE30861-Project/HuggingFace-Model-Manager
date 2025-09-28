@@ -34,20 +34,29 @@ def setup_logging():
     log_level = int(os.environ.get("LOG_LEVEL", 0))
     log_file = os.environ.get("LOG_FILE")
 
+    logging.getLogger().handlers.clear()
+    
+    logging.disable(logging.NOTSET)
+    
+    # Determine the logging level
     if log_level == 0:
-        logging.disable(logging.CRITICAL)
-        return
-
-    level = logging.INFO if log_level == 1 else logging.DEBUG
+        level = logging.WARNING
+    elif log_level == 1:
+        level = logging.INFO
+    elif log_level == 2:
+        level = logging.DEBUG
 
     if log_file:
         logging.basicConfig(
             filename=log_file,
             level=level,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            filemode='w'
         )
     else:
-        logging.basicConfig(level=level)
+        logging.basicConfig(level=level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
 
 
 def parse_url_file(url_file: Path) -> List[ModelURLs]:
@@ -123,7 +132,7 @@ def install():
     """
     Installs necessary dependencies from dependencies.txt
     """
-    typer.echo("Installing dependencies...")
+    logging.info("Installing dependencies...")
     try:
         deps_file = Path(__file__).parent.parent / "dependencies.txt"
         if deps_file.exists():
@@ -134,7 +143,7 @@ def install():
                     err=True,
                 )
                 raise typer.Exit(code=1)
-            typer.echo("Dependencies installed successfully.")
+            logging.info("Dependencies installed successfully.")
     except Exception as e:
         typer.echo(f"An unexpected error occurred: {e}", err=True)
         raise typer.Exit(code=1)
@@ -184,11 +193,6 @@ def test():
             f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved."
         )
 
-        if result.failures:
-            typer.echo(f"\nFailures: {len(result.failures)}")
-        if result.errors:
-            typer.echo(f"Errors: {len(result.errors)}")
-
         if result.failures or result.errors:
             raise typer.Exit(code=1)
         else:
@@ -208,7 +212,7 @@ def analyze(url_file: Path):
     Analyzes models based on URLs provided in a file.
     Will add model to database if not already present.
     """
-    typer.echo("Analyzing model...")
+
     config: ConfigContract = ConfigContract(
         num_processes=5,
         run_multi=True,  # TODO: user False for debug, use True for production
@@ -226,7 +230,7 @@ def analyze(url_file: Path):
     try:
         model_groups = parse_url_file(url_file)
         if not model_groups:
-            typer.echo("Error: No valid model URLs found in file.", err=True)
+            typer.echo("No valid model URLs found in file.")
             raise typer.Exit(code=1)
 
         setup_logging()
@@ -265,15 +269,22 @@ def analyze(url_file: Path):
                 logging.info(f"Analyzing model {model_url}...")
 
                 # Calculate metrics and add to database
-                # print("HERE!!!")
-                local_dir = Path(config.local_storage_directory)
-                download_manager = DownloadManager(
-                    str(local_dir / config.model_path_name),
-                    str(local_dir / config.code_path_name),
-                    str(local_dir / config.dataset_path_name),
-                )
-                download_manager.download_model_resources(model_urls)
+                logging.info(f"Downloading resources for {model_url}...")
+                try:
+                    local_dir = Path(config.local_storage_directory)
+                    download_manager = DownloadManager(
+                        str(local_dir / config.model_path_name),
+                        str(local_dir / config.code_path_name),
+                        str(local_dir / config.dataset_path_name),
+                    )
+                    download_manager.download_model_resources(model_urls)
+                    logging.info("Download completed successfully.")
+                except Exception as e:
+                    typer.echo(f"Error downloading resources: {e}")
+                    continue
+                logging.debug(f"Starting metric calculation for {model_url}")
                 stats = calculate_metrics(model_urls, config, metric_stager)
+                logging.debug(f"Adding results to database for {model_url}")
                 db.add_to_db(stats)
 
             results = {
@@ -294,7 +305,7 @@ def analyze(url_file: Path):
             typer.echo(json.dumps(results))
 
     except Exception as e:
-        typer.echo(f"An error occurred during analysis: {e}", err=True)
+        typer.echo(f"An error occurred during analysis: {e}")
         raise typer.Exit(code=1)
 
 
