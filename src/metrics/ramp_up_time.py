@@ -27,11 +27,11 @@ class RampUpMetric(BaseMetric):
     @override
     def setup_resources(self):
         try:
-            split_url = self.url.split("huggingface.co/")
+            split_url = self.url.model_url.split("huggingface.co/")
             self.model_name = split_url[1]
         except Exception:
             raise NameError(
-                f"URL provided to RampUpMetric {self.url} is of invalid format"
+                f"URL provided to RampUpMetric {self.url.model_url} is of invalid format"
             )
 
     def installation_spin_up_score(self, force_download: bool):

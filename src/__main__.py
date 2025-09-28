@@ -4,6 +4,7 @@ import subprocess
 import sys
 import json
 import os
+import time
 import logging
 from typing import List
 from database import (
@@ -119,6 +120,10 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
         dataset_path_name = "dataset"
     )
 
+    model_paths: ModelPaths = generate_model_paths(config, model_urls)
+
+    start_time: float = time.time()
+
     # metrics = [
     #     RampUpMetric(1.0, "cpu"),
     #     BusFactorMetric(),
@@ -158,41 +163,41 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
     stager.attach_metric(DatasetAndCodeScoreMetric(), 2)
     stager.attach_metric(CodeQualityMetric(), 1)
 
-    if model_urls.codebase:
-        stager.attach_metric("codebase", metrics[6], 2)
+    # if model_urls.codebase:
+    #     stager.attach_metric("codebase", metrics[6], 2)
 
-    analyzer_output = run_workflow(stager, model_urls, config)
-    db_metrics = []
-    for metric in metrics:
-        metric_name = metric.metric_name
-        if metric_name == "size_score":
-            # Handle special case for size_score (returns dictionary)
-            size_metric_instance = metrics[4]  # Your SizeMetric
-            devices = ["raspberry_pi", "jetson_nano", "desktop_pc", "aws_server"]
-
-            size_scores: dict[str, float] = {}
-            for device in devices:
-                # Set the device platform
-                size_metric_instance.target_platform = device
-                
-                # Prepare the metric (fetch model info, calculate memory/storage)
-                size_metric_instance.setup_resources()
-                
-                # Now calculate score
-                score = size_metric_instance.calculate_score()
-                size_scores[device] = score
-            latency_ms = int(metric.runtime * 1000) if hasattr(metric, "runtime") else 0
-            print(metric.metric_name, size_scores)
-            db_metrics.append(DictMetric(metric_name, size_scores, latency_ms))
-            print("HERE!!!")
-        else:
-            # Regular float metrics
-            score = analyzer_output.individual_scores.get(metric_name, 0.0)
-            latency_ms = int(metric.runtime * 1000) if hasattr(metric, "runtime") else 0
-            db_metrics.append(FloatMetric(metric_name, score, latency_ms))
+    analyzer_output = run_workflow(stager, model_urls, model_paths, config)
+    # db_metrics = []
+    # for metric in metrics:
+    #     metric_name = metric.metric_name
+    #     if metric_name == "size_score":
+    #         # Handle special case for size_score (returns dictionary)
+    #         size_metric_instance = metrics[4]  # Your SizeMetric
+    #         devices = ["raspberry_pi", "jetson_nano", "desktop_pc", "aws_server"]
+    #
+    #         size_scores: dict[str, float] = {}
+    #         for device in devices:
+    #             # Set the device platform
+    #             size_metric_instance.target_platform = device
+    #
+    #             # Prepare the metric (fetch model info, calculate memory/storage)
+    #             size_metric_instance.setup_resources()
+    #
+    #             # Now calculate score
+    #             score = size_metric_instance.calculate_score()
+    #             size_scores[device] = score
+    #         latency_ms = int(metric.runtime * 1000) if hasattr(metric, "runtime") else 0
+    #         print(metric.metric_name, size_scores)
+    #         db_metrics.append(DictMetric(metric_name, size_scores, latency_ms))
+    #         print("HERE!!!")
+    #     else:
+    #         # Regular float metrics
+    #         score = analyzer_output.individual_scores.get(metric_name, 0.0)
+    #         latency_ms = int(metric.runtime * 1000) if hasattr(metric, "runtime") else 0
+    #         db_metrics.append(FloatMetric(metric_name, score, latency_ms))
 
     # Calculate net score latency
-    net_latency = sum(m.latency for m in db_metrics)
+    net_latency: float = time.time() - start_time
 
     return ModelStats(
         model_url=model_urls.model,

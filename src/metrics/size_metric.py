@@ -156,8 +156,8 @@ class SizeMetric(BaseMetric):
             str: Repository ID
         """
         # Handle different URL formats
-        if "huggingface.co/" in self.url:
-            path = urlparse(self.url).path
+        if "huggingface.co/" in self.url.model_url:
+            path = urlparse(self.url.model_url).path
             # Remove leading slash and extract repo path
             repo_path = path.lstrip('/')
             # Remove /tree/main or similar suffixes
@@ -168,7 +168,7 @@ class SizeMetric(BaseMetric):
             return repo_path
         else:
             # Assume the URL is already a repo_id
-            return self.url
+            return self.url.model_url
     
     def _get_fallback_model_info(self) -> dict:
         """
