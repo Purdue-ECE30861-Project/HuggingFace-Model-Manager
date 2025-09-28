@@ -38,18 +38,20 @@ class DatasetQualityMetric(BaseMetric):
                     for split in dataset_card["dataset_info"]["splits"]
                 ]
             )
-            row_score = self.scale_logarithmically(total_rows, 10 ^ 3, 10 ^ 12)
+            row_score = self.scale_logarithmically(total_rows, 10**2, 10**6)
 
         downloads = dataset_stats.downloads_all_time
         if downloads is None:
+            downloads = dataset_stats.downloads
+        if downloads is None:
             download_score = 0.0
         else:
-            download_score = self.scale_logarithmically(downloads, 10, 10 ^ 6)
+            download_score = self.scale_logarithmically(downloads, 10, 10**4)
 
         likes = dataset_stats.likes
         if likes is None:
             like_score = 0.0
         else:
-            like_score = self.scale_logarithmically(likes, 1, 10 * 10 ^ 3)
+            like_score = self.scale_logarithmically(likes, 0, 10 * 10**2)
 
         return row_score * 0.5 + download_score * 0.3 + like_score * 0.2
