@@ -38,7 +38,7 @@ class BaseMetric(abc.ABC):
             self.score = self.calculate_score()
         except Exception as e:
             self.score = 0.0
-            print(str(e))
+
 
         self.runtime = time.time() - start
 

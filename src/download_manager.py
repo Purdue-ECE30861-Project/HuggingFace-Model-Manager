@@ -5,7 +5,23 @@ from pathlib import Path
 from typing import Optional, Tuple
 from huggingface_hub import snapshot_download
 import git
+import sys
+from contextlib import contextmanager
 from metric import ModelURLs
+
+
+@contextmanager
+def suppress_output():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        old_stderr = sys.stderr
+        sys.stdout = devnull
+        sys.stderr = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout
+            sys.stderr = old_stderr
 
 
 class DownloadManager:
@@ -91,13 +107,14 @@ class DownloadManager:
 
         try:
             # snapshot_download efficiently handles updates - only downloads changed files
-            snapshot_download(
-                repo_id=repo_id,
-                local_dir=str(local_path),
-                revision="main",
-                resume_download=True,
-                force_download=False,  # Don't re-download unchanged files
-            )
+            with suppress_output():
+                snapshot_download(
+                    repo_id=repo_id,
+                    local_dir=str(local_path),
+                    revision="main",
+                    resume_download=True,
+                    force_download=False,  # Don't re-download unchanged files
+                )
             logging.info(f"Model ready at {local_path}")
             return local_path
         except Exception as e:
@@ -106,9 +123,10 @@ class DownloadManager:
                 logging.warning(f"Update failed, clearing and re-downloading: {e}")
                 shutil.rmtree(local_path)
                 try:
-                    snapshot_download(
-                        repo_id=repo_id, local_dir=str(local_path), revision="main"
-                    )
+                    with suppress_output():
+                        snapshot_download(
+                            repo_id=repo_id, local_dir=str(local_path), revision="main"
+                        )
                     logging.info(f"Model re-downloaded to {local_path}")
                     return local_path
                 except Exception as retry_error:
@@ -139,14 +157,15 @@ class DownloadManager:
 
         try:
             # Use snapshot_download with repo_type="dataset"
-            snapshot_download(
-                repo_id=dataset_id,
-                repo_type="dataset",
-                local_dir=str(local_path),
-                revision="main",
-                resume_download=True,
-                force_download=False,
-            )
+            with suppress_output():
+                snapshot_download(
+                    repo_id=dataset_id,
+                    repo_type="dataset",
+                    local_dir=str(local_path),
+                    revision="main",
+                    resume_download=True,
+                    force_download=False,
+                )
             logging.info(f"Dataset ready at {local_path}")
             return local_path
         except Exception as e:
@@ -155,12 +174,13 @@ class DownloadManager:
                 logging.warning(f"Update failed, clearing and re-downloading: {e}")
                 shutil.rmtree(local_path)
                 try:
-                    snapshot_download(
-                        repo_id=dataset_id,
-                        repo_type="dataset",
-                        local_dir=str(local_path),
-                        revision="main",
-                    )
+                    with suppress_output():
+                        snapshot_download(
+                            repo_id=dataset_id,
+                            repo_type="dataset",
+                            local_dir=str(local_path),
+                            revision="main",
+                        )
                     logging.info(f"Dataset re-downloaded to {local_path}")
                     return local_path
                 except Exception as retry_error:
