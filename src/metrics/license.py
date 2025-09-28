@@ -174,9 +174,9 @@ class LicenseMetric(BaseMetric):
         return 0.0  # pragma: no cover
 
     def calculate_score(self) -> float:
-        if self.local_directory is None:
-            raise ValueError("Local directory not specified")
-        self.model_dir = Path(self.local_directory)
+        if self.local_directory is None or self.local_directory.model is None:
+            raise ValueError("Local model directory not specified")
+        self.model_dir = Path(self.local_directory.model)
         self.license_file = self.model_dir / "LICENSE"
         if not self.license_file.exists():
             self.license_file = self.model_dir / "LICENSE.md"

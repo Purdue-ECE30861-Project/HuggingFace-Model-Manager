@@ -93,8 +93,10 @@ repository(name:"%s", owner:"%s"){
     def setup_resources(self):
         load_dotenv()
 
+        if self.url is None or self.url.codebase is None:
+            raise ValueError("No GitHub URL Provided")
         # parse out name and owner
-        matches = github_pattern.match(self.url)
+        matches = github_pattern.match(self.url.codebase)
         if matches is None:
             raise ValueError("invalid GitHub URL")
 

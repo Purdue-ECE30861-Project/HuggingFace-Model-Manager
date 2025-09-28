@@ -117,7 +117,10 @@ def stage_metrics(config: ConfigContract):
 
     return stager
 
-def calculate_metrics(model_urls: ModelURLs, config: ConfigContract, stager: MetricStager) -> ModelStats: # do we have a funciton to infer urls?
+
+def calculate_metrics(
+    model_urls: ModelURLs, config: ConfigContract, stager: MetricStager
+) -> ModelStats:  # do we have a funciton to infer urls?
     """
     Calculate all metrics for a given model
     """
@@ -129,7 +132,7 @@ def calculate_metrics(model_urls: ModelURLs, config: ConfigContract, stager: Met
     split_url = model_urls.model.split("huggingface.co/")
     parts = split_url[1].split("/")
     if len(parts) > 2:
-        model_name = '/'.join(parts[0:2])
+        model_name = "/".join(parts[0:2])
 
     stager.attach_metric(CodeQualityMetric(), 1)
 
@@ -204,7 +207,7 @@ def test():
         suite = loader.discover(start_dir, pattern="test*.py")
         total_tests = suite.countTestCases()
 
-        runner = unittest.TextTestRunner(verbosity=2)#, stream=open(os.devnull, "w"))
+        runner = unittest.TextTestRunner(verbosity=2)  # , stream=open(os.devnull, "w"))
         result = runner.run(suite)
         cov.stop()
         cov.save()
@@ -224,17 +227,17 @@ def test():
         typer.echo(
             f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved."
         )
-        
+
         if result.failures:
             typer.echo(f"\nFailures: {len(result.failures)}")
         if result.errors:
             typer.echo(f"Errors: {len(result.errors)}")
-        
+
         if result.failures or result.errors:
             raise typer.Exit(code=1)
         else:
             raise typer.Exit(code=0)
-        
+
     except ImportError:
         typer.echo(
             "Error: 'coverage' package not installed. Please run 'install' command first.",
@@ -254,10 +257,11 @@ def analyze(url_file: Path):
         num_processes=5,
         priority_function="PFReciprocal",
         target_platform="desktop_pc",
-        local_storage_directory=os.path.dirname(os.path.abspath(__file__)) + "local_storage",
+        local_storage_directory=os.path.dirname(os.path.abspath(__file__))
+        + "local_storage",
         model_path_name="models",
         code_path_name="code",
-        dataset_path_name="dataset"
+        dataset_path_name="dataset",
     )
 
     try:
@@ -302,8 +306,8 @@ def analyze(url_file: Path):
                 logging.info(f"Analyzing model {model_url}...")
 
                 # Calculate metrics and add to database
-                #print("HERE!!!")
-                stats = calculate_metrics(model_urls)
+                # print("HERE!!!")
+                stats = calculate_metrics(model_urls, config, stage_metrics(config))
                 db.add_to_db(stats)
 
             results = {
