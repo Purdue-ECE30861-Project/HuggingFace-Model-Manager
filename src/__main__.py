@@ -23,7 +23,7 @@ from metrics.ramp_up_time import RampUpMetric
 from metrics.license import LicenseMetric
 from metrics.code_quality import CodeQualityMetric
 from metrics.size_metric import SizeMetric
-from src.url_parser import read_url_csv
+from url_parser import read_url_csv
 
 
 def setup_logging():
