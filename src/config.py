@@ -130,7 +130,8 @@ class ConfigContract(BaseModel):
     @classmethod
     def validate_local_storage_directory(cls, directory: str) -> str:
         if not os.path.isdir(directory):
-            raise IOError("The provided local directory is invalid")
+            print("The provided local directory is invalid. Creating")
+            Path(directory).mkdir(parents=True, exist_ok=True)
         if not os.access(directory, os.R_OK):
             raise IOError("The provided local directory is not readable")
 
