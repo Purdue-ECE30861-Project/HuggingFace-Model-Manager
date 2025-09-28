@@ -5,6 +5,11 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 
+DATASET = "dataset"
+CODEBASE = "codebase"
+MODEL = "model"
+
+
 class PriorityFunction(ABC):
     """
     Abstract base class for priority weighting functions.

@@ -6,7 +6,6 @@ import json
 import os
 import logging
 from typing import List
-from metric import ModelURLs
 from database import (
     SQLiteAccessor,
     FloatMetric,
@@ -14,7 +13,8 @@ from database import (
     ModelStats,
     PROD_DATABASE_PATH,
 )
-from workflow import MetricStager, ConfigContract, run_workflow
+from workflow import MetricStager, run_workflow
+from config import *
 from metrics.performance_claims import PerformanceClaimsMetric
 from metrics.dataset_and_code import DatasetAndCodeScoreMetric
 from metrics.bus_factor import BusFactorMetric
@@ -104,46 +104,59 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
         raise typer.Exit(code=1)
 
 
-def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
+def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funciton to infer urls?
     """
     Calculate all metrics for a given model
     """
     # Using these values for now, will have to use config file to actually configure
     config = ConfigContract(
-        num_processes=1, priority_function="PFReciprocal", target_platform="desktop_pc"
+        num_processes=5,
+        priority_function="PFReciprocal",
+        target_platform="desktop_pc",
+        local_storage_directory = os.path.dirname(os.path.abspath(__file__)) + "local_storage",
+        model_path_name = "models",
+        code_path_name = "code",
+        dataset_path_name = "dataset"
     )
 
-    metrics = [
-        RampUpMetric(1.0, "cpu"),
-        BusFactorMetric(),
-        PerformanceClaimsMetric(),
-        LicenseMetric(),
-        SizeMetric(),
-        DatasetAndCodeScoreMetric(model_urls.dataset, model_urls.codebase),
-        CodeQualityMetric(),
-    ]
-    split_url = model_urls.model.split("huggingface.co/")
-    parts = split_url[1].split("/")
-    if len(parts) > 2:
-        model_name = parts[0:2]
-
-    for metric in metrics:
-        # Set dataset URL for metrics that need it
-        if hasattr(metric, "dataset_url") and model_urls.dataset:
-            metric.dataset_url = model_urls.dataset
-
-        # Set codebase URL for metrics that need it
-        if hasattr(metric, "codebase_url") and model_urls.codebase:
-            metric.codebase_url = model_urls.codebase
-
+    # metrics = [
+    #     RampUpMetric(1.0, "cpu"),
+    #     BusFactorMetric(),
+    #     PerformanceClaimsMetric(),
+    #     LicenseMetric(),
+    #     SizeMetric(),
+    #     DatasetAndCodeScoreMetric(model_urls.dataset, model_urls.codebase),
+    #     CodeQualityMetric(),
+    # ]
+    # split_url = model_urls.model.split("huggingface.co/")
+    # parts = split_url[1].split("/")
+    # if len(parts) > 2:
+    #     model_name = parts[0:2]
+    #
+    # for metric in metrics:
+    #     # Set dataset URL for metrics that need it
+    #     if hasattr(metric, "dataset_url") and model_urls.dataset:
+    #         metric.dataset_url = model_urls.dataset
+    #
+    #     # Set codebase URL for metrics that need it
+    #     if hasattr(metric, "codebase_url") and model_urls.codebase:
+    #         metric.codebase_url = model_urls.codebase
+    #
     stager = MetricStager(config)
-
-    stager.attach_metric("model", metrics[0], 1)
-    stager.attach_metric("model", metrics[1], 2)
-    stager.attach_metric("model", metrics[2], 2)
-    stager.attach_metric("model", metrics[3], 1)
-    stager.attach_metric("model", metrics[4], 3)
-    stager.attach_metric("model", metrics[5], 2)
+    #
+    # stager.attach_metric("model", metrics[0], 1)
+    # stager.attach_metric("model", metrics[1], 2)
+    # stager.attach_metric("model", metrics[2], 2)
+    # stager.attach_metric("model", metrics[3], 1)
+    # stager.attach_metric("model", metrics[4], 3)
+    # stager.attach_metric("model", metrics[5], 2)
+    stager.attach_metric(RampUpMetric(1.0, "cpu"), 1)
+    stager.attach_metric(BusFactorMetric(), 2)
+    stager.attach_metric(PerformanceClaimsMetric(), 2)
+    stager.attach_metric(LicenseMetric(), 1)
+    stager.attach_metric(SizeMetric(), 3)
+    stager.attach_metric(DatasetAndCodeScoreMetric(), 2)
+    stager.attach_metric(CodeQualityMetric(), 1)
 
     if model_urls.codebase:
         stager.attach_metric("codebase", metrics[6], 2)

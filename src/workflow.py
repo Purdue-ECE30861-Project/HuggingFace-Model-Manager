@@ -8,11 +8,6 @@ from metric import BaseMetric, AnalyzerOutput, PRIORITY_FUNCTIONS
 from config import ConfigContract, ModelPaths, ModelURLs, PriorityFunction, PRIORITY_FUNCTIONS
 
 
-DATASET = "dataset"
-CODEBASE = "codebase"
-MODEL = "model"
-
-
 def run_metric(metric: BaseMetric) -> BaseMetric:
     """
     Runs a single metric by calling its run method.
@@ -68,15 +63,11 @@ class MetricStager:
         Args:
             config (ConfigContract): Configuration for staging metrics.
         """
-        self.metrics: dict[str, list[BaseMetric]] = {
-            "dataset": [],
-            "codebase": [],
-            "model": [],
-        }
+        self.metrics: list[BaseMetric] = []
         self.config: ConfigContract = config
 
     def attach_metric(
-        self, group: str, metric: BaseMetric, priority: int
+        self, metric: BaseMetric, priority: int
     ) -> typing.Self:
         """
         Attaches a metric to a group with a given priority and platform.
@@ -90,14 +81,11 @@ class MetricStager:
             KeyError: If the group is invalid.
         """
         metric.set_params(priority, self.config.target_platform)
-        try:
-            self.metrics[group].append(metric)
-        except KeyError:
-            raise KeyError(f"Invalid group: {group}")
+        self.metrics.append(metric)
 
         return self
 
-    def attach_model_urls(
+    def attach_model_sources(
         self, model_urls: ModelURLs, model_paths: ModelPaths
     ) -> MetricRunner:
         """
@@ -107,27 +95,21 @@ class MetricStager:
         Returns:
             MetricRunner: A MetricRunner instance with staged metrics.
         """
-        dictionary_urls: dict[str, str | None] = model_urls.dict()
-        dictionary_paths: dict[str, Path | None] = model_paths.dict()
-        staged_metrics: list[BaseMetric] = []
 
-        for metric_type, url in dictionary_urls.items():
-            if url:
-                for metric in self.metrics[metric_type]:
-                    metric.set_url(url)
-                    metric.set_local_directory(dictionary_paths[metric_type])
-                    staged_metrics.append(metric)
+        for metric in self.metrics:
+            metric.set_local_directory(model_paths)
+            metric.set_url(model_urls)
 
-        return MetricRunner(staged_metrics)
+        return MetricRunner(self.metrics)
 
 
 def run_workflow(
-    metric_stager: MetricStager, input_urls: ModelURLs, config: ConfigContract
+    metric_stager: MetricStager, input_urls: ModelURLs, input_paths: ModelPaths, config: ConfigContract
 ) -> AnalyzerOutput:
     """
     Runs the complete workflow: attaches URLs, sets up multiprocessing, runs metrics,
     and returns the analysis output.
-    Args:
+    Args
         metric_stager (MetricStager): The metric stager with staged metrics.
         input_urls (ModelURLs): The input model URLs.
         config (ConfigContract): The workflow configuration.
@@ -135,8 +117,9 @@ def run_workflow(
         AnalyzerOutput: The output of the analysis.
     """
     # HERE it should check if the inputted models are already stored locally
-    metric_runner: MetricRunner = metric_stager.attach_model_urls(
-        input_urls
+    metric_runner: MetricRunner = metric_stager.attach_model_sources(
+        input_urls,
+        input_paths
     ).set_num_processes(config.num_processes)
     processed_metrics: list[BaseMetric] = metric_runner.run()
 
