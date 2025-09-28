@@ -1,8 +1,6 @@
 from multiprocessing import Pool
-import os
-from typing import Literal, Optional
+from typing import Optional
 from pydantic import BaseModel, field_validator, ValidationError
-from pathlib import Path
 import typing
 from metric import BaseMetric, AnalyzerOutput, PRIORITY_FUNCTIONS
 from config import (
