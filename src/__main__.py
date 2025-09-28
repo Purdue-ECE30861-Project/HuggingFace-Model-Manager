@@ -23,6 +23,7 @@ from metrics.ramp_up_time import RampUpMetric
 from metrics.license import LicenseMetric
 from metrics.code_quality import CodeQualityMetric
 from metrics.size_metric import SizeMetric
+from metrics.dataset_quality import DatasetQualityMetric
 from url_parser import read_url_csv
 from download_manager import DownloadManager
 
@@ -71,12 +72,13 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
 def stage_metrics(config: ConfigContract):
     stager = MetricStager(config)
 
-    stager.attach_metric(RampUpMetric(1.0, "cpu"), 1)
+    stager.attach_metric(RampUpMetric(1.0, "cpu"), 4)
     stager.attach_metric(BusFactorMetric(), 2)
     stager.attach_metric(PerformanceClaimsMetric(), 2)
     stager.attach_metric(LicenseMetric(), 1)
     stager.attach_metric(SizeMetric(), 3)
     stager.attach_metric(DatasetAndCodeScoreMetric(), 2)
+    stager.attach_metric(DatasetQualityMetric(), 1)
     stager.attach_metric(CodeQualityMetric(), 1)
 
     return stager
