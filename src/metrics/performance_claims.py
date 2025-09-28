@@ -50,8 +50,8 @@ class PerformanceClaimsMetric(BaseMetric):
         final_score = requests.post(LLM_API_URL, headers=headers, json=data)
         # remove every non-number character
         response: str = final_score.json()["choices"][0]["message"]["content"]
-        final_number = re.findall(r"0\.\d+", response)[-1]
         try:
+            final_number = re.findall(r"0\.\d+", response)[-1]
             final_score = float(final_number)
         except:
             return 0.0

@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 from huggingface_hub import snapshot_download
 import git
 import sys
+import os
 from contextlib import contextmanager
 from metric import ModelURLs
 import os
