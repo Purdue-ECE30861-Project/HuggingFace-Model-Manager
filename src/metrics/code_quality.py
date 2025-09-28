@@ -9,7 +9,7 @@ from metric import BaseMetric
 
 
 class CodeQualityMetric(BaseMetric):
-    metric_name: str = "CodeQuality"
+    metric_name: str = "code_quality"
 
     def __init__(self):
         super().__init__()

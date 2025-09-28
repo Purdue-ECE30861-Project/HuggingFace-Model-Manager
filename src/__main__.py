@@ -21,7 +21,7 @@ from metrics.bus_factor import BusFactorMetric
 from metrics.ramp_up_time import RampUpMetric
 from metrics.license import LicenseMetric
 from metrics.code_quality import CodeQualityMetric
-from metrics.size_score import SizeScoreMetric
+from metrics.size_metric import SizeMetric
 
 
 def setup_logging():
@@ -118,13 +118,14 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
         BusFactorMetric(),
         PerformanceClaimsMetric(),
         LicenseMetric(),
-        SizeScoreMetric(),
+        SizeMetric(),
         DatasetAndCodeScoreMetric(model_urls.dataset, model_urls.codebase),
         CodeQualityMetric(),
     ]
-    model_name = (
-        model_urls.model.split("/")[-1] if "/" in model_urls.model else model_urls.model
-    )
+    split_url = model_urls.model.split("huggingface.co/")
+    parts = split_url[1].split("/")
+    if len(parts) > 2:
+        model_name = parts[0:2]
 
     for metric in metrics:
         # Set dataset URL for metrics that need it
@@ -148,23 +149,29 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
         stager.attach_metric("codebase", metrics[6], 2)
 
     analyzer_output = run_workflow(stager, model_urls, config)
-
     db_metrics = []
     for metric in metrics:
         metric_name = metric.metric_name
         if metric_name == "size_score":
             # Handle special case for size_score (returns dictionary)
-            size_scores = analyzer_output.individual_scores.get(
-                metric_name,
-                {
-                    "raspberry_pi": 0.0,
-                    "jetson_nano": 0.0,
-                    "desktop_pc": 0.0,
-                    "aws_server": 0.0,
-                },
-            )
+            size_metric_instance = metrics[4]  # Your SizeMetric
+            devices = ["raspberry_pi", "jetson_nano", "desktop_pc", "aws_server"]
+
+            size_scores: dict[str, float] = {}
+            for device in devices:
+                # Set the device platform
+                size_metric_instance.target_platform = device
+                
+                # Prepare the metric (fetch model info, calculate memory/storage)
+                size_metric_instance.setup_resources()
+                
+                # Now calculate score
+                score = size_metric_instance.calculate_score()
+                size_scores[device] = score
             latency_ms = int(metric.runtime * 1000) if hasattr(metric, "runtime") else 0
+            print(metric.metric_name, size_scores)
             db_metrics.append(DictMetric(metric_name, size_scores, latency_ms))
+            print("HERE!!!")
         else:
             # Regular float metrics
             score = analyzer_output.individual_scores.get(metric_name, 0.0)
@@ -213,7 +220,6 @@ def install():
 @app.command()
 def test():
     import unittest
-    import os
 
     src_path = Path(__file__).parent.parent / "src"
     if str(src_path) not in sys.path:
@@ -287,7 +293,6 @@ def analyze(url_file: Path):
             raise typer.Exit(code=1)
 
         setup_logging()
-
         basic_schema = [
             FloatMetric("ramp_up_time", 0.0, 0),
             FloatMetric("bus_factor", 0.0, 0),
@@ -303,7 +308,7 @@ def analyze(url_file: Path):
                 },
                 0,
             ),
-            FloatMetric("dataset_and_code score", 0.0, 0),
+            FloatMetric("dataset_and_code_score", 0.0, 0),
             FloatMetric("dataset_quality", 0.0, 0),
             FloatMetric("code_quality", 0.0, 0),
         ]
@@ -319,10 +324,12 @@ def analyze(url_file: Path):
                     f"Model {model_url} already analyzed. Fetching from database..."
                 )
                 stats = db.get_model_statistics(model_url)
+                print("HERE!!!")
             else:
                 logging.info(f"Analyzing model {model_url}...")
 
                 # Calculate metrics and add to database
+                #print("HERE!!!")
                 stats = calculate_metrics(model_urls)
                 db.add_to_db(stats)
 
@@ -338,8 +345,8 @@ def analyze(url_file: Path):
                     results[metric.name] = metric.data
                     results[f"{metric.name}_latency"] = metric.latency
                 elif isinstance(metric, DictMetric):
-                    results[metric.metric_name] = metric.data
-                    results[f"{metric.metric_name}_latency"] = metric.latency
+                    results[metric.name] = metric.data
+                    results[f"{metric.name}_latency"] = metric.latency
 
             typer.echo(json.dumps(results))
 

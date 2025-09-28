@@ -56,7 +56,7 @@ class SizeMetric(BaseMetric):
     - Memory usage and remaining free memory
     """
     
-    metric_name: str = "size"
+    metric_name: str = "size_score"
     
     def __init__(self):
         """Initialize the SizeMetric with default values."""

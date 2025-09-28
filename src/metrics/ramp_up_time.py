@@ -11,7 +11,7 @@ from metric import BaseMetric
 
 
 class RampUpMetric(BaseMetric):
-    metric_name: str = "RampUpTime"
+    metric_name: str = "ramp_up_time"
 
     def __init__(
         self,
