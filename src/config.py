@@ -85,6 +85,13 @@ class ModelURLs(BaseModel):
     codebase: Optional[str] = None
     dataset: Optional[str] = None
 
+    def __eq__(self, other):
+        return (
+            self.model == other.model
+            and self.codebase == other.codebase
+            and self.dataset == other.dataset
+        )
+
     @field_validator("codebase", "dataset", mode="after")
     @classmethod
     def check_empty_url(cls, value: Optional[str]) -> Optional[str]:

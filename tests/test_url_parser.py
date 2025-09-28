@@ -1,8 +1,8 @@
 import unittest
 import tempfile
 from pathlib import Path
-from src.config import ModelURLs
-from src.url_parser import read_url_csv
+from config import ModelURLs
+from url_parser import read_url_csv
 
 
 class TestURLParser(unittest.TestCase):
@@ -28,7 +28,6 @@ j,i,h"""
 
         path: Path = self.generate_test_file("test1.txt", test_content)
         result: list[ModelURLs] = read_url_csv(path)
-
         self.assertEqual(result[0], ModelURLs(model="c", codebase="a", dataset="b"))
         self.assertEqual(result[1], ModelURLs(model="g", codebase="e", dataset="f"))
         self.assertEqual(result[2], ModelURLs(model="h", codebase="j", dataset="i"))

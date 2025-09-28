@@ -5,7 +5,7 @@ from pathlib import Path
 from metric import ModelPaths
 
 from huggingface_hub import snapshot_download
-from src.metrics.code_quality import CodeQualityMetric
+from metrics.code_quality import CodeQualityMetric
 
 
 class TestCodeQualityMetricWithHuggingFaceModel(unittest.TestCase):

@@ -1,8 +1,8 @@
 import unittest
 import tempfile
-from src.workflow import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
-from src.metric import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
-from src.config import *
+from workflow import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
+from metric import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
+from config import *
 
 
 class DummyMetric1(BaseMetric):
@@ -44,6 +44,7 @@ class DummyMetric3(BaseMetric):
     def setup_resources(self):
         pass
 
+
 class DummyMetric5(BaseMetric):
     @typing.override
     def calculate_score(self):
@@ -52,6 +53,7 @@ class DummyMetric5(BaseMetric):
     @typing.override
     def setup_resources(self):
         pass
+
 
 MODEL_URLS_1: ModelURLs = ModelURLs(model="https://github.com/user/repo")
 MODEL_URLS_2: ModelURLs = ModelURLs(
@@ -82,20 +84,36 @@ class BaseMetricTestCase(unittest.TestCase):
 
         # Valid ConfigContract shared by tests
         self.CONFIG_1 = ConfigContract(
-            num_processes=1, priority_function="PFReciprocal", target_platform="pc",
-            local_storage_directory=self.tmpdir.name, model_path_name="models", code_path_name="code", dataset_path_name="datasets"
+            num_processes=1,
+            priority_function="PFReciprocal",
+            target_platform="pc",
+            local_storage_directory=self.tmpdir.name,
+            model_path_name="models",
+            code_path_name="code",
+            dataset_path_name="datasets",
         )
         self.CONFIG_2 = ConfigContract(
-            num_processes=2, priority_function="PFReciprocal", target_platform="pc",
-            local_storage_directory=self.tmpdir.name, model_path_name="models", code_path_name="code", dataset_path_name="datasets"
+            num_processes=2,
+            priority_function="PFReciprocal",
+            target_platform="pc",
+            local_storage_directory=self.tmpdir.name,
+            model_path_name="models",
+            code_path_name="code",
+            dataset_path_name="datasets",
         )
         self.CONFIG_3 = ConfigContract(
-            num_processes=2, priority_function="PFExponentialDecay", target_platform="pc",
-            local_storage_directory=self.tmpdir.name, model_path_name="models", code_path_name="code", dataset_path_name="datasets"
+            num_processes=2,
+            priority_function="PFExponentialDecay",
+            target_platform="pc",
+            local_storage_directory=self.tmpdir.name,
+            model_path_name="models",
+            code_path_name="code",
+            dataset_path_name="datasets",
         )
 
     def tearDown(self):
         self.tmpdir.cleanup()
+
 
 class TestMetricStaging(BaseMetricTestCase):
     def test_staging_valid(self):
@@ -178,7 +196,9 @@ class TestNetScoreCalculator(BaseMetricTestCase):
             DummyMetric3().set_params(3, "").run(),
         ]
 
-        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(
+            metrics
+        )
         self.assertAlmostEqual(net_score, 0.68)
 
     def test_net_score_calculation_2(self):
@@ -188,7 +208,9 @@ class TestNetScoreCalculator(BaseMetricTestCase):
             DummyMetric3().set_params(3, "").run(),
         ]
 
-        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(
+            metrics
+        )
         self.assertAlmostEqual(net_score, 1.0)
 
     def test_net_score_calculation_3(self):
@@ -198,7 +220,9 @@ class TestNetScoreCalculator(BaseMetricTestCase):
             DummyMetric4().set_params(3, "").run(),
         ]
 
-        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(
+            metrics
+        )
         self.assertAlmostEqual(net_score, 0.0)
 
     def test_net_score_calculation_3(self):
@@ -206,5 +230,7 @@ class TestNetScoreCalculator(BaseMetricTestCase):
             DummyMetric5().set_params(1, "").run(),
         ]
 
-        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(
+            metrics
+        )
         self.assertAlmostEqual(net_score, 1.0)

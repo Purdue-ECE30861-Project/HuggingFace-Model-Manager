@@ -1,5 +1,5 @@
 import unittest
-from src.metrics.dataset_and_code import *
+from metrics.dataset_and_code import *
 from metric import ModelURLs
 
 

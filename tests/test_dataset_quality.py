@@ -1,5 +1,5 @@
 import unittest
-from src.metrics.dataset_quality import *
+from metrics.dataset_quality import *
 from metric import ModelURLs
 
 
