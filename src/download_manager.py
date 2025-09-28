@@ -7,6 +7,7 @@ import git
 import sys
 from contextlib import contextmanager
 from metric import ModelURLs
+import os
 
 
 @contextmanager
