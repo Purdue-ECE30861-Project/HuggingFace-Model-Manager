@@ -24,6 +24,7 @@ from metrics.license import LicenseMetric
 from metrics.code_quality import CodeQualityMetric
 from metrics.size_metric import SizeMetric
 from url_parser import read_url_csv
+from download_manager import DownloadManager
 
 
 def setup_logging():
@@ -103,12 +104,11 @@ def calculate_metrics(
             db_metrics.append(FloatMetric(metric.metric_name, metric.score, latency_ms))
     # Calculate net score latency
     net_latency: float = time.time() - start_time
-
     return ModelStats(
         model_url=model_urls.model,
         database_url=model_urls.dataset,
         code_url=model_urls.codebase,
-        name="",
+        name=extract_model_repo_id(model_urls.model),
         net_score=analyzer_output.score,
         net_score_latency=net_latency,
         metrics=db_metrics,
@@ -265,6 +265,13 @@ def analyze(url_file: Path):
 
                 # Calculate metrics and add to database
                 # print("HERE!!!")
+                local_dir = Path(config.local_storage_directory)
+                download_manager = DownloadManager(
+                    str(local_dir / config.model_path_name),
+                    str(local_dir / config.code_path_name),
+                    str(local_dir / config.dataset_path_name),
+                )
+                download_manager.download_model_resources(model_urls)
                 stats = calculate_metrics(model_urls, config, metric_stager)
                 db.add_to_db(stats)
 

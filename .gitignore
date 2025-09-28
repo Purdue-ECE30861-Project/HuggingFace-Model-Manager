@@ -18,3 +18,4 @@ venv/
 *.pyc
 .coverage
 models.db
+srclocal_storage
