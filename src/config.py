@@ -74,7 +74,7 @@ PRIORITY_FUNCTIONS: dict[str, PriorityFunction] = {
     "PFExponentialDecay": PFExponentialDecay(2),
     "PFReciprocal": PFReciprocal(),
 }
-    
+
 
 class ModelURLs(BaseModel):
     """
@@ -85,17 +85,17 @@ class ModelURLs(BaseModel):
     codebase: Optional[str] = None
     dataset: Optional[str] = None
 
-    @field_validator('codebase', 'dataset', mode='after')
+    @field_validator("codebase", "dataset", mode="after")
     @classmethod
     def check_empty_url(cls, value: Optional[str]) -> Optional[str]:
-        if value == '':
+        if value == "":
             return None
         return value
 
-    @field_validator('model', mode='after')
+    @field_validator("model", mode="after")
     @classmethod
     def check_empty_url_model(cls, value: Optional[str]) -> Optional[str]:
-        if value == '':
+        if value == "":
             raise ValueError("Must have a model url")
         return value
 
@@ -109,7 +109,6 @@ class ModelPaths(BaseModel):
     # @classmethod
     # def check_path_or_create(cls, directory):
 
-    
 
 class ConfigContract(BaseModel):
     """
@@ -118,6 +117,7 @@ class ConfigContract(BaseModel):
     """
 
     num_processes: int = 1
+    run_multi: bool = True
     priority_function: Literal["PFReciprocal", "PFExponentialDecay"] = "PFReciprocal"
     target_platform: str = ""
     local_storage_directory: str
@@ -125,8 +125,7 @@ class ConfigContract(BaseModel):
     code_path_name: str
     dataset_path_name: str
 
-
-    @field_validator('local_storage_directory', mode='before')
+    @field_validator("local_storage_directory", mode="before")
     @classmethod
     def validate_local_storage_directory(cls, directory: str) -> str:
         if not os.path.isdir(directory):
@@ -137,13 +136,14 @@ class ConfigContract(BaseModel):
 
         return directory
 
-    @field_validator('model_path_name', 'code_path_name', 'dataset_path_name', mode='before')
+    @field_validator(
+        "model_path_name", "code_path_name", "dataset_path_name", mode="before"
+    )
     @classmethod
     def validate_path_names(cls, name: str) -> str:
-        if '/' in name:
+        if "/" in name:
             raise NameError("cannot put / in path name")
         return name
-
 
 
 def extract_model_repo_id(model_url: str) -> str:
@@ -160,6 +160,7 @@ def extract_model_repo_id(model_url: str) -> str:
     repo_id = repo_id.rstrip("/")
     return repo_id
 
+
 def extract_dataset_repo_id(dataset_url: str) -> str:
     """
     Args:
@@ -174,6 +175,7 @@ def extract_dataset_repo_id(dataset_url: str) -> str:
     repo_id = repo_id.rstrip("/")
     return repo_id
 
+
 def extract_code_repo_name(code_url: str) -> str:
     """
     Args:
@@ -182,8 +184,8 @@ def extract_code_repo_name(code_url: str) -> str:
     Returns:
         Repository name
     """
-    repo_name = code_url.rstrip('/').split('/')[-1]
-    repo_name = repo_name.replace('.git', '')
+    repo_name = code_url.rstrip("/").split("/")[-1]
+    repo_name = repo_name.replace(".git", "")
     return repo_name
 
 
@@ -192,14 +194,18 @@ def generate_model_paths(contract: ConfigContract, urls: ModelURLs) -> ModelPath
     directories: ModelPaths = ModelPaths()
 
     if urls.model:
-        directories.model = (parent_path / contract.model_path_name) / extract_model_repo_id(urls.model).replace("/", "_")
+        directories.model = (
+            parent_path / contract.model_path_name
+        ) / extract_model_repo_id(urls.model).replace("/", "_")
 
     if urls.codebase:
-        directories.codebase = (parent_path / contract.code_path_name) / extract_code_repo_name(urls.codebase)
+        directories.codebase = (
+            parent_path / contract.code_path_name
+        ) / extract_code_repo_name(urls.codebase)
 
     if urls.dataset:
-        directories.dataset = (parent_path / contract.dataset_path_name) / extract_dataset_repo_id(urls.dataset).replace("/", "_")
+        directories.dataset = (
+            parent_path / contract.dataset_path_name
+        ) / extract_dataset_repo_id(urls.dataset).replace("/", "_")
 
     return directories
-
-

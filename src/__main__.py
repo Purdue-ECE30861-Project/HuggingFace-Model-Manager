@@ -211,6 +211,7 @@ def analyze(url_file: Path):
     typer.echo("Analyzing model...")
     config: ConfigContract = ConfigContract(
         num_processes=5,
+        run_multi=True,  # TODO: user False for debug, use True for production
         priority_function="PFReciprocal",
         target_platform="desktop_pc",
         local_storage_directory=os.path.dirname(os.path.abspath(__file__))

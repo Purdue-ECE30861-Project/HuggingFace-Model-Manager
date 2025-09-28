@@ -5,7 +5,13 @@ from pydantic import BaseModel, field_validator, ValidationError
 from pathlib import Path
 import typing
 from metric import BaseMetric, AnalyzerOutput, PRIORITY_FUNCTIONS
-from config import ConfigContract, ModelPaths, ModelURLs, PriorityFunction, PRIORITY_FUNCTIONS
+from config import (
+    ConfigContract,
+    ModelPaths,
+    ModelURLs,
+    PriorityFunction,
+    PRIORITY_FUNCTIONS,
+)
 
 
 def run_metric(metric: BaseMetric) -> BaseMetric:
@@ -23,6 +29,7 @@ class MetricRunner:
     def __init__(self, metrics: list[BaseMetric]):  # single threaded by default
         self.metrics: list[BaseMetric] = metrics
         self.multiprocessing_pool: Optional[Pool] = None
+        self.run_multi = True  # for debugging purposes
 
     def run(self) -> list[BaseMetric]:
         """
@@ -32,11 +39,14 @@ class MetricRunner:
         Raises:
             Exception: If no multiprocessing pool has been created.
         """
-        if self.multiprocessing_pool:
-            with self.multiprocessing_pool as pool:
-                results: list[BaseMetric] = pool.map(run_metric, self.metrics)
+        if self.run_multi:
+            if self.multiprocessing_pool:
+                with self.multiprocessing_pool as pool:
+                    results: list[BaseMetric] = pool.map(run_metric, self.metrics)
+            else:
+                raise Exception("No multiprocessing pool has been created")
         else:
-            raise Exception("No multiprocessing pool has been created")
+            results = [run_metric(metric) for metric in self.metrics]
 
         return results
 
@@ -66,9 +76,7 @@ class MetricStager:
         self.metrics: list[BaseMetric] = []
         self.config: ConfigContract = config
 
-    def attach_metric(
-        self, metric: BaseMetric, priority: int
-    ) -> typing.Self:
+    def attach_metric(self, metric: BaseMetric, priority: int) -> typing.Self:
         """
         Attaches a metric to a group with a given priority and platform.
         Args:
@@ -105,7 +113,10 @@ class MetricStager:
 
 
 def run_workflow(
-    metric_stager: MetricStager, input_urls: ModelURLs, input_paths: ModelPaths, config: ConfigContract
+    metric_stager: MetricStager,
+    input_urls: ModelURLs,
+    input_paths: ModelPaths,
+    config: ConfigContract,
 ) -> AnalyzerOutput:
     """
     Runs the complete workflow: attaches URLs, sets up multiprocessing, runs metrics,
@@ -117,15 +128,14 @@ def run_workflow(
     Returns:
         AnalyzerOutput: The output of the analysis.
     """
+
     # HERE it should check if the inputted models are already stored locally
     metric_runner: MetricRunner = metric_stager.attach_model_sources(
-        input_urls,
-        input_paths
+        input_urls, input_paths
     ).set_num_processes(config.num_processes)
+    metric_runner.run_multi = config.run_multi
     processed_metrics: list[BaseMetric] = metric_runner.run()
 
     priority_fn: PriorityFunction = PRIORITY_FUNCTIONS[config.priority_function]
-    
-    return AnalyzerOutput(
-        priority_fn, processed_metrics, input_urls
-    )
+
+    return AnalyzerOutput(priority_fn, processed_metrics, input_urls)

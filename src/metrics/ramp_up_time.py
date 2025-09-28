@@ -37,7 +37,6 @@ class RampUpMetric(BaseMetric):
             model: typing.Any = AutoModel.from_pretrained(
                 self.local_directory.model.resolve()
             ).to(self.device_type)
-
             total_time: float = time.time() - start_load_time
 
         return exp(-self.exponential_coefficient * (total_time / 60))
