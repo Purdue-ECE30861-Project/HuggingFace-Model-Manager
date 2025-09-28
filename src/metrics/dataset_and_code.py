@@ -5,14 +5,13 @@ import requests
 
 
 class DatasetAndCodeScoreMetric(BaseMetric):
+    # UPDATE ME TO USE LOCAL COPIES OF REPOS
     metric_name: str = "dataset_and_code_score"
     model_dir: Path
     readme_file: Path
 
-    def __init__(self, dataset_url: str, code_url: str):
+    def __init__(self):
         super().__init__()
-        self.dataset_url = dataset_url
-        self.code_url = code_url
 
     @override
     def setup_resources(self):
@@ -27,8 +26,8 @@ class DatasetAndCodeScoreMetric(BaseMetric):
 
         # Check dataset availability
         try:
-            if self.dataset_url:
-                response = requests.head(self.dataset_url)
+            if self.url.dataset:
+                response = requests.head(self.url.dataset)
                 if response.status_code == 200:
                     score += 0.3
         except requests.RequestException:
@@ -36,8 +35,8 @@ class DatasetAndCodeScoreMetric(BaseMetric):
 
         # Check code availability
         try:
-            if self.code_url:
-                response = requests.head(self.code_url)
+            if self.url.codebase:
+                response = requests.head(self.url.codebase)
                 if response.status_code == 200:
                     score += 0.3
         except requests.RequestException:
@@ -45,8 +44,8 @@ class DatasetAndCodeScoreMetric(BaseMetric):
 
         # Check online documentation
         try:
-            if self.dataset_url:
-                response = requests.get(self.dataset_url)
+            if self.url.dataset:
+                response = requests.get(self.url.dataset)
                 if "dataset description" in response.text.lower():
                     score += 0.2
         except requests.RequestException:

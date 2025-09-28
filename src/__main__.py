@@ -105,7 +105,19 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
         raise typer.Exit(code=1)
 
 
-def calculate_metrics(model_urls: ModelURLs, config: ConfigContract) -> ModelStats: # do we have a funciton to infer urls?
+def stage_metrics(config: ConfigContract):
+    stager = MetricStager(config)
+
+    stager.attach_metric(RampUpMetric(1.0, "cpu"), 1)
+    stager.attach_metric(BusFactorMetric(), 2)
+    stager.attach_metric(PerformanceClaimsMetric(), 2)
+    stager.attach_metric(LicenseMetric(), 1)
+    stager.attach_metric(SizeMetric(), 3)
+    stager.attach_metric(DatasetAndCodeScoreMetric(), 2)
+
+    return stager
+
+def calculate_metrics(model_urls: ModelURLs, config: ConfigContract, stager: MetricStager) -> ModelStats: # do we have a funciton to infer urls?
     """
     Calculate all metrics for a given model
     """
@@ -118,15 +130,7 @@ def calculate_metrics(model_urls: ModelURLs, config: ConfigContract) -> ModelSta
     parts = split_url[1].split("/")
     if len(parts) > 2:
         model_name = '/'.join(parts[0:2])
-   
-    stager = MetricStager(config)
 
-    stager.attach_metric(RampUpMetric(1.0, "cpu"), 1)
-    stager.attach_metric(BusFactorMetric(), 2)
-    stager.attach_metric(PerformanceClaimsMetric(), 2)
-    stager.attach_metric(LicenseMetric(), 1)
-    stager.attach_metric(SizeMetric(), 3)
-    stager.attach_metric(DatasetAndCodeScoreMetric(model_urls.dataset, model_urls.codebase), 2)
     stager.attach_metric(CodeQualityMetric(), 1)
 
     analyzer_output = run_workflow(stager, model_urls, model_paths, config)
