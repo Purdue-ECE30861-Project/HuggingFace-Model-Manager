@@ -4,6 +4,7 @@ import subprocess
 import sys
 import json
 import os
+import time
 import logging
 from typing import List
 from database import (
@@ -118,18 +119,16 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
         code_path_name = "code",
         dataset_path_name = "dataset"
     )
-    
-    model_paths = ModelPaths(
-        model_path=Path(config.local_storage_directory) / config.model_path_name,
-        code_path=Path(config.local_storage_directory) / config.code_path_name,
-        dataset_path=Path(config.local_storage_directory) / config.dataset_path_name
-    )
+
+    model_paths: ModelPaths = generate_model_paths(config, model_urls)
+
+    start_time: float = time.time()
 
     split_url = model_urls.model.split("huggingface.co/")
     parts = split_url[1].split("/")
     if len(parts) > 2:
         model_name = '/'.join(parts[0:2])
-
+   
     stager = MetricStager(config)
 
     stager.attach_metric(RampUpMetric(1.0, "cpu"), 1)
@@ -141,34 +140,18 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
     stager.attach_metric(CodeQualityMetric(), 1)
 
     analyzer_output = run_workflow(stager, model_urls, model_paths, config)
-    
     db_metrics = []
-    metric_names = [
-        "rmap_up_time",
-        "bus_factor", 
-        "performance_claims",
-        "license",
-        "size_score",
-        "dataset_and_code_score", 
-        "code_quality"
-    ]
-    for name in metric_names:     
-        if name == 'size_score':
-            size_data = analyzer_output.individual_scores.get(metric_name, {
-                    "raspberry_pi": 0.0,
-                    "jetson_nano": 0.0, 
-                    "desktop_pc": 0.0,
-                    "aws_server": 0.0
-                })
-            latency = getattr(analyzer_output, 'latencies', {}).get(metric_name, 0)
-            db_metrics.append(DictMetric(metric_name, size_data, latency))
-        else:
-            score = analyzer_output.individual_scores.get(metric_name, 0.0)
-            latency = getattr(analyzer_output, 'latencies', {}).get(metric_name, 0)
-            db_metrics.append(FloatMetric(metric_name, score, latency))
 
+    individual_scores: dict = analyzer_output.individual_scores
+
+    for metric in analyzer_output.metrics:
+        latency_ms = int(metric.runtime * 1000)
+        if isinstance(metric.score, dict):
+            db_metrics.append(DictMetric(metric.metric_name, metric.score, latency_ms))
+        else:
+            db_metrics.append(FloatMetric(metric.metric_name, metric.score, latency_ms))
     # Calculate net score latency
-    net_latency = sum(m.latency for m in db_metrics)
+    net_latency: float = time.time() - start_time
 
     return ModelStats(
         model_url=model_urls.model,
