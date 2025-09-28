@@ -157,7 +157,7 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
         model_url=model_urls.model,
         database_url=model_urls.dataset,
         code_url=model_urls.codebase,
-        name=model_name,
+        name=,
         net_score=analyzer_output.score,
         net_score_latency=net_latency,
         metrics=db_metrics,
