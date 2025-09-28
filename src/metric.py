@@ -20,10 +20,10 @@ class BaseMetric(abc.ABC):
         Initializes the BaseMetric with default values.
         """
         self.score: float = 0.0
-        self.url: str = ""
+        self.url: None | ModelURLs = None
         self.priority: int = 1
         self.target_platform: typing.Optional[str] = None
-        self.local_directory: typing.Optional[Path] = None
+        self.local_directory: None | ModelPaths = None
         self.runtime: float = 0.0
 
     def run(self) -> Self:
@@ -59,7 +59,7 @@ class BaseMetric(abc.ABC):
 
         return self
 
-    def set_url(self, url: str):
+    def set_url(self, url: ModelURLs):
         """
         Sets the URL for the metric.
         Args:
@@ -67,16 +67,9 @@ class BaseMetric(abc.ABC):
         Raises:
             IOError: If the provided URL is invalid.
         """
-        if not url:
-            raise IOError(
-                "The provided URL was invalid"
-            )  # cli will handle this error if invalid url
-
         self.url = url
 
-    def set_local_directory(self, local_directory: Path):
-        if not local_directory:
-            raise IOError("The provided local directory was invalid")
+    def set_local_directory(self, local_directory: ModelPaths):
         self.local_directory = local_directory
 
     @abc.abstractmethod
