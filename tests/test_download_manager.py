@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock, call
 from pathlib import Path
 import tempfile
 import shutil
-import sys
+import os
 from huggingface_hub import snapshot_download
 from download_manager import DownloadManager
 from metric import ModelURLs

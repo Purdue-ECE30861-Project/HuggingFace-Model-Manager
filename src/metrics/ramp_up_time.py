@@ -5,6 +5,7 @@ from math import exp, log
 from typing import override, Literal
 
 import contextlib
+import torch
 from transformers import AutoTokenizer, AutoModel
 
 from metric import BaseMetric
@@ -37,6 +38,10 @@ class RampUpMetric(BaseMetric):
             model: typing.Any = AutoModel.from_pretrained(
                 self.local_directory.model.resolve()
             ).to(self.device_type)
+            inputs = tokenizer("Hello world", return_tensors="pt").to(self.device_type)
+            with torch.no_grad():
+                _ = model(**inputs)
+
             total_time: float = time.time() - start_load_time
 
         return exp(-self.exponential_coefficient * (total_time / 60))
