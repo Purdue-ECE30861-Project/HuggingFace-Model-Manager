@@ -17,20 +17,11 @@ class CodeQualityMetric(BaseMetric):
 
     @override
     def setup_resources(self):
-        if self.local_directory is None:
-            return 0.0
-        if self.local_directory.codebase is not None:
-            for root, _, files in os.walk(self.local_directory.codebase):
-                for file in files:
-                    if file.endswith(".py"):
-                        # print(file)
-                        self.file_list.append(os.path.join(root, file))
-        if self.local_directory.model is not None:
-            for root, _, files in os.walk(self.local_directory.model):
-                for file in files:
-                    if file.endswith(".py"):
-                        # print(file)
-                        self.file_list.append(os.path.join(root, file))
+        for root, _, files in os.walk(self.local_directory.codebase):
+            for file in files:
+                if file.endswith(".py"):
+                    #print(file)
+                    self.file_list.append(os.path.join(root, file))
 
     @override
     def calculate_score(self) -> float:
@@ -43,10 +34,11 @@ class CodeQualityMetric(BaseMetric):
         reporter: TextReporter = TextReporter(output_stream)
 
         Run(
-            ["--disable=line-too- long"] + self.file_list, reporter=reporter, exit=False
+            ["--disable=line-too-long", "--disable=bad-indentation", "--disable=import-error"] + self.file_list, reporter=reporter, exit=False
         )
-
         match = re.search(r"rated at ([0-9]+\.[0-9]+)/10", output_stream.getvalue())
+
         if match is None:
             return 0.0
+
         return float(match.group(1)) / 10

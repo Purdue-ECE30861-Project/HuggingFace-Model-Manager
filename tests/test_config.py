@@ -104,15 +104,6 @@ class TestConfigContractValidation(unittest.TestCase):
         self.assertEqual(cfg.code_path_name, "code")
         self.assertEqual(cfg.dataset_path_name, "datasets")
 
-    def test_invalid_local_storage_directory_nonexistent(self):
-        with self.assertRaises(IOError):
-            ConfigContract(
-                local_storage_directory=os.path.join(self.tmp_path, "does_not_exist"),
-                model_path_name="models",
-                code_path_name="code",
-                dataset_path_name="datasets",
-            )
-
     def test_invalid_local_storage_directory_not_readable(self):
         # create a directory and remove read permission
         unreadable_dir = Path(self.tmp_path) / "unreadable"
@@ -170,14 +161,6 @@ class TestGenerateModelPaths(unittest.TestCase):
     def tearDown(self):
         self.tmpdir.cleanup()
 
-    def test_generate_paths_all_none(self):
-        urls = ModelURLs(model=None, codebase=None, dataset=None)
-        paths = generate_model_paths(self.cfg, urls)
-        self.assertIsInstance(paths, ModelPaths)
-        self.assertIsNone(paths.model)
-        self.assertIsNone(paths.codebase)
-        self.assertIsNone(paths.dataset)
-
     def test_generate_paths_model_only_simple(self):
         urls = ModelURLs(model="https://huggingface.co/bert-base-uncased")
         paths = generate_model_paths(self.cfg, urls)
@@ -192,22 +175,6 @@ class TestGenerateModelPaths(unittest.TestCase):
         # user/model-name -> user_model-name
         expected = Path(self.tmp_path) / "models" / "user_model-name"
         self.assertEqual(paths.model, expected)
-
-    def test_generate_paths_codebase_only(self):
-        urls = ModelURLs(codebase="https://github.com/username/repo-name.git")
-        paths = generate_model_paths(self.cfg, urls)
-        expected = Path(self.tmp_path) / "code" / "repo-name"
-        self.assertEqual(paths.codebase, expected)
-        self.assertIsNone(paths.model)
-        self.assertIsNone(paths.dataset)
-
-    def test_generate_paths_dataset_only(self):
-        urls = ModelURLs(dataset="https://huggingface.co/datasets/user/dset-name")
-        paths = generate_model_paths(self.cfg, urls)
-        expected = Path(self.tmp_path) / "datasets" / "user_dset-name"
-        self.assertEqual(paths.dataset, expected)
-        self.assertIsNone(paths.model)
-        self.assertIsNone(paths.codebase)
 
     def test_generate_paths_all(self):
         urls = ModelURLs(

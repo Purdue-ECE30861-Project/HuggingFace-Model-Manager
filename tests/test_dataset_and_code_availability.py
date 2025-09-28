@@ -22,7 +22,7 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
         self.metric = DatasetAndCodeScoreMetric()
 
     def test_score_calculation_no_resources(self):
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.dataset = None
         urls.codebase = None
         self.metric.set_url(urls)
@@ -64,7 +64,7 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
         ]
         for url, expected_score in test_cases:
             metric = DatasetAndCodeScoreMetric()
-            urls = ModelURLs()
+            urls = ModelURLs(model="shouldn't matter")
             urls.dataset = url
             urls.codebase = None
             metric.set_url(urls)
@@ -74,7 +74,7 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
 
     def test_documentation_scoring_logic(self):
 
-        urls = ModelURLs()
+        urls = ModelURLs(model="nonexistent")
         urls.dataset = None
         urls.codebase = None
         self.metric.set_url(urls)
