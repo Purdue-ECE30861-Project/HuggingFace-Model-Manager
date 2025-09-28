@@ -61,10 +61,10 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
         return urls
 
     except FileNotFoundError:
-        logging.error(f"Error: URL file '{url_file}' not found.")
+        typer.echo(f"Error: URL file '{url_file}' not found.", err=True)
         raise typer.Exit(code=1)
     except Exception as e:
-        logging.error(f"Error reading URL file: {e}")
+        typer.echo(f"Error reading URL file: {e}", err=True)
         raise typer.Exit(code=1)
 
 
@@ -123,19 +123,20 @@ def install():
     """
     Installs necessary dependencies from dependencies.txt
     """
-    logging.info("Installing dependencies...")
+    typer.echo("Installing dependencies...")
     try:
         deps_file = Path(__file__).parent.parent / "dependencies.txt"
         if deps_file.exists():
             result = subprocess.run(["pip", "install", "-r", str(deps_file)])
             if result.returncode != 0:
-                logging.error(
+                typer.echo(
                     f"An error occurred while installing dependencies:\n{result.stderr}",
+                    err=True,
                 )
                 raise typer.Exit(code=1)
-            logging.info("Dependencies installed successfully.")
+            typer.echo("Dependencies installed successfully.")
     except Exception as e:
-        logging.error(f"An unexpected error occurred: {e}")
+        typer.echo(f"An unexpected error occurred: {e}", err=True)
         raise typer.Exit(code=1)
 
 
@@ -184,9 +185,9 @@ def test():
         )
 
         if result.failures:
-            logging.info(f"\nFailures: {len(result.failures)}")
+            typer.echo(f"\nFailures: {len(result.failures)}")
         if result.errors:
-            logging.info(f"Errors: {len(result.errors)}")
+            typer.echo(f"Errors: {len(result.errors)}")
 
         if result.failures or result.errors:
             raise typer.Exit(code=1)
@@ -194,8 +195,9 @@ def test():
             raise typer.Exit(code=0)
 
     except ImportError:
-        logging.error(
-            "Error: 'coverage' package not installed. Please run 'install' command first."
+        typer.echo(
+            "Error: 'coverage' package not installed. Please run 'install' command first.",
+            err=True,
         )
         raise typer.Exit(code=1)
 
@@ -206,7 +208,7 @@ def analyze(url_file: Path):
     Analyzes models based on URLs provided in a file.
     Will add model to database if not already present.
     """
-    logging.info("Analyzing model...")
+    typer.echo("Analyzing model...")
     config: ConfigContract = ConfigContract(
         num_processes=5,
         run_multi=True,  # TODO: user False for debug, use True for production
@@ -224,7 +226,7 @@ def analyze(url_file: Path):
     try:
         model_groups = parse_url_file(url_file)
         if not model_groups:
-            logging.error("Error: No valid model URLs found in file.")
+            typer.echo("Error: No valid model URLs found in file.", err=True)
             raise typer.Exit(code=1)
 
         setup_logging()
@@ -292,7 +294,7 @@ def analyze(url_file: Path):
             typer.echo(json.dumps(results))
 
     except Exception as e:
-        logging.error(f"An error occurred during analysis: {e}")
+        typer.echo(f"An error occurred during analysis: {e}", err=True)
         raise typer.Exit(code=1)
 
 
