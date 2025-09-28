@@ -1,6 +1,6 @@
 import unittest
-from src.metrics.code_quality import *
-from src.metric import ModelPaths
+from metrics.code_quality import *
+from metric import ModelPaths
 from pathlib import Path
 
 
