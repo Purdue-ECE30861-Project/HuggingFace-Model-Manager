@@ -200,7 +200,10 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
 
     for metric in analyzer_output.metrics:
         latency_ms = int(metric.runtime * 1000)
-        db_metrics.append(FloatMetric(metric.metric_name, metric.score, latency_ms))
+        if isinstance(metric.score, dict):
+            db_metrics.append(DictMetric(metric.metric_name, metric.score, latency_ms))
+        else:
+            db_metrics.append(FloatMetric(metric.metric_name, metric.score, latency_ms))
     # Calculate net score latency
     net_latency: float = time.time() - start_time
 

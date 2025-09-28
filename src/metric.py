@@ -19,7 +19,7 @@ class BaseMetric(abc.ABC):
         """
         Initializes the BaseMetric with default values.
         """
-        self.score: float = 0.0
+        self.score: float | dict[str, float] = 0.0
         self.url: None | ModelURLs = None
         self.priority: int = 1
         self.target_platform: typing.Optional[str] = None
@@ -81,7 +81,7 @@ class BaseMetric(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def calculate_score(self) -> float:
+    def calculate_score(self) -> float | dict[str, float]:
         """
         Abstract method to calculate the metric score.
         Should be implemented by subclasses.
@@ -138,6 +138,24 @@ class NetScoreCalculator:
 
         return net_score
 
+    def average_dict_score(self, score: dict[str, float]) -> float:
+        num_variations = len(score)
+        sum_scores = sum(list(score.values()))
+
+        return sum_scores / num_variations
+
+    def validate_scores_norm(self, score: float | dict[str, float]):
+        if isinstance(score, dict):
+            for value in score.values():
+                value >= 0 and value <= 1
+        else: assert score >= 0 and score <= 1
+
+    def get_metric_score(self, score: float | dict[str, float]) -> float:
+        if isinstance(metric.score, dict):
+            return self.average_dict_score(score)
+        else:
+            return score
+
     def generate_scores_priority_dict(self, metrics: list[BaseMetric]) -> SortedDict:
         """
         Organizes metric scores by their priority.
@@ -148,11 +166,12 @@ class NetScoreCalculator:
         """
         priority_organized_scores: SortedDict = SortedDict()
         for metric in metrics:
-            assert metric.score >= 0 and metric.score <= 1
+            self.validate_scores_norm(metric.score)
+            score = self.get_metric_score(metric.score)
             if metric.priority in priority_organized_scores:
-                priority_organized_scores[metric.priority].append(metric.score)
+                priority_organized_scores[metric.priority].append(score)
             else:
-                priority_organized_scores[metric.priority] = [metric.score]
+                priority_organized_scores[metric.priority] = [score]
 
         return priority_organized_scores
 
