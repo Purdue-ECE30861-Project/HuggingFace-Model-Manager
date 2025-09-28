@@ -151,7 +151,7 @@ class NetScoreCalculator:
         else: assert score >= 0 and score <= 1
 
     def get_metric_score(self, score: float | dict[str, float]) -> float:
-        if isinstance(metric.score, dict):
+        if isinstance(score, dict):
             return self.average_dict_score(score)
         else:
             return score

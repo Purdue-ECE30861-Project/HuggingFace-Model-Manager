@@ -80,6 +80,7 @@ class MetricStager:
         Raises:
             KeyError: If the group is invalid.
         """
+        assert priority >= 1
         metric.set_params(priority, self.config.target_platform)
         self.metrics.append(metric)
 

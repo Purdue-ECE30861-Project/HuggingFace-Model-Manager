@@ -1,6 +1,8 @@
 import unittest
+import tempfile
 from src.workflow import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
 from src.metric import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
+from src.config import *
 
 
 class DummyMetric1(BaseMetric):
@@ -53,45 +55,61 @@ MODEL_URLS_3: ModelURLs = ModelURLs(
     codebase="https://github.com/user/repo",
 )
 
-CONFIG_1 = ConfigContract(
-    num_processes=1, priority_function="PFReciprocal", target_platform="pc"
-)
-CONFIG_2 = ConfigContract(
-    num_processes=2, priority_function="PFReciprocal", target_platform="pc"
-)
-CONFIG_3 = ConfigContract(
-    num_processes=2, priority_function="PFExponentialDecay", target_platform="pc"
-)
 
+class BaseMetricTestCase(unittest.TestCase):
+    def setUp(self):
+        # Create a valid temporary directory structure that satisfies validators
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmpdir.name)
 
-class TestMetricStaging(unittest.TestCase):
+        # Subdirectories for config path names
+        self.models_dir_name = "models"
+        self.code_dir_name = "code"
+        self.datasets_dir_name = "datasets"
+
+        # Create subdirectories (not strictly required by validator but useful for realism)
+        (self.root / self.models_dir_name).mkdir(exist_ok=True)
+        (self.root / self.code_dir_name).mkdir(exist_ok=True)
+        (self.root / self.datasets_dir_name).mkdir(exist_ok=True)
+
+        # Valid ConfigContract shared by tests
+        self.CONFIG_1 = ConfigContract(
+            num_processes=1, priority_function="PFReciprocal", target_platform="pc",
+            local_storage_directory=self.tmpdir.name, model_path_name="models", code_path_name="code", dataset_path_name="datasets"
+        )
+        self.CONFIG_2 = ConfigContract(
+            num_processes=2, priority_function="PFReciprocal", target_platform="pc",
+            local_storage_directory=self.tmpdir.name, model_path_name="models", code_path_name="code", dataset_path_name="datasets"
+        )
+        self.CONFIG_3 = ConfigContract(
+            num_processes=2, priority_function="PFExponentialDecay", target_platform="pc",
+            local_storage_directory=self.tmpdir.name, model_path_name="models", code_path_name="code", dataset_path_name="datasets"
+        )
+
+    def tearDown(self):
+        self.tmpdir.cleanup()
+
+class TestMetricStaging(BaseMetricTestCase):
     def test_staging_valid(self):
-        stager: MetricStager = MetricStager(CONFIG_1)
-        stager.attach_metric("dataset", DummyMetric1(), 1)
-        stager.attach_metric("dataset", DummyMetric1(), 2)
-        stager.attach_metric("codebase", DummyMetric2(), 2)
-        stager.attach_metric("model", DummyMetric3(), 3)
+        stager: MetricStager = MetricStager(self.CONFIG_1)
+        stager.attach_metric(DummyMetric1(), 1)
+        stager.attach_metric(DummyMetric1(), 2)
+        stager.attach_metric(DummyMetric2(), 2)
+        stager.attach_metric(DummyMetric3(), 3)
 
-        self.assertEqual(len(stager.metrics["dataset"]), 2)
-        self.assertEqual(len(stager.metrics["codebase"]), 1)
-        self.assertEqual(len(stager.metrics["model"]), 1)
+        self.assertEqual(len(stager.metrics), 4)
 
-        runner = stager.attach_model_urls(MODEL_URLS_1)
-        self.assertEqual(len(runner.metrics), 1)
-
-        runner = stager.attach_model_urls(MODEL_URLS_2)
-        self.assertEqual(len(runner.metrics), 3)
-
-        runner = stager.attach_model_urls(MODEL_URLS_3)
+        directories = generate_model_paths(self.CONFIG_1, MODEL_URLS_1)
+        runner = stager.attach_model_sources(MODEL_URLS_1, directories)
         self.assertEqual(len(runner.metrics), 4)
 
     def test_staging_invalid(self):
-        stager: MetricStager = MetricStager(CONFIG_1)
-        with self.assertRaises(KeyError):
-            stager.attach_metric("invalid", DummyMetric1(), 1)
+        stager: MetricStager = MetricStager(self.CONFIG_1)
+        with self.assertRaises(AssertionError):
+            stager.attach_metric(DummyMetric1(), 0)
 
 
-class TestMetricRunner(unittest.TestCase):
+class TestMetricRunner(BaseMetricTestCase):
     def test_run_single_threaded(self):
         runner: MetricRunner = MetricRunner(
             [DummyMetric1(), DummyMetric2(), DummyMetric3()]
@@ -105,7 +123,7 @@ class TestMetricRunner(unittest.TestCase):
         self.assertEqual(result_scores, [0.5, 0.7, 1.0])
 
 
-class TestNetScoreCalculator(unittest.TestCase):
+class TestNetScoreCalculator(BaseMetricTestCase):
     def test_sum_scores(self):
         scores: list[float] = [0.5, 0.7, 1.0]
         sum_scores: float = NetScoreCalculator(PFReciprocal()).sum_scores(scores)
