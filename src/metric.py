@@ -228,6 +228,7 @@ class AnalyzerOutput:
             metrics (list[BaseMetric]): The list of metric instances.
             model_metadata (ModelURLs): Metadata for the model.
         """
+        self.metrics: list[BaseMetric] = metrics
         self.individual_scores: dict[str, float] = {
             metric.metric_name: metric.score for metric in metrics
         }

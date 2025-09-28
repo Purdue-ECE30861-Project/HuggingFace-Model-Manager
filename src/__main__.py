@@ -167,7 +167,7 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
     #     stager.attach_metric("codebase", metrics[6], 2)
 
     analyzer_output = run_workflow(stager, model_urls, model_paths, config)
-    # db_metrics = []
+    db_metrics = []
     # for metric in metrics:
     #     metric_name = metric.metric_name
     #     if metric_name == "size_score":
@@ -196,6 +196,11 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
     #         latency_ms = int(metric.runtime * 1000) if hasattr(metric, "runtime") else 0
     #         db_metrics.append(FloatMetric(metric_name, score, latency_ms))
 
+    individual_scores: dict = analyzer_output.individual_scores
+
+    for metric in analyzer_output.metrics:
+        latency_ms = int(metric.runtime * 1000)
+        db_metrics.append(FloatMetric(metric.metric_name, metric.score, latency_ms))
     # Calculate net score latency
     net_latency: float = time.time() - start_time
 
