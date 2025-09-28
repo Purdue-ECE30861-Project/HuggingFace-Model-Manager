@@ -147,7 +147,7 @@ class NetScoreCalculator:
     def validate_scores_norm(self, score: float | dict[str, float]):
         if isinstance(score, dict):
             for value in score.values():
-                value >= 0 and value <= 1
+                assert value >= 0 and value <= 1
         else: assert score >= 0 and score <= 1
 
     def get_metric_score(self, score: float | dict[str, float]) -> float:
@@ -167,7 +167,7 @@ class NetScoreCalculator:
         priority_organized_scores: SortedDict = SortedDict()
         for metric in metrics:
             self.validate_scores_norm(metric.score)
-            score = self.get_metric_score(metric.score)
+            score: float = self.get_metric_score(metric.score)
             if metric.priority in priority_organized_scores:
                 priority_organized_scores[metric.priority].append(score)
             else:
@@ -248,7 +248,7 @@ class AnalyzerOutput:
             model_metadata (ModelURLs): Metadata for the model.
         """
         self.metrics: list[BaseMetric] = metrics
-        self.individual_scores: dict[str, float] = {
+        self.individual_scores: dict[str, float | dict[str, float]] = {
             metric.metric_name: metric.score for metric in metrics
         }
         self.model_metadata: ModelURLs = model_metadata

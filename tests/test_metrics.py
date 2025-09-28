@@ -44,6 +44,14 @@ class DummyMetric3(BaseMetric):
     def setup_resources(self):
         pass
 
+class DummyMetric5(BaseMetric):
+    @typing.override
+    def calculate_score(self):
+        return {"a": 1.0}
+
+    @typing.override
+    def setup_resources(self):
+        pass
 
 MODEL_URLS_1: ModelURLs = ModelURLs(model="https://github.com/user/repo")
 MODEL_URLS_2: ModelURLs = ModelURLs(
@@ -192,3 +200,11 @@ class TestNetScoreCalculator(BaseMetricTestCase):
 
         net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
         self.assertAlmostEqual(net_score, 0.0)
+
+    def test_net_score_calculation_3(self):
+        metrics: list[BaseMetric] = [
+            DummyMetric5().set_params(1, "").run(),
+        ]
+
+        net_score: float = NetScoreCalculator(PFReciprocal()).calculate_net_score(metrics)
+        self.assertAlmostEqual(net_score, 1.0)

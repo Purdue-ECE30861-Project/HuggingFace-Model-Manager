@@ -105,20 +105,10 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
         raise typer.Exit(code=1)
 
 
-def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funciton to infer urls?
+def calculate_metrics(model_urls: ModelURLs, config: ConfigContract) -> ModelStats: # do we have a funciton to infer urls?
     """
     Calculate all metrics for a given model
     """
-    
-    config = ConfigContract(
-        num_processes=5,
-        priority_function="PFReciprocal",
-        target_platform="desktop_pc",
-        local_storage_directory = os.path.dirname(os.path.abspath(__file__)) + "local_storage",
-        model_path_name = "models",
-        code_path_name = "code",
-        dataset_path_name = "dataset"
-    )
 
     model_paths: ModelPaths = generate_model_paths(config, model_urls)
 
@@ -142,8 +132,6 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
     analyzer_output = run_workflow(stager, model_urls, model_paths, config)
     db_metrics = []
 
-    individual_scores: dict = analyzer_output.individual_scores
-
     for metric in analyzer_output.metrics:
         latency_ms = int(metric.runtime * 1000)
         if isinstance(metric.score, dict):
@@ -157,7 +145,7 @@ def calculate_metrics(model_urls: ModelURLs) -> ModelStats: # do we have a funci
         model_url=model_urls.model,
         database_url=model_urls.dataset,
         code_url=model_urls.codebase,
-        name=,
+        name="",
         net_score=analyzer_output.score,
         net_score_latency=net_latency,
         metrics=db_metrics,
@@ -258,6 +246,15 @@ def analyze(url_file: Path):
     Will add model to database if not already present.
     """
     typer.echo("Analyzing model...")
+    config: ConfigContract = ConfigContract(
+        num_processes=5,
+        priority_function="PFReciprocal",
+        target_platform="desktop_pc",
+        local_storage_directory=os.path.dirname(os.path.abspath(__file__)) + "local_storage",
+        model_path_name="models",
+        code_path_name="code",
+        dataset_path_name="dataset"
+    )
 
     try:
         model_groups = parse_url_file(url_file)
