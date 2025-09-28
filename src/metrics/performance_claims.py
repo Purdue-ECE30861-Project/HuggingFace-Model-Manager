@@ -17,9 +17,9 @@ class PerformanceClaimsMetric(BaseMetric):
 
     @override
     def setup_resources(self):
-        if self.local_directory is None:
-            raise ValueError("Local directory not specified")
-        self.model_dir = Path(self.local_directory)
+        if self.local_directory is None or self.local_directory.model is None:
+            raise ValueError("Local model directory not specified")
+        self.model_dir = Path(self.local_directory.model)
         self.readme_file = self.model_dir / "README.md"
 
     @override

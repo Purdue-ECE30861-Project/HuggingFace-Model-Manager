@@ -2,6 +2,7 @@ import unittest
 import tempfile
 import shutil
 from pathlib import Path
+from metric import ModelPaths
 
 from huggingface_hub import snapshot_download
 from src.metrics.code_quality import CodeQualityMetric
@@ -30,7 +31,9 @@ class TestCodeQualityMetricWithHuggingFaceModel(unittest.TestCase):
             )
 
         # Add minimal ancillary files that typical code quality checks might expect
-        (cls.codebase_dir / "README.md").write_text("# Tiny Model Repo\n\nAuto-downloaded for testing.\n")
+        (cls.codebase_dir / "README.md").write_text(
+            "# Tiny Model Repo\n\nAuto-downloaded for testing.\n"
+        )
         (cls.codebase_dir / "pyproject.toml").write_text("[tool]\nname='tiny'\n")
 
     @classmethod
@@ -46,9 +49,13 @@ class TestCodeQualityMetricWithHuggingFaceModel(unittest.TestCase):
 
     def test_metric_runs_on_downloaded_model_directory(self):
         # Point metric at our prepared directory with a downloaded HF model
-        self.metric.set_local_directory(str(self.codebase_dir))
+        dirs = ModelPaths()
+        dirs.model = self.codebase_dir
+        self.metric.set_local_directory(dirs)
         result = self.metric.run()
         self.assertIsInstance(result.score, float)
+        if isinstance(result.score, dict):
+            return
         self.assertGreaterEqual(result.score, 0.0)
         self.assertLessEqual(result.score, 1.0)
 
@@ -57,9 +64,13 @@ class TestCodeQualityMetricWithHuggingFaceModel(unittest.TestCase):
         empty_tmp = tempfile.TemporaryDirectory()
         try:
             empty_path = Path(empty_tmp.name)
-            self.metric.set_local_directory(str(empty_path))
+            dirs = ModelPaths()
+            dirs.model = empty_path
+            self.metric.set_local_directory(dirs)
             result = self.metric.run()
             self.assertIsInstance(result.score, float)
+            if isinstance(result.score, dict):
+                return
             # Expect a low score when no valid files are present
             self.assertLessEqual(result.score, 0.5)
         finally:

@@ -17,11 +17,20 @@ class CodeQualityMetric(BaseMetric):
 
     @override
     def setup_resources(self):
-        for root, _, files in os.walk(self.local_directory):
-            for file in files:
-                if file.endswith(".py"):
-                    # print(file)
-                    self.file_list.append(os.path.join(root, file))
+        if self.local_directory is None:
+            return 0.0
+        if self.local_directory.codebase is not None:
+            for root, _, files in os.walk(self.local_directory.codebase):
+                for file in files:
+                    if file.endswith(".py"):
+                        # print(file)
+                        self.file_list.append(os.path.join(root, file))
+        if self.local_directory.model is not None:
+            for root, _, files in os.walk(self.local_directory.model):
+                for file in files:
+                    if file.endswith(".py"):
+                        # print(file)
+                        self.file_list.append(os.path.join(root, file))
 
     @override
     def calculate_score(self) -> float:

@@ -3,7 +3,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from src.config import (
+from config import (
     PFExponentialDecay,
     PFReciprocal,
     PRIORITY_FUNCTIONS,
@@ -41,7 +41,9 @@ class TestPriorityFunctions(unittest.TestCase):
         self.assertIn("PFExponentialDecay", PRIORITY_FUNCTIONS)
         self.assertIn("PFReciprocal", PRIORITY_FUNCTIONS)
         self.assertIsInstance(PRIORITY_FUNCTIONS["PFReciprocal"], PFReciprocal)
-        self.assertIsInstance(PRIORITY_FUNCTIONS["PFExponentialDecay"], PFExponentialDecay)
+        self.assertIsInstance(
+            PRIORITY_FUNCTIONS["PFExponentialDecay"], PFExponentialDecay
+        )
 
 
 class TestUrlExtraction(unittest.TestCase):
@@ -214,12 +216,12 @@ class TestGenerateModelPaths(unittest.TestCase):
             dataset="https://huggingface.co/datasets/user/ds",
         )
         paths = generate_model_paths(self.cfg, urls)
-        self.assertEqual(paths.model, Path(self.tmp_path) / "models" / "user_model-name")
+        self.assertEqual(
+            paths.model, Path(self.tmp_path) / "models" / "user_model-name"
+        )
         self.assertEqual(paths.codebase, Path(self.tmp_path) / "code" / "repo")
         self.assertEqual(paths.dataset, Path(self.tmp_path) / "datasets" / "user_ds")
 
 
 if __name__ == "__main__":
     unittest.main()
-
-

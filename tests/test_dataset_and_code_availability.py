@@ -1,24 +1,31 @@
 import unittest
 from metrics.dataset_and_code import *
 from unittest.mock import MagicMock
+from metric import ModelURLs
+
 
 class MockPath:
     """Simple mock for a README file."""
-    def __init__(self, content=""):
+
+    def __init__(self, content="", exists=True):
         self._content = content
+        self.exists = exists
+
     def read_text(self, *args, **kwargs):
         return self._content
+
 
 class TestDatasetAndCodeScoreMetric(unittest.TestCase):
     metric: DatasetAndCodeScoreMetric
 
     def setUp(self):
-        self.metric = DatasetAndCodeScoreMetric(None, None)
+        self.metric = DatasetAndCodeScoreMetric()
 
     def test_score_calculation_no_resources(self):
-
-        self.metric.dataset_url = None
-        self.metric.code_url = None
+        urls = ModelURLs()
+        urls.dataset = None
+        urls.codebase = None
+        self.metric.set_url(urls)
 
         self.metric.readme_file = MockPath("")
 
@@ -52,18 +59,25 @@ class TestDatasetAndCodeScoreMetric(unittest.TestCase):
 
     def test_score_calculation_working_urls(self):
         test_cases = [
-                ("https://example.com/dataset", 0.3),
-                ("https://example.com/code", 0.3),
-            ]
+            ("https://example.com", 0.3),
+            ("https://example.com", 0.3),
+        ]
         for url, expected_score in test_cases:
-            metric = DatasetAndCodeScoreMetric(dataset_url=url, code_url=None)
+            metric = DatasetAndCodeScoreMetric()
+            urls = ModelURLs()
+            urls.dataset = url
+            urls.codebase = None
+            metric.set_url(urls)
+            metric.readme_file = MockPath(exists=False)
             score = metric.calculate_score()
             self.assertAlmostEqual(score, expected_score, places=2)
 
     def test_documentation_scoring_logic(self):
 
-        self.metric.dataset_url = None
-        self.metric.code_url = None
+        urls = ModelURLs()
+        urls.dataset = None
+        urls.codebase = None
+        self.metric.set_url(urls)
 
         # Test cases with different documentation levels
         test_cases = [

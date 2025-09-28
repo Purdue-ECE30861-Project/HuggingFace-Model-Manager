@@ -1,9 +1,9 @@
 import unittest
 import os
 import typing
-from src.metric import *
-from src.workflow import *
-from src.database import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
+from metric import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
+from workflow import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
+from database import *  # pyright: ignore[reportWildcardImportFromLibrary, reportMissingTypeStubs]
 
 
 class TestDatabaseAccess(unittest.TestCase):
