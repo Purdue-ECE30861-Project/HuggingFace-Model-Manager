@@ -26,6 +26,7 @@ from metrics.size_metric import SizeMetric
 from metrics.dataset_quality import DatasetQualityMetric
 from url_parser import read_url_csv
 from download_manager import DownloadManager
+from infer_dataset import get_linked_dataset_metrics
 
 
 def setup_logging():
@@ -36,9 +37,9 @@ def setup_logging():
     log_file = os.environ.get("LOG_FILE")
 
     logging.getLogger().handlers.clear()
-    
+
     logging.disable(logging.NOTSET)
-    
+
     # Determine the logging level
     if log_level == 0:
         level = logging.WARNING
@@ -52,11 +53,11 @@ def setup_logging():
             filename=log_file,
             level=level,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            filemode='w'
+            filemode="w",
         )
     else:
-        logging.basicConfig(level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        logging.basicConfig(
+            level=level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
 
 
@@ -99,8 +100,8 @@ def calculate_metrics(
     """
     Calculate all metrics for a given model
     """
-
     model_paths: ModelPaths = generate_model_paths(config, model_urls)
+    # check for database URLs already analyzed
 
     start_time: float = time.time()
 
@@ -284,6 +285,17 @@ def analyze(url_file: Path):
                 except Exception as e:
                     typer.echo(f"Error downloading resources: {e}")
                     continue
+
+                # check for pre-existing datasets
+                model_path = generate_model_paths(config, model_urls).model
+                if model_path is not None:
+                    dataset_check = get_linked_dataset_metrics(
+                        model_path / "README.md",
+                        db,
+                        [FloatMetric("dataset_quality", 0.0, 0)],
+                    )
+                    if dataset_check is not None:
+                        model_urls.dataset = dataset_check[0]
                 logging.debug(f"Starting metric calculation for {model_url}")
                 stats = calculate_metrics(model_urls, config, metric_stager)
                 logging.debug(f"Adding results to database for {model_url}")
