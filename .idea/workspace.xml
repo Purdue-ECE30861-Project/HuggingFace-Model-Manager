@@ -7,9 +7,8 @@
     <list default="true" id="fe1b0a79-21d8-46c2-b81b-d60e2a05a400" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.coverage" beforeDir="false" afterPath="$PROJECT_DIR$/.coverage" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/metric.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metric.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_metrics.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_metrics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/metrics/ramp_up_time.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/metrics/ramp_up_time.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_ramp_up.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_ramp_up.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
