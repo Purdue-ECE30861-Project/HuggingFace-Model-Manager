@@ -1,5 +1,4 @@
 import csv
-import os
 from pathlib import Path
 
 from config import ModelURLs

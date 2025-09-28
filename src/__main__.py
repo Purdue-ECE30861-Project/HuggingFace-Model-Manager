@@ -151,7 +151,10 @@ def install():
 
 @app.command()
 def test():
+    setup_logging()
+    
     import unittest
+    import io
 
     src_path = Path(__file__).parent.parent / "src"
     if str(src_path) not in sys.path:
@@ -164,30 +167,52 @@ def test():
     try:
         import coverage
 
-        cov = coverage.Coverage(source=[str(src_path)])
+        cov = coverage.Coverage(
+            source=[str(src_path.resolve())],  # Only measure files in src/
+            omit=[
+                "*/tests/*",
+                "*/test_*",
+                "*/__pycache__/*",
+                "*/venv/*",
+                "*/env/*",
+                "*/site-packages/*",
+                "*/.venv/*",
+            ]
+        )
         cov.start()
+        
 
         loader = unittest.TestLoader()
         start_dir = str(tests_path)
+        print(start_dir)
         suite = loader.discover(start_dir, pattern="test*.py")
         total_tests = suite.countTestCases()
+        
+        logging.debug(f"Test discovery starting from: {start_dir}")
+        logging.debug(f"Tests discovered: {total_tests}")
 
-        runner = unittest.TextTestRunner(verbosity=2)  # , stream=open(os.devnull, "w"))
+        runner = unittest.TextTestRunner(verbosity=0, stream=open(os.devnull, "w"))
         result = runner.run(suite)
+        
         cov.stop()
         cov.save()
+        
+        report_output = io.StringIO()
+        coverage_percent = cov.report(file=report_output, show_missing=False)
+        
+        # Get the detailed report for logging
+        report_content = report_output.getvalue()
+        logging.debug("Coverage report:")
+        logging.debug(report_content)
+        
         coverage_data = cov.get_data()
+        measured_files = coverage_data.measured_files()
+        logging.debug(f"Files measured for coverage: {len(measured_files)}")
+        
+        # Log all measured files
+        for filename in measured_files:
+            logging.debug(f"Measured file: {filename}")
 
-        # Find line coverage
-        total_lines = 0
-        covered_lines = 0
-        for filename in coverage_data.measured_files():
-            if str(src_path) in filename:
-                analysis = cov.analysis2(filename)
-                total_lines += len(analysis[1]) + len(analysis[2])
-                covered_lines += len(analysis[1])
-
-        coverage_percent = (covered_lines / total_lines * 100) if total_lines > 0 else 0
         passed_tests = total_tests - len(result.failures) - len(result.errors)
         typer.echo(
             f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved."

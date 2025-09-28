@@ -1,5 +1,3 @@
-import os
-import typing
 import requests
 from urllib.parse import urlparse
 from metric import BaseMetric
