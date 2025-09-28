@@ -2,7 +2,7 @@ import csv
 import os
 from pathlib import Path
 
-from src.config import ModelURLs
+from config import ModelURLs
 
 
 def read_url_csv(url_file_path: Path) -> list[ModelURLs]:
