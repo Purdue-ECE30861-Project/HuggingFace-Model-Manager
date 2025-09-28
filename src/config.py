@@ -81,9 +81,23 @@ class ModelURLs(BaseModel):
     Stores URLs related to a model, including model, codebase, and dataset URLs.
     """
 
-    model: Optional[str] = None
+    model: str
     codebase: Optional[str] = None
     dataset: Optional[str] = None
+
+    @field_validator('codebase', 'dataset', mode='after')
+    @classmethod
+    def check_empty_url(cls, value: Optional[str]) -> Optional[str]:
+        if value == '':
+            return None
+        return value
+
+    @field_validator('model', mode='after')
+    @classmethod
+    def check_empty_url_model(cls, value: Optional[str]) -> Optional[str]:
+        if value == '':
+            raise ValueError("Must have a model url")
+        return value
 
 
 class ModelPaths(BaseModel):

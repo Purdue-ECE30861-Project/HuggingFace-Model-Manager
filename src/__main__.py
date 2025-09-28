@@ -23,6 +23,7 @@ from metrics.ramp_up_time import RampUpMetric
 from metrics.license import LicenseMetric
 from metrics.code_quality import CodeQualityMetric
 from metrics.size_metric import SizeMetric
+from src.url_parser import read_url_csv
 
 
 def setup_logging():
@@ -53,49 +54,10 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
     Parses a file containing comma-separated URLs and returns ModelURLs objects.
     Format: code_link, dataset_link, model_link (per line)
     """
-    try:
-        model_groups = []
+    try:# NEED A WAY TO INFER CODE AND DATASETS FROM THE MODEL CARD METADATA BEFORE JUST SETTING TO NONE
+        urls: list[ModelURLs] = read_url_csv(url_file)
 
-        lines = url_file.read_text().splitlines()
-        for line_num, line in enumerate(lines, 1):
-            line = line.strip()
-            if not line:
-                continue
-
-            # Split by comma and clean up whitespace
-            parts = [part.strip() for part in line.split(",")]
-
-            code_link, dataset_link, model_link = parts[0], parts[1], parts[2]
-
-            # Clean up empty strings and "blank" indicators
-            code_link = (
-                code_link
-                if code_link and code_link.lower() not in ["", "blank", "none", "n/a"]
-                else None
-            )
-            dataset_link = (
-                dataset_link
-                if dataset_link
-                and dataset_link.lower() not in ["", "blank", "none", "n/a"]
-                else None
-            )
-            model_link = (
-                model_link
-                if model_link and model_link.lower() not in ["", "blank", "none", "n/a"]
-                else None
-            )
-
-            if not model_link:
-                logging.warning(f"Line {line_num}: No model link found, skipping")
-                continue
-
-            model_urls = ModelURLs(
-                model=model_link, dataset=dataset_link, codebase=code_link
-            )
-            model_groups.append(model_urls)
-
-        logging.info(f"Parsed {len(model_groups)} models from {url_file}")
-        return model_groups
+        return urls
 
     except FileNotFoundError:
         typer.echo(f"Error: URL file '{url_file}' not found.", err=True)
@@ -114,13 +76,11 @@ def stage_metrics(config: ConfigContract):
     stager.attach_metric(LicenseMetric(), 1)
     stager.attach_metric(SizeMetric(), 3)
     stager.attach_metric(DatasetAndCodeScoreMetric(), 2)
+    stager.attach_metric(CodeQualityMetric(), 1)
 
     return stager
 
-
-def calculate_metrics(
-    model_urls: ModelURLs, config: ConfigContract, stager: MetricStager
-) -> ModelStats:  # do we have a funciton to infer urls?
+def calculate_metrics(model_urls: ModelURLs, config: ConfigContract, stager: MetricStager) -> ModelStats: # do we have a funciton to infer urls?
     """
     Calculate all metrics for a given model
     """
@@ -128,13 +88,6 @@ def calculate_metrics(
     model_paths: ModelPaths = generate_model_paths(config, model_urls)
 
     start_time: float = time.time()
-
-    split_url = model_urls.model.split("huggingface.co/")
-    parts = split_url[1].split("/")
-    if len(parts) > 2:
-        model_name = "/".join(parts[0:2])
-
-    stager.attach_metric(CodeQualityMetric(), 1)
 
     analyzer_output = run_workflow(stager, model_urls, model_paths, config)
     db_metrics = []
@@ -207,7 +160,7 @@ def test():
         suite = loader.discover(start_dir, pattern="test*.py")
         total_tests = suite.countTestCases()
 
-        runner = unittest.TextTestRunner(verbosity=2)  # , stream=open(os.devnull, "w"))
+        runner = unittest.TextTestRunner(verbosity=2)#, stream=open(os.devnull, "w"))
         result = runner.run(suite)
         cov.stop()
         cov.save()
@@ -227,17 +180,17 @@ def test():
         typer.echo(
             f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved."
         )
-
+        
         if result.failures:
             typer.echo(f"\nFailures: {len(result.failures)}")
         if result.errors:
             typer.echo(f"Errors: {len(result.errors)}")
-
+        
         if result.failures or result.errors:
             raise typer.Exit(code=1)
         else:
             raise typer.Exit(code=0)
-
+        
     except ImportError:
         typer.echo(
             "Error: 'coverage' package not installed. Please run 'install' command first.",
@@ -257,12 +210,13 @@ def analyze(url_file: Path):
         num_processes=5,
         priority_function="PFReciprocal",
         target_platform="desktop_pc",
-        local_storage_directory=os.path.dirname(os.path.abspath(__file__))
-        + "local_storage",
+        local_storage_directory=os.path.dirname(os.path.abspath(__file__)) + "local_storage",
         model_path_name="models",
         code_path_name="code",
-        dataset_path_name="dataset",
+        dataset_path_name="dataset"
     )
+
+    metric_stager: MetricStager = stage_metrics(config)
 
     try:
         model_groups = parse_url_file(url_file)
@@ -306,8 +260,8 @@ def analyze(url_file: Path):
                 logging.info(f"Analyzing model {model_url}...")
 
                 # Calculate metrics and add to database
-                # print("HERE!!!")
-                stats = calculate_metrics(model_urls, config, stage_metrics(config))
+                #print("HERE!!!")
+                stats = calculate_metrics(model_urls, config, metric_stager)
                 db.add_to_db(stats)
 
             results = {
