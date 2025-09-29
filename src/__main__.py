@@ -344,6 +344,7 @@ def analyze(url_file: Path):
     except Exception as e:
         typer.echo(f"An error occurred during analysis: {e}")
         raise typer.Exit(code=1)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
