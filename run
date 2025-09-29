@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
+python3 -m venv venv
+# shellcheck disable=SC1091
+source venv/bin/activate
 
 if [[ $1 == "install" ]]
 then
-    if [[ -f models.db ]]
-    then
-        rm models.db
-    fi
-    pip install --user -r dependencies.txt && poetry install
+    pip install -r dependencies.txt
+    poetry install
 elif [[ $1 == "test" ]]
 then
-    python test_runner.py
+    python3 test_runner.py
 else
-    python src/__main__.py analyze "$1"
+    python3 src/__main__.py analyze "$1"
 fi

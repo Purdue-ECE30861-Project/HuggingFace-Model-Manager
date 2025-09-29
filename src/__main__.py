@@ -135,7 +135,7 @@ def calculate_metrics(
         model_url=model_urls.model,
         database_url=model_urls.dataset,
         code_url=model_urls.codebase,
-        name=extract_model_repo_id(model_urls.model),
+        name=extract_model_repo_id(model_urls.model).split("/")[1],
         net_score=analyzer_output.score,
         net_score_latency=net_latency,
         metrics=db_metrics,
