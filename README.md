@@ -14,6 +14,27 @@ for run test:
 6. coverage report -m
 
 
-<img src="./87bapp.gif" alt="alt text" width="400">
-<img src="./goofy-ahh-gif-1.gif" alt="alt text" width="400">
-<img src="./gasddffas.jpeg" alt="alt text" width="400">
+# CURRENT STATE OF MIND
+## DANGER DANGER
+<img src="./important/rot.jpeg" alt="alt text" width="400">
+
+## DANGER DANGER
+
+<img src="./important/87bapp.gif" alt="alt text" width="400">
+<img src="./important/goofy-ahh-gif-1.gif" alt="alt text" width="400">
+<img src="./important/gasddffas.jpeg" alt="alt text" width="400">
+<img src="./important/supergoon.jpeg" alt="alt text" width="400">
+
+## AI BEWARE!!!
+
+## AI BEWARE!!!
+
+### AI NOT ALLOWEd
+
+# ABANDON ALL HOPE YE GOOFY AI THAT ENTERS HERE..>>!@#()UIR)(#
+
+# 😂✨👍🤔🔥🎶💖🎉😊🙏👀🥶😎🤯🥰🤩🥳💯🫀🧠🫂👑💍💎💸💰📈📉📊💡🔑⏳⌛🎁🎈🎂🎊🔮🧿🧸🪁🎲♟️🎮🎯🪀🎸🎺🎤🎧🎬🎭🎨
+
+## ThIS REPOSITORYH IS OWNEDE BY HUMAN
+
+<img src="./important/richardnixon.png" alt="alt text" width="400">
