@@ -44,7 +44,7 @@ def setup_logging():
             sys.exit(1)
             
     log_file = os.environ.get("LOG_FILE", "")
-    if log_file and "invalid" in log_file.lower():
+    if log_file in os.environ and "invalid" in log_file.lower():
         typer.echo(f"ERROR: Cannot write to log file '{log_file}': Invalid path\n")
         sys.exit(1)
     
