@@ -97,6 +97,7 @@ class DownloadManager:
                 revision="main",
                 resume_download=True,
                 force_download=False,  # Don't re-download unchanged files
+                tqdm_class=None,
             )
             #logging.info(f"Model ready at {local_path}")
             return local_path
@@ -107,7 +108,7 @@ class DownloadManager:
                 shutil.rmtree(local_path)
                 try:
                     snapshot_download(
-                        repo_id=repo_id, local_dir=str(local_path), revision="main"
+                        repo_id=repo_id, local_dir=str(local_path), revision="main",tqdm_class=None,
                     )
                     #logging.info(f"Model re-downloaded to {local_path}")
                     return local_path
@@ -146,6 +147,7 @@ class DownloadManager:
                 revision="main",
                 resume_download=True,
                 force_download=False,
+                tqdm_class=None,
             )
             #logging.info(f"Dataset ready at {local_path}")
             return local_path
@@ -160,6 +162,7 @@ class DownloadManager:
                         repo_type="dataset",
                         local_dir=str(local_path),
                         revision="main",
+                        tqdm_class=None,
                     )
                     #logging.info(f"Dataset re-downloaded to {local_path}")
                     return local_path
@@ -191,7 +194,7 @@ class DownloadManager:
                 origin = repo.remotes.origin
 
                 # Fetch latest changes
-                origin.fetch()
+                origin.fetch(progresss=None, verbose=False)
 
                 # Get current branch
                 current_branch = repo.active_branch.name
