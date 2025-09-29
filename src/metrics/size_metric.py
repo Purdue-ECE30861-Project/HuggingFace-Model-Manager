@@ -81,7 +81,7 @@ class SizeMetric(BaseMetric):
         except Exception as e:
             raise IOError(f"Failed to setup resources for size metric: {e}")
 
-    def calculate_device_score(self, device_spec: dict[str, int | float]):
+    def calculate_device_score(self, device_spec: dict):
         # Check if model fits on storage
         if self.storage_size_mb > device_spec["storage_mb"]:
             return 0.0

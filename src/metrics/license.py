@@ -119,10 +119,10 @@ class LicenseMetric(BaseMetric):
 
     def parse_readme(self) -> float:
         # find license heading or license metadata
-        metadata_score: float | None = None
-        readme_score: float | None = None
+        metadata_score = None
+        readme_score = None
         license_section: str = ""
-        current_heading: str | None = None
+        current_heading = None
         with open(self.readme_file, "rt") as file:
             for line in file.readlines():
                 if current_heading is not None and current_heading.lower() == "license":

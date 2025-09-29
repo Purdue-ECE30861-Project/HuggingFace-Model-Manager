@@ -18,11 +18,11 @@ class BaseMetric(abc.ABC):
         """
         Initializes the BaseMetric with default values.
         """
-        self.score: float | dict[str, float] = 0.0
-        self.url: None | ModelURLs = None
+        self.score = 0.0
+        self.url = None
         self.priority: int = 1
         self.target_platform: typing.Optional[str] = None
-        self.local_directory: None | ModelPaths = None
+        self.local_directory = None
         self.runtime: float = 0.0
 
     def run(self) -> Self:
@@ -80,7 +80,7 @@ class BaseMetric(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def calculate_score(self) -> float | dict[str, float]:
+    def calculate_score(self):
         """
         Abstract method to calculate the metric score.
         Should be implemented by subclasses.
@@ -143,13 +143,14 @@ class NetScoreCalculator:
 
         return sum_scores / num_variations
 
-    def validate_scores_norm(self, score: float | dict[str, float]):
+    def validate_scores_norm(self, score):
         if isinstance(score, dict):
             for value in score.values():
                 assert value >= 0 and value <= 1
-        else: assert score >= 0 and score <= 1
+        else:
+            assert score >= 0 and score <= 1
 
-    def get_metric_score(self, score: float | dict[str, float]) -> float:
+    def get_metric_score(self, score) -> float:
         if isinstance(score, dict):
             return self.average_dict_score(score)
         else:
@@ -247,7 +248,7 @@ class AnalyzerOutput:
             model_metadata (ModelURLs): Metadata for the model.
         """
         self.metrics: list[BaseMetric] = metrics
-        self.individual_scores: dict[str, float | dict[str, float]] = {
+        self.individual_scores = {
             metric.metric_name: metric.score for metric in metrics
         }
         self.model_metadata: ModelURLs = model_metadata

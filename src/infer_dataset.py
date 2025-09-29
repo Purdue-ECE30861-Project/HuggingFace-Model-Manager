@@ -1,13 +1,14 @@
 from pathlib import Path
 from database import SQLiteAccessor, FloatMetric, DictMetric
 import re
+import typing
 
 
 def get_linked_dataset_metrics(
     readme_file: Path,
     database_accessor: SQLiteAccessor,
-    schema: list[FloatMetric | DictMetric],
-) -> tuple[str, list[FloatMetric | DictMetric]] | None:
+    schema: list,
+) -> typing.Optional[tuple]:
     """
     Attempts to retrieve metrics tied to the dataset
     Args:

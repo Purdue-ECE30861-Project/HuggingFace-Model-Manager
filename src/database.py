@@ -44,7 +44,7 @@ class ModelStats:
         code_url: str,
         net_score: float,
         net_score_latency: int,
-        metrics: list[FloatMetric | DictMetric],
+        metrics: list,
     ):
         self.model_url = model_url
         self.name = name
@@ -71,8 +71,8 @@ class DatabaseAccessor(Protocol):
 class SQLiteAccessor:
     def __init__(
         self,
-        db_location: Path | None,
-        metric_schema: list[FloatMetric | DictMetric],
+        db_location,
+        metric_schema: list,
         create_if_missing: bool = True,
     ):
         if db_location is None:
@@ -156,14 +156,14 @@ class SQLiteAccessor:
         self.connection.commit()
 
     def get_database_metrics_if_exists(
-        self, url: str, schema: list[FloatMetric | DictMetric]
-    ) -> list[FloatMetric | DictMetric] | None:
+        self, url: str, schema: list
+    ):
         self.cursor.execute("SELECT * FROM models WHERE database_url = ?", (url,))
         row = self.cursor.fetchone()
         if row is None:
             return None
         col_names = [desc[0] for desc in self.cursor.description]
-        scores: list[FloatMetric | DictMetric] = []
+        scores: = []
         for metric in schema:
             if isinstance(metric, FloatMetric):
                 value = row[col_names.index(metric.name)]
@@ -193,7 +193,7 @@ class SQLiteAccessor:
             "net_score",
             "net_score_latency",
         ]
-        values: list[str | float | int | dict[str, float]] = [
+        values = [
             model_stats.model_url,
             model_stats.name,
             model_stats.database_url,
@@ -247,7 +247,7 @@ class SQLiteAccessor:
         net_score = row[col_names.index("net_score")]
         net_score_latency = row[col_names.index("net_score_latency")]
 
-        metrics: list[FloatMetric | DictMetric] = []
+        metrics = []
         for metric in self.metric_schema:
             if isinstance(metric, FloatMetric):
                 value = row[col_names.index(metric.name)]

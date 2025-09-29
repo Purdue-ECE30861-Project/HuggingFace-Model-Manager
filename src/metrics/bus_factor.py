@@ -14,7 +14,6 @@ github_pattern = re.compile(r"^(.*)?github.com\/([^\/]+)\/([^\/]+)\/?(.*)$")
 # Assumes that the url for this metric points to a github codebase
 class BusFactorMetric(BaseMetric):
     metric_name: str = "bus_factor"
-    response: requests.Response | None
     # get most recent 30 commits on (most) branches since 2020
     graphql_query = """
 {
@@ -42,6 +41,7 @@ repository(name:"%s", owner:"%s"){
   }"""
 
     def __init__(self):
+        self.response = None
         super().__init__()
 
     # separated into functions for testing

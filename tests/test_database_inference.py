@@ -16,7 +16,7 @@ class MockPath:
 
 
 class TestDatabaseInference(TestCase):
-    schema1: list[FloatMetric | DictMetric] = [
+    schema1: list = [
         FloatMetric("size", 0.3, 10),
         FloatMetric("setup", 0.2, 30),
         DictMetric("compatibility", {"windows": 0.5, "mac": 0.2, "linux": 0.8}, 29),

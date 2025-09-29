@@ -11,12 +11,12 @@ class TestDatabaseAccess(unittest.TestCase):
         self.test_db = Path("test.db")
         self.maxDiff = None
         # normal schema
-        self.schema1: list[FloatMetric | DictMetric] = [
+        self.schema1 = [
             FloatMetric("size", 0.3, 10),
             FloatMetric("setup", 0.2, 30),
             DictMetric("compatibility", {"windows": 0.5, "mac": 0.2, "linux": 0.8}, 29),
         ]
-        self.schema2: list[FloatMetric | DictMetric] = [
+        self.schema2 = [
             FloatMetric("size", 0.3, 10),
             FloatMetric("setup", 0.2, 30),
             FloatMetric("speed", 0.7, 49),
@@ -28,7 +28,7 @@ class TestDatabaseAccess(unittest.TestCase):
             FloatMetric("compliance", 0.1, 943),
             FloatMetric("license", 0.5, 234),
         ]
-        self.schema3: list[FloatMetric | DictMetric] = [
+        self.schema3 = [
             DictMetric(
                 "size", {"raspberry_pi": 0.5, "desktop_pc": 0.7, "aws_server": 1.0}, 54
             ),
@@ -48,8 +48,8 @@ class TestDatabaseAccess(unittest.TestCase):
 
         # edge cases
 
-        self.schema0: list[FloatMetric | DictMetric] = []
-        self.schema_weird_names: list[FloatMetric | DictMetric] = [
+        self.schema0: list = []
+        self.schema_weird_names: list = [
             FloatMetric("valid sql header, actually", 0.3, 11),
             DictMetric(
                 "this one too",
