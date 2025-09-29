@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 from huggingface_hub import snapshot_download
 import git
-from src.metric import ModelURLs
+from metric import ModelURLs
 
 
 class DownloadManager:
