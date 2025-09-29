@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC1091
-
 if [[ $1 == "install" ]]
 then
     if [[ -f models.db ]]
