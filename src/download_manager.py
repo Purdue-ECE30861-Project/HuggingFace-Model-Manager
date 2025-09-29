@@ -95,7 +95,6 @@ class DownloadManager:
                 repo_id=repo_id,
                 local_dir=str(local_path),
                 revision="main",
-                resume_download=True,
                 force_download=False,  # Don't re-download unchanged files
                 tqdm_class=None,
             )
@@ -145,7 +144,6 @@ class DownloadManager:
                 repo_type="dataset",
                 local_dir=str(local_path),
                 revision="main",
-                resume_download=True,
                 force_download=False,
                 tqdm_class=None,
             )
@@ -194,7 +192,8 @@ class DownloadManager:
                 origin = repo.remotes.origin
 
                 # Fetch latest changes
-                origin.fetch(progresss=None, verbose=False)
+                # Suppress git progress output by passing progress=None
+                origin.fetch(progress=None, verbose=False)
 
                 # Get current branch
                 current_branch = repo.active_branch.name
@@ -212,7 +211,8 @@ class DownloadManager:
         # Clone repository (either doesn't exist or update failed)
         #logging.info(f"Cloning codebase from {code_url}...")
         try:
-            git.Repo.clone_from(code_url, local_path, progress = None)
+            # Suppress clone progress output
+            git.Repo.clone_from(code_url, local_path, progress=None)
             #logging.info(f"Codebase cloned to {local_path}")
             return local_path
         except Exception as e:

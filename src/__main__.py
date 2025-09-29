@@ -1,9 +1,17 @@
+import os
+
+# Ensure Hugging Face and related libraries don't show progress bars or noisy logs.
+# These must be set before importing any module that may configure logging or
+# progress bars (for example, `transformers`, `huggingface_hub`, or `tokenizers`).
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 import typer
 from pathlib import Path
 import subprocess
 import sys
 import json
-import os
 import time
 import logging
 from typing import List
