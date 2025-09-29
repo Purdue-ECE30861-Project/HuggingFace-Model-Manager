@@ -4,7 +4,10 @@
 
 if [[ $1 == "install" ]]
 then
-    rm models.db
+    if [[ -f models.db ]]
+    then
+        rm models.db
+    fi
     pip install --user -r dependencies.txt && poetry install
 elif [[ $1 == "test" ]]
 then
