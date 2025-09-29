@@ -1,28 +1,11 @@
+import os
 import logging
 import shutil
 from pathlib import Path
 from typing import Optional, Tuple
 from huggingface_hub import snapshot_download
 import git
-import sys
-import os
-from contextlib import contextmanager
-from metric import ModelURLs
-import os
-
-
-@contextmanager
-def suppress_output():
-    with open(os.devnull, "w") as devnull:
-        old_stdout = sys.stdout
-        old_stderr = sys.stderr
-        sys.stdout = devnull
-        sys.stderr = devnull
-        try:
-            yield
-        finally:
-            sys.stdout = old_stdout
-            sys.stderr = old_stderr
+from src.metric import ModelURLs
 
 
 class DownloadManager:
@@ -101,40 +84,38 @@ class DownloadManager:
         repo_id = self._extract_repo_id(model_url)
         local_path = self.models_dir / repo_id.replace("/", "_")
 
-        if local_path.exists():
-            logging.info(f"Updating existing model at {local_path}...")
-        else:
-            logging.info(f"Downloading model from {model_url}...")
+        #if local_path.exists():
+            #logging.info(f"Updating existing model at {local_path}...")
+        #else:
+            #logging.info(f"Downloading model from {model_url}...")
 
         try:
             # snapshot_download efficiently handles updates - only downloads changed files
-            with suppress_output():
-                snapshot_download(
-                    repo_id=repo_id,
-                    local_dir=str(local_path),
-                    revision="main",
-                    resume_download=True,
-                    force_download=False,  # Don't re-download unchanged files
-                )
-            logging.info(f"Model ready at {local_path}")
+            snapshot_download(
+                repo_id=repo_id,
+                local_dir=str(local_path),
+                revision="main",
+                resume_download=True,
+                force_download=False,  # Don't re-download unchanged files
+            )
+            #logging.info(f"Model ready at {local_path}")
             return local_path
         except Exception as e:
             # If update fails, clear and re-download
             if local_path.exists():
-                logging.warning(f"Update failed, clearing and re-downloading: {e}")
+                #logging.warning(f"Update failed, clearing and re-downloading: {e}")
                 shutil.rmtree(local_path)
                 try:
-                    with suppress_output():
-                        snapshot_download(
-                            repo_id=repo_id, local_dir=str(local_path), revision="main"
-                        )
-                    logging.info(f"Model re-downloaded to {local_path}")
+                    snapshot_download(
+                        repo_id=repo_id, local_dir=str(local_path), revision="main"
+                    )
+                    #logging.info(f"Model re-downloaded to {local_path}")
                     return local_path
                 except Exception as retry_error:
-                    logging.error(f"Failed to re-download model: {retry_error}")
+                    #logging.error(f"Failed to re-download model: {retry_error}")
                     raise
             else:
-                logging.error(f"Failed to download model from {model_url}: {e}")
+                #logging.error(f"Failed to download model from {model_url}: {e}")
                 raise
 
     def download_dataset(self, dataset_url: str) -> Path:
@@ -151,44 +132,42 @@ class DownloadManager:
         dataset_id = self._extract_repo_id(dataset_url)
         local_path = self.datasets_dir / dataset_id.replace("/", "_")
 
-        if local_path.exists():
-            logging.info(f"Updating existing dataset at {local_path}...")
-        else:
-            logging.info(f"Downloading dataset from {dataset_url}...")
+        #if local_path.exists():
+            #logging.info(f"Updating existing dataset at {local_path}...")
+        #else:
+            #logging.info(f"Downloading dataset from {dataset_url}...")
 
         try:
             # Use snapshot_download with repo_type="dataset"
-            with suppress_output():
-                snapshot_download(
-                    repo_id=dataset_id,
-                    repo_type="dataset",
-                    local_dir=str(local_path),
-                    revision="main",
-                    resume_download=True,
-                    force_download=False,
-                )
-            logging.info(f"Dataset ready at {local_path}")
+            snapshot_download(
+                repo_id=dataset_id,
+                repo_type="dataset",
+                local_dir=str(local_path),
+                revision="main",
+                resume_download=True,
+                force_download=False,
+            )
+            #logging.info(f"Dataset ready at {local_path}")
             return local_path
         except Exception as e:
             # If update fails, clear and re-download
             if local_path.exists():
-                logging.warning(f"Update failed, clearing and re-downloading: {e}")
+                #logging.warning(f"Update failed, clearing and re-downloading: {e}")
                 shutil.rmtree(local_path)
                 try:
-                    with suppress_output():
-                        snapshot_download(
-                            repo_id=dataset_id,
-                            repo_type="dataset",
-                            local_dir=str(local_path),
-                            revision="main",
-                        )
-                    logging.info(f"Dataset re-downloaded to {local_path}")
+                    snapshot_download(
+                        repo_id=dataset_id,
+                        repo_type="dataset",
+                        local_dir=str(local_path),
+                        revision="main",
+                    )
+                    #logging.info(f"Dataset re-downloaded to {local_path}")
                     return local_path
                 except Exception as retry_error:
-                    logging.error(f"Failed to re-download dataset: {retry_error}")
+                    #logging.error(f"Failed to re-download dataset: {retry_error}")
                     raise
             else:
-                logging.error(f"Failed to download dataset from {dataset_url}: {e}")
+                #logging.error(f"Failed to download dataset from {dataset_url}: {e}")
                 raise
 
     def download_codebase(self, code_url: str) -> Path:
@@ -206,7 +185,7 @@ class DownloadManager:
         local_path = self.codebases_dir / repo_name
 
         if local_path.exists():
-            logging.info(f"Updating existing codebase at {local_path}...")
+            #logging.info(f"Updating existing codebase at {local_path}...")
             try:
                 repo = git.Repo(local_path)
                 origin = repo.remotes.origin
@@ -220,21 +199,21 @@ class DownloadManager:
                 # Reset to origin to ensure clean update
                 repo.git.reset("--hard", f"origin/{current_branch}")
 
-                logging.info(f"Codebase updated at {local_path}")
+                #logging.info(f"Codebase updated at {local_path}")
                 return local_path
             except Exception as e:
                 # If any git operation fails, remove and re-clone
-                logging.warning(f"Git update failed, re-cloning: {e}")
+                #logging.warning(f"Git update failed, re-cloning: {e}")
                 shutil.rmtree(local_path)
 
         # Clone repository (either doesn't exist or update failed)
-        logging.info(f"Cloning codebase from {code_url}...")
+        #logging.info(f"Cloning codebase from {code_url}...")
         try:
             git.Repo.clone_from(code_url, local_path)
-            logging.info(f"Codebase cloned to {local_path}")
+            #logging.info(f"Codebase cloned to {local_path}")
             return local_path
         except Exception as e:
-            logging.error(f"Failed to clone codebase from {code_url}: {e}")
+            #logging.error(f"Failed to clone codebase from {code_url}: {e}")
             raise
 
     def check_local_model(self, model_url: str) -> Optional[Path]:

@@ -1,6 +1,7 @@
 import os
 from pydantic import BaseModel, field_validator
-from typing import Literal, Optional, override
+from typing import Literal, Optional
+from typing_extensions import override
 from abc import ABC, abstractmethod
 from pathlib import Path
 

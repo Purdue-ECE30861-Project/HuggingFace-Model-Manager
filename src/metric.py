@@ -4,7 +4,7 @@ import time
 from typing import Self
 from itertools import starmap
 from sortedcontainers import SortedDict
-from config import *
+from .config import *
 
 
 class BaseMetric(abc.ABC):

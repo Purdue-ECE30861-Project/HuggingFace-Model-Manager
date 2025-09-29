@@ -5,8 +5,8 @@ import tempfile
 import shutil
 import os
 from huggingface_hub import snapshot_download
-from download_manager import DownloadManager
-from metric import ModelURLs
+from src.download_manager import DownloadManager
+from src.metric import ModelURLs
 
 
 class TestDownloadManager(unittest.TestCase):
@@ -84,7 +84,7 @@ class TestDownloadManager(unittest.TestCase):
         result = self.dm._extract_repo_name(url)
         self.assertEqual(result, "repo-name")
 
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.snapshot_download")
     def test_download_model_success(self, mock_snapshot):
         """Test successful model download"""
         model_url = "https://huggingface.co/bert-base-uncased"
@@ -103,7 +103,7 @@ class TestDownloadManager(unittest.TestCase):
         # Check return value
         self.assertEqual(result, self.models_dir / "bert-base-uncased")
 
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.snapshot_download")
     def test_download_model_already_exists_updates(self, mock_snapshot):
         """Test that existing model is updated (not skipped)"""
         model_url = "https://huggingface.co/bert-base-uncased"
@@ -124,8 +124,8 @@ class TestDownloadManager(unittest.TestCase):
         # Should return path
         self.assertEqual(result, local_path)
 
-    @patch("download_manager.shutil.rmtree")
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.shutil.rmtree")
+    @patch("src.download_manager.snapshot_download")
     def test_download_model_update_failure_redownloads(
         self, mock_snapshot, mock_rmtree
     ):
@@ -148,7 +148,7 @@ class TestDownloadManager(unittest.TestCase):
         # Check return value
         self.assertEqual(result, local_path)
 
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.snapshot_download")
     def test_download_model_failure(self, mock_snapshot):
         """Test model download failure handling"""
         model_url = "https://huggingface.co/nonexistent/model"
@@ -158,7 +158,7 @@ class TestDownloadManager(unittest.TestCase):
             self.dm.download_model(model_url)
             self.assertIn("Download failed", str(context.exception))
 
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.snapshot_download")
     def test_download_dataset_success(self, mock_snapshot):
         """Test successful dataset download"""
         dataset_url = "https://huggingface.co/datasets/squad"
@@ -178,7 +178,7 @@ class TestDownloadManager(unittest.TestCase):
         # Check return value
         self.assertEqual(result, self.datasets_dir / "squad")
 
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.snapshot_download")
     def test_download_dataset_already_exists_updates(self, mock_snapshot):
         """Test that existing dataset is updated (not skipped)"""
         dataset_url = "https://huggingface.co/datasets/squad"
@@ -200,8 +200,8 @@ class TestDownloadManager(unittest.TestCase):
         # Should return path
         self.assertEqual(result, local_path)
 
-    @patch("download_manager.shutil.rmtree")
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.shutil.rmtree")
+    @patch("src.download_manager.snapshot_download")
     def test_download_dataset_update_failure_redownloads(
         self, mock_snapshot, mock_rmtree
     ):
@@ -224,7 +224,7 @@ class TestDownloadManager(unittest.TestCase):
         # Check return value
         self.assertEqual(result, local_path)
 
-    @patch("download_manager.git.Repo")
+    @patch("src.download_manager.git.Repo")
     def test_download_codebase_success(self, mock_repo_class):
         """Test successful codebase clone"""
         code_url = "https://github.com/username/repo"
@@ -239,7 +239,7 @@ class TestDownloadManager(unittest.TestCase):
         # Check return value
         self.assertEqual(result, self.codebases_dir / "repo")
 
-    @patch("download_manager.git.Repo")
+    @patch("src.download_manager.git.Repo")
     def test_download_codebase_already_exists_updates(self, mock_repo_class):
         """Test that existing codebase is updated with hard reset"""
         code_url = "https://github.com/username/repo"
@@ -265,8 +265,8 @@ class TestDownloadManager(unittest.TestCase):
 
         self.assertEqual(result, local_path)
 
-    @patch("download_manager.shutil.rmtree")
-    @patch("download_manager.git.Repo")
+    @patch("src.download_manager.shutil.rmtree")
+    @patch("src.download_manager.git.Repo")
     def test_download_codebase_update_failure_reclones(
         self, mock_repo_class, mock_rmtree
     ):
@@ -293,7 +293,7 @@ class TestDownloadManager(unittest.TestCase):
 
         self.assertEqual(result, local_path)
 
-    @patch("download_manager.git.Repo")
+    @patch("src.download_manager.git.Repo")
     def test_download_codebase_clone_failure(self, mock_repo_class):
         """Test codebase clone failure handling"""
         code_url = "https://github.com/username/repo"
@@ -358,8 +358,8 @@ class TestDownloadManager(unittest.TestCase):
 
         self.assertIsNone(result)
 
-    @patch("download_manager.snapshot_download")
-    @patch("download_manager.git.Repo")
+    @patch("src.download_manager.snapshot_download")
+    @patch("src.download_manager.git.Repo")
     def test_download_model_resources_all(self, mock_git, mock_snapshot):
         """Test downloading model, codebase, and dataset"""
         model_urls = ModelURLs(
@@ -381,7 +381,7 @@ class TestDownloadManager(unittest.TestCase):
         self.assertEqual(codebase_path, self.codebases_dir / "repo")
         self.assertEqual(dataset_path, self.datasets_dir / "squad")
 
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.snapshot_download")
     def test_download_model_resources_model_only(self, mock_snapshot):
         """Test downloading only model (no codebase or dataset URL)"""
         model_urls = ModelURLs(
@@ -402,7 +402,7 @@ class TestDownloadManager(unittest.TestCase):
         self.assertIsNone(codebase_path)
         self.assertIsNone(dataset_path)
 
-    @patch("download_manager.git.Repo")
+    @patch("src.download_manager.git.Repo")
     def test_download_model_resources_codebase_only(self, mock_git):
         """Test downloading only codebase (no model or dataset download)"""
         model_urls = ModelURLs(
@@ -426,7 +426,7 @@ class TestDownloadManager(unittest.TestCase):
         self.assertEqual(codebase_path, self.codebases_dir / "repo")
         self.assertIsNone(dataset_path)
 
-    @patch("download_manager.snapshot_download")
+    @patch("src.download_manager.snapshot_download")
     def test_download_model_resources_dataset_only(self, mock_snapshot):
         """Test downloading only dataset"""
         model_urls = ModelURLs(
@@ -457,8 +457,8 @@ class TestDownloadManager(unittest.TestCase):
         self.assertIsNone(codebase_path)
         self.assertEqual(dataset_path, self.datasets_dir / "squad")
 
-    @patch("download_manager.snapshot_download")
-    @patch("download_manager.git.Repo")
+    @patch("src.download_manager.snapshot_download")
+    @patch("src.download_manager.git.Repo")
     def test_download_model_resources_always_updates(self, mock_git, mock_snapshot):
         """Test that existing resources are always updated"""
         # Create existing directories
@@ -497,8 +497,8 @@ class TestDownloadManager(unittest.TestCase):
         self.assertEqual(result_codebase, codebase_path)
         self.assertEqual(result_dataset, dataset_path)
 
-    @patch("download_manager.snapshot_download")
-    @patch("download_manager.git.Repo")
+    @patch("src.download_manager.snapshot_download")
+    @patch("src.download_manager.git.Repo")
     def test_download_model_resources_selective_download(self, mock_git, mock_snapshot):
         """Test selective downloading with all URLs present but selective flags"""
         model_urls = ModelURLs(
