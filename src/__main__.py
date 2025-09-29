@@ -118,7 +118,7 @@ def calculate_metrics(
         else:
             db_metrics.append(FloatMetric(metric.metric_name, metric.score, latency_ms))
     # Calculate net score latency
-    net_latency: float = time.time() - start_time
+    net_latency: int = int((time.time() - start_time) * 1000)
     return ModelStats(
         model_url=model_urls.model,
         database_url=model_urls.dataset,
@@ -142,7 +142,7 @@ def install():
     try:
         deps_file = Path(__file__).parent.parent / "dependencies.txt"
         if deps_file.exists():
-            result = subprocess.run(["pip", "install", "-r", str(deps_file)])
+            result = subprocess.run(["pip", "install", "--user", "-r", str(deps_file)])
             if result.returncode != 0:
                 typer.echo(
                     f"An error occurred while installing dependencies:\n{result.stderr}",
