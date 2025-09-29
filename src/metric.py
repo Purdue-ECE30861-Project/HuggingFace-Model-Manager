@@ -147,8 +147,7 @@ class NetScoreCalculator:
         if isinstance(score, dict):
             for value in score.values():
                 assert value >= 0 and value <= 1
-        else:
-            assert score >= 0 and score <= 1
+        else: assert score >= 0 and score <= 1
 
     def get_metric_score(self, score: float | dict[str, float]) -> float:
         if isinstance(score, dict):

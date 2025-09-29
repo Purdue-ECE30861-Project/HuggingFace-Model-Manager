@@ -3,6 +3,7 @@ import time
 from io import StringIO
 from math import exp, log
 from typing import override, Literal
+import logging
 
 import contextlib
 import torch
@@ -52,5 +53,5 @@ class RampUpMetric(BaseMetric):
             ramp_up: float = self.installation_spin_up_score()
             return ramp_up
         except Exception:
-            print("No local model access")
+            logging.debug("No local model access")
             return 0.0

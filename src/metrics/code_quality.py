@@ -20,7 +20,6 @@ class CodeQualityMetric(BaseMetric):
         for root, _, files in os.walk(self.local_directory.codebase):
             for file in files:
                 if file.endswith(".py"):
-                    #print(file)
                     self.file_list.append(os.path.join(root, file))
 
     @override
