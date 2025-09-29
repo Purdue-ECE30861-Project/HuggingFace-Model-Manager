@@ -12,3 +12,6 @@ for run test:
 4. poetry install
 5. coverage run -m unittest tests/{file}.py or coverage run -m unittest discover for all tests
 6. coverage report -m
+
+![goofyahh](https://imgflip.com/gif/87bapp)
+<img src="https://imgflip.com/gif/87bapp" alt="alt text" width="400">
