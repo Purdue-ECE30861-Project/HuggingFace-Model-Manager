@@ -40,12 +40,12 @@ def setup_logging():
     github_token = os.environ.get("GITHUB_TOKEN")
     if github_token is not None:
         if "invalid" in github_token.lower():
-            sys.stderr.write("ERROR: Invalid GitHub token provided\n")
+            typer.echo("ERROR: Invalid GitHub token provided\n")
             sys.exit(1)
             
     log_file = os.environ.get("LOG_FILE", "")
     if log_file and "invalid" in log_file.lower():
-        sys.stderr.write(f"ERROR: Cannot write to log file '{log_file}': Invalid path\n")
+        typer.echo(f"ERROR: Cannot write to log file '{log_file}': Invalid path\n")
         sys.exit(1)
     
     log_level = int(os.environ.get("LOG_LEVEL", 0))
