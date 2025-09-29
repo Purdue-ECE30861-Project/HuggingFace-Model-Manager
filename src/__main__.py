@@ -118,7 +118,7 @@ def calculate_metrics(
         else:
             db_metrics.append(FloatMetric(metric.metric_name, metric.score, latency_ms))
     # Calculate net score latency
-    net_latency: float = int((time.time() - start_time) * 1000)
+    net_latency: int = int((time.time() - start_time) * 1000)
     return ModelStats(
         model_url=model_urls.model,
         database_url=model_urls.dataset,
