@@ -1,7 +1,7 @@
 from metric import BaseMetric  # pyright: ignore[reportMissingTypeStubs]
 from pathlib import Path
 import re
-from spdx_license_matcher.find import find_license  # type: ignore
+from spdx_matcher.find import find_license  # type: ignore
 
 metadata_pattern = re.compile(r"^license: (.*)$")
 heading_pattern = re.compile(r"^#+ *(.*)$")
@@ -123,7 +123,7 @@ class LicenseMetric(BaseMetric):
         readme_score = None
         license_section: str = ""
         current_heading = None
-        with open(self.readme_file, "rt") as file:
+        with open(self.readme_file, "rt", encoding="utf-8") as file:
             for line in file.readlines():
                 if current_heading is not None and current_heading.lower() == "license":
                     license_section += line
@@ -161,7 +161,7 @@ class LicenseMetric(BaseMetric):
     def parse_license_file(self) -> float:
         if not self.license_file.exists():
             return 0.0
-        with open(self.license_file, "rt") as file:
+        with open(self.license_file, "rt", encoding="utf-8") as file:
             license_text = file.read()
         # SPDX matcher returns a list of possible SPDX IDs
         if not heuristics_check(license_text):

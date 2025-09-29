@@ -2,6 +2,7 @@ from multiprocessing import Pool
 from typing import Optional
 from pydantic import BaseModel, field_validator, ValidationError
 import typing
+import typing_extensions
 from metric import BaseMetric, AnalyzerOutput, PRIORITY_FUNCTIONS
 from config import (
     ConfigContract,
@@ -48,7 +49,7 @@ class MetricRunner:
 
         return results
 
-    def set_num_processes(self, num_processes: int) -> typing.Self:
+    def set_num_processes(self, num_processes: int) -> typing_extensions.Self:
         """
         Sets the number of processes for multiprocessing.
         Args:
@@ -74,7 +75,7 @@ class MetricStager:
         self.metrics: list[BaseMetric] = []
         self.config: ConfigContract = config
 
-    def attach_metric(self, metric: BaseMetric, priority: int) -> typing.Self:
+    def attach_metric(self, metric: BaseMetric, priority: int) -> typing_extensions.Self:
         """
         Attaches a metric to a group with a given priority and platform.
         Args:

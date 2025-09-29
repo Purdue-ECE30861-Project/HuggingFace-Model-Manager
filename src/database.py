@@ -1,6 +1,7 @@
-from typing import Protocol, Generic, TypeVar, override
+from typing import Protocol, Generic, TypeVar
 import sqlite3
 from pathlib import Path
+from typing_extensions import override
 
 PROD_DATABASE_PATH: Path = Path("models.db")
 
@@ -163,7 +164,7 @@ class SQLiteAccessor:
         if row is None:
             return None
         col_names = [desc[0] for desc in self.cursor.description]
-        scores: = []
+        scores: list = []
         for metric in schema:
             if isinstance(metric, FloatMetric):
                 value = row[col_names.index(metric.name)]

@@ -118,7 +118,7 @@ repository(name:"%s", owner:"%s"){
         except:
             return (0, {})
         for commit in commits:
-            if commit.created_at >= datetime.fromisoformat("2020-01-01T00:00:00.000Z"):
+            if commit.created_at >= datetime.fromisoformat("2020-01-01T00:00:00.000+00:00"):
                 total_commits += 1
                 for author in commit.authors:
                     score_dict[author] = score_dict.get(author, 0) + 1
@@ -152,7 +152,7 @@ repository(name:"%s", owner:"%s"){
 
             url = "https://api.github.com/graphql"
             json = {"query": self.graphql_query % (name, owner)}
-            headers = {"Authorization": f"bearer {os.getenv("GITHUB_TOKEN")}"}
+            headers = {"Authorization": f"bearer {os.getenv('GITHUB_TOKEN')}"}
             self.response = requests.post(url=url, json=json, headers=headers)
         else:
             self.response = None

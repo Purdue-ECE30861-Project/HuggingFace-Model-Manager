@@ -1,4 +1,4 @@
-from typing import override
+from typing_extensions import override
 
 from metric import BaseMetric
 from huggingface_hub import dataset_info

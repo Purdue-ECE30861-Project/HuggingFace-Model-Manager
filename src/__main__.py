@@ -28,7 +28,7 @@ from url_parser import read_url_csv
 from download_manager import DownloadManager
 from infer_dataset import get_linked_dataset_metrics
 
-
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 def setup_logging():
     """
     Setup logging based on environment variables

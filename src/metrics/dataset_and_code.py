@@ -1,5 +1,5 @@
 from metric import BaseMetric
-from typing import override
+from typing_extensions import override
 from pathlib import Path
 import requests
 
@@ -54,7 +54,7 @@ class DatasetAndCodeScoreMetric(BaseMetric):
         # Check README for dataset and code info
         doc_score = 0.0
         if self.readme_file.exists:
-            readme_content = self.readme_file.read_text().lower()
+            readme_content = self.readme_file.read_text(encoding="utf-8").lower()
             documentation_markers = {
                 "dataset": ["dataset", "data description", "training data"],
                 "usage": ["usage", "how to use", "getting started"],

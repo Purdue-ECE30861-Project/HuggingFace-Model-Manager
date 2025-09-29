@@ -1,7 +1,7 @@
 import abc
 import typing
 import time
-from typing import Self
+from typing_extensions import Self
 from itertools import starmap
 from sortedcontainers import SortedDict
 from config import *

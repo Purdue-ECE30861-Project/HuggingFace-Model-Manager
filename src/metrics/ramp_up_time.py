@@ -2,7 +2,7 @@ import typing
 import time
 from io import StringIO
 from math import exp, log
-from typing import override, Literal
+from typing_extensions import override, Literal
 import logging
 
 import contextlib

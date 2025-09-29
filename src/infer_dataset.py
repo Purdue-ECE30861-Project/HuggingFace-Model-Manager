@@ -16,7 +16,7 @@ def get_linked_dataset_metrics(
         database_accessor: database to check in
         schema: schema of metrics tied exclusively to the dataset
     """
-    text = readme_file.read_text()
+    text = readme_file.read_text(encoding="utf-8")
     matches = re.findall(
         r"\[.*\]\((.+)\)",
         text,

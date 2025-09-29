@@ -6,51 +6,51 @@ from config import *
 
 
 class DummyMetric1(BaseMetric):
-    @typing.override
+    @typing_extensions.override
     def calculate_score(self):
         return 0.5
 
-    @typing.override
+    @typing_extensions.override
     def setup_resources(self):
         pass
 
 
 class DummyMetric2(BaseMetric):
-    @typing.override
+    @typing_extensions.override
     def calculate_score(self):
         return 0.7
 
-    @typing.override
+    @typing_extensions.override
     def setup_resources(self):
         pass
 
 
 class DummyMetric4(BaseMetric):
-    @typing.override
+    @typing_extensions.override
     def calculate_score(self):
         return 0.0
 
-    @typing.override
+    @typing_extensions.override
     def setup_resources(self):
         pass
 
 
 class DummyMetric3(BaseMetric):
-    @typing.override
+    @typing_extensions.override
     def calculate_score(self):
         return 1.0
 
-    @typing.override
+    @typing_extensions.override
     def setup_resources(self):
         pass
 
 
 class DummyMetric5(BaseMetric):
-    @typing.override
+    @typing_extensions.override
     def calculate_score(self):
         return {"a": 1.0}
 
-    @typing.override
+    @typing_extensions.override
     def setup_resources(self):
         pass
 
