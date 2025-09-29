@@ -142,7 +142,7 @@ def install():
     try:
         deps_file = Path(__file__).parent.parent / "dependencies.txt"
         if deps_file.exists():
-            result = subprocess.run(["pip", "install", "-r", str(deps_file)])
+            result = subprocess.run(["pip", "install", "--user", "-r", str(deps_file)])
             if result.returncode != 0:
                 typer.echo(
                     f"An error occurred while installing dependencies:\n{result.stderr}",
