@@ -17,5 +17,4 @@ venv/
 .env
 *.pyc
 .coverage
-models.db
 srclocal_storage
