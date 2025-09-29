@@ -9,7 +9,7 @@ then
     poetry install
 elif [[ $1 == "test" ]]
 then
-    python src/__main__.py test
+    python test_runner.py
 else
     python src/__main__.py analyze "$1"
 fi

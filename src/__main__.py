@@ -154,6 +154,7 @@ def install():
 
 @app.command()
 def test():
+    setup_logging()
     
     import unittest
     import io
@@ -182,6 +183,7 @@ def test():
 
         loader = unittest.TestLoader()
         start_dir = str(tests_path)
+        print(start_dir)
         suite = loader.discover(start_dir, pattern="test*.py")
         total_tests = suite.countTestCases()
         

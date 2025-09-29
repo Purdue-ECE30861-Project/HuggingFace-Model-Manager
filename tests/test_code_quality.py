@@ -12,7 +12,7 @@ class TestCodeQuality(unittest.TestCase):
 
         metric_inst.setup_resources()
         metric_score: float = metric_inst.calculate_score()
-        print(metric_score)
+
         self.assertGreater(metric_score, 0.5)
 
     def test_no_python(self):
@@ -23,7 +23,7 @@ class TestCodeQuality(unittest.TestCase):
         metric_inst.set_local_directory(directories)
         metric_inst.setup_resources()
         metric_score: float = metric_inst.calculate_score()
-        print(metric_score)
+
         self.assertAlmostEqual(metric_score, 0.0)
 
     def test_score_calculation_full(self):
@@ -35,7 +35,7 @@ class TestCodeQuality(unittest.TestCase):
         self.assertIsInstance(metric_inst.score, float)
 
         metric_score: float = metric_inst.score
-        print(metric_score)
+
         self.assertGreater(metric_score, 0.5)
 
     def test_no_python_full(self):
@@ -49,5 +49,5 @@ class TestCodeQuality(unittest.TestCase):
         self.assertIsInstance(metric_inst.score, float)
 
         metric_score: float = metric_inst.score
-        print(metric_score)
+
         self.assertAlmostEqual(metric_score, 0.0)

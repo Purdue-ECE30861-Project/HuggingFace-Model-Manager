@@ -53,4 +53,3 @@ j,i,h"""
 
         with self.assertRaises(Exception):
             result: list[ModelURLs] = read_url_csv(path)
-            print(result)
