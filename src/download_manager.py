@@ -209,7 +209,7 @@ class DownloadManager:
         # Clone repository (either doesn't exist or update failed)
         #logging.info(f"Cloning codebase from {code_url}...")
         try:
-            git.Repo.clone_from(code_url, local_path)
+            git.Repo.clone_from(code_url, local_path, progress = None)
             #logging.info(f"Codebase cloned to {local_path}")
             return local_path
         except Exception as e:
