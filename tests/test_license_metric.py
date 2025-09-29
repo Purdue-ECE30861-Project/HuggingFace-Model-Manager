@@ -1,7 +1,8 @@
 import unittest
-from src.metrics.license import *  # pyright: ignore[reportWildcardImportFromLibrary]
+from metrics.license import *  # pyright: ignore[reportWildcardImportFromLibrary]
 from pathlib import Path
 import os, shutil
+from metric import ModelPaths
 
 
 class LicenseMetricTest(unittest.TestCase):
@@ -24,7 +25,7 @@ class LicenseMetricTest(unittest.TestCase):
         # set up testing directories
         if self.TEST_DIR.exists():
             shutil.rmtree(self.TEST_DIR)
-        os.mkdir(self.TEST_DIR)
+        os.makedirs(self.TEST_DIR)
         os.mkdir(self.in_readme_dir)
         os.mkdir(self.linked_license_dir)
         os.mkdir(self.linked_license_md_dir)
@@ -135,46 +136,84 @@ class LicenseMetricTest(unittest.TestCase):
         return super().tearDown()
 
     def testReadmeInMetadata(self):
-        self.license_instance.set_local_directory(str(self.in_readme_dir))
+        dirs = ModelPaths()
+        dirs.model = self.in_readme_dir
+        self.license_instance.set_local_directory(dirs)
         self.license_instance.run()
         self.assertAlmostEqual(self.license_instance.parse_license_file(), 0.0)
+        self.assertIsInstance(self.license_instance.score, float)
+        if isinstance(self.license_instance.score, dict):
+            return
         self.assertAlmostEqual(self.license_instance.score, license_score["lgpl-2.1"])
 
     def testReadmeLinked(self):
-        self.license_instance.set_local_directory(str(self.linked_license_dir))
+        dirs = ModelPaths()
+        dirs.model = self.linked_license_dir
+        self.license_instance.set_local_directory(dirs)
         self.license_instance.run()
+        self.assertIsInstance(self.license_instance.score, float)
+        if isinstance(self.license_instance.score, dict):
+            return
         self.assertAlmostEqual(self.license_instance.score, license_score["lgpl-3.0+"])
 
     def testReadmeLinked_md(self):
-        self.license_instance.set_local_directory(str(self.linked_license_md_dir))
+        dirs = ModelPaths()
+        dirs.model = self.linked_license_md_dir
+        self.license_instance.set_local_directory(dirs)
         self.license_instance.run()
+        self.assertIsInstance(self.license_instance.score, float)
+        if isinstance(self.license_instance.score, dict):
+            return
         self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
 
     def testNoReadme(self):
-        self.license_instance.set_local_directory(str(self.no_readme_dir))
+        dirs = ModelPaths()
+        dirs.model = self.no_readme_dir
+        self.license_instance.set_local_directory(dirs)
         self.license_instance.run()
+        self.assertIsInstance(self.license_instance.score, float)
+        if isinstance(self.license_instance.score, dict):
+            return
         self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
 
     def testLicenseTextInReadme(self):
-        self.license_instance.set_local_directory(str(self.text_in_readme_dir))
+        dirs = ModelPaths()
+        dirs.model = self.in_readme_dir
+        self.license_instance.set_local_directory(dirs)
         self.license_instance.run()
+        self.assertIsInstance(self.license_instance.score, float)
+        if isinstance(self.license_instance.score, dict):
+            return
         self.assertAlmostEqual(self.license_instance.score, license_score["mit"])
 
     def testNoLicense(self):
-        self.license_instance.set_local_directory(str(self.no_license_dir))
+        dirs = ModelPaths()
+        dirs.model = self.no_license_dir
+        self.license_instance.set_local_directory(dirs)
         self.license_instance.run()
+        self.assertIsInstance(self.license_instance.score, float)
+        if isinstance(self.license_instance.score, dict):
+            return
         self.assertAlmostEqual(self.license_instance.score, 0.0)
 
     def testNoLicenseButReadme(self):
-        self.license_instance.set_local_directory(str(self.no_license_but_readme_dir))
+        dirs = ModelPaths()
+        dirs.model = self.no_license_but_readme_dir
+        self.license_instance.set_local_directory(dirs)
         self.license_instance.run()
+        self.assertIsInstance(self.license_instance.score, float)
+        if isinstance(self.license_instance.score, dict):
+            return
         self.assertAlmostEqual(self.license_instance.score, 0.0)
 
     def testUnknownNoncommercialLicense(self):
-        self.license_instance.set_local_directory(
-            str(self.unknown_noncommercial_license_dir)
-        )
+        dirs = ModelPaths()
+        dirs.model = self.unknown_noncommercial_license_dir
+        self.license_instance.set_local_directory(dirs)
         self.license_instance.run()
+        self.assertIsInstance(self.license_instance.score, float)
+        if isinstance(self.license_instance.score, dict):
+            return
         self.assertAlmostEqual(self.license_instance.score, 0.0)
 
     def testNoLocalDirectory(self):

@@ -1,25 +1,15 @@
 from multiprocessing import Pool
-import os
-from typing import Literal, Optional
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, field_validator, ValidationError
 import typing
-from metric import BaseMetric, ModelURLs, AnalyzerOutput, PRIORITY_FUNCTIONS
-
-
-DATASET = "dataset"
-CODEBASE = "codebase"
-MODEL = "model"
-
-
-class ConfigContract(BaseModel):
-    """
-    Configuration contract for the workflow, specifying number of processes,
-    priority function, and target platform.
-    """
-
-    num_processes: int = 1
-    priority_function: Literal["PFReciprocal", "PFExponentialDecay"] = "PFReciprocal"
-    target_platform: str = ""
+from metric import BaseMetric, AnalyzerOutput, PRIORITY_FUNCTIONS
+from config import (
+    ConfigContract,
+    ModelPaths,
+    ModelURLs,
+    PriorityFunction,
+    PRIORITY_FUNCTIONS,
+)
 
 
 def run_metric(metric: BaseMetric) -> BaseMetric:
@@ -37,6 +27,7 @@ class MetricRunner:
     def __init__(self, metrics: list[BaseMetric]):  # single threaded by default
         self.metrics: list[BaseMetric] = metrics
         self.multiprocessing_pool: Optional[Pool] = None
+        self.run_multi = True  # for debugging purposes
 
     def run(self) -> list[BaseMetric]:
         """
@@ -46,11 +37,14 @@ class MetricRunner:
         Raises:
             Exception: If no multiprocessing pool has been created.
         """
-        if self.multiprocessing_pool:
-            with self.multiprocessing_pool as pool:
-                results: list[BaseMetric] = pool.map(run_metric, self.metrics)
+        if self.run_multi:
+            if self.multiprocessing_pool:
+                with self.multiprocessing_pool as pool:
+                    results: list[BaseMetric] = pool.map(run_metric, self.metrics)
+            else:
+                raise Exception("No multiprocessing pool has been created")
         else:
-            raise Exception("No multiprocessing pool has been created")
+            results = [run_metric(metric) for metric in self.metrics]
 
         return results
 
@@ -77,16 +71,10 @@ class MetricStager:
         Args:
             config (ConfigContract): Configuration for staging metrics.
         """
-        self.metrics: dict[str, list[BaseMetric]] = {
-            "dataset": [],
-            "codebase": [],
-            "model": [],
-        }
+        self.metrics: list[BaseMetric] = []
         self.config: ConfigContract = config
 
-    def attach_metric(
-        self, group: str, metric: BaseMetric, priority: int
-    ) -> typing.Self:
+    def attach_metric(self, metric: BaseMetric, priority: int) -> typing.Self:
         """
         Attaches a metric to a group with a given priority and platform.
         Args:
@@ -98,22 +86,14 @@ class MetricStager:
         Raises:
             KeyError: If the group is invalid.
         """
+        assert priority >= 1
         metric.set_params(priority, self.config.target_platform)
-        try:
-            self.metrics[group].append(metric)
-        except KeyError:
-            raise KeyError(f"Invalid group: {group}")
+        self.metrics.append(metric)
 
         return self
 
-    def check_valid_local_directory(self, local_directory: str):
-        if not os.path.isdir(local_directory):
-            raise IOError("The provided local directory is invalid")
-        if not os.access(local_directory, os.R_OK):
-            raise IOError("The provided local directory is not readable")
-
-    def attach_model_urls(
-        self, model_metadata: ModelURLs, local_directory: typing.Optional[str] = None
+    def attach_model_sources(
+        self, model_urls: ModelURLs, model_paths: ModelPaths
     ) -> MetricRunner:
         """
         Attaches URLs from model metadata to the corresponding metrics.
@@ -122,42 +102,38 @@ class MetricStager:
         Returns:
             MetricRunner: A MetricRunner instance with staged metrics.
         """
-        dictionary_urls: dict[str, str | None] = model_metadata.dict()
-        staged_metrics: list[BaseMetric] = []
 
-        if local_directory:
-            self.check_valid_local_directory(local_directory)
+        for metric in self.metrics:
+            metric.set_local_directory(model_paths)
+            metric.set_url(model_urls)
 
-        for url_type, url in dictionary_urls.items():
-            if url:
-                for metric in self.metrics[url_type]:
-                    metric.set_url(url)
-                    if local_directory:
-                        metric.set_local_directory(local_directory)
-                    staged_metrics.append(metric)
-
-        return MetricRunner(staged_metrics)
+        return MetricRunner(self.metrics)
 
 
 def run_workflow(
-    metric_stager: MetricStager, input_urls: ModelURLs, config: ConfigContract
+    metric_stager: MetricStager,
+    input_urls: ModelURLs,
+    input_paths: ModelPaths,
+    config: ConfigContract,
 ) -> AnalyzerOutput:
     """
     Runs the complete workflow: attaches URLs, sets up multiprocessing, runs metrics,
     and returns the analysis output.
-    Args:
+    Args
         metric_stager (MetricStager): The metric stager with staged metrics.
         input_urls (ModelURLs): The input model URLs.
         config (ConfigContract): The workflow configuration.
     Returns:
         AnalyzerOutput: The output of the analysis.
     """
+
     # HERE it should check if the inputted models are already stored locally
-    metric_runner: MetricRunner = metric_stager.attach_model_urls(
-        input_urls
+    metric_runner: MetricRunner = metric_stager.attach_model_sources(
+        input_urls, input_paths
     ).set_num_processes(config.num_processes)
+    metric_runner.run_multi = config.run_multi
     processed_metrics: list[BaseMetric] = metric_runner.run()
 
-    return AnalyzerOutput(
-        PRIORITY_FUNCTIONS[config.priority_function], processed_metrics, input_urls
-    )
+    priority_fn: PriorityFunction = PRIORITY_FUNCTIONS[config.priority_function]
+
+    return AnalyzerOutput(priority_fn, processed_metrics, input_urls)

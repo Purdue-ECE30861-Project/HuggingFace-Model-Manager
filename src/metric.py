@@ -3,18 +3,8 @@ import typing
 import time
 from typing import Self
 from itertools import starmap
-from pydantic import BaseModel
 from sortedcontainers import SortedDict
-
-
-class ModelURLs(BaseModel):
-    """
-    Stores URLs related to a model, including model, codebase, and dataset URLs.
-    """
-
-    model: typing.Optional[str] = None
-    codebase: typing.Optional[str] = None
-    dataset: typing.Optional[str] = None
+from config import *
 
 
 class BaseMetric(abc.ABC):
@@ -28,11 +18,11 @@ class BaseMetric(abc.ABC):
         """
         Initializes the BaseMetric with default values.
         """
-        self.score: float = 0.0
-        self.url: str = ""
+        self.score: float | dict[str, float] = 0.0
+        self.url: None | ModelURLs = None
         self.priority: int = 1
         self.target_platform: typing.Optional[str] = None
-        self.local_directory: typing.Optional[str] = None
+        self.local_directory: None | ModelPaths = None
         self.runtime: float = 0.0
 
     def run(self) -> Self:
@@ -47,7 +37,7 @@ class BaseMetric(abc.ABC):
             self.score = self.calculate_score()
         except Exception as e:
             self.score = 0.0
-            print(str(e))
+            print(f"{self.metric_name} === {e}")
 
         self.runtime = time.time() - start
 
@@ -68,7 +58,7 @@ class BaseMetric(abc.ABC):
 
         return self
 
-    def set_url(self, url: str):
+    def set_url(self, url: ModelURLs):
         """
         Sets the URL for the metric.
         Args:
@@ -76,16 +66,9 @@ class BaseMetric(abc.ABC):
         Raises:
             IOError: If the provided URL is invalid.
         """
-        if not url:
-            raise IOError(
-                "The provided URL was invalid"
-            )  # cli will handle this error if invalid url
-
         self.url = url
 
-    def set_local_directory(self, local_directory: str):
-        if not local_directory:
-            raise IOError("The provided local directory was invalid")
+    def set_local_directory(self, local_directory: ModelPaths):
         self.local_directory = local_directory
 
     @abc.abstractmethod
@@ -97,7 +80,7 @@ class BaseMetric(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def calculate_score(self) -> float:
+    def calculate_score(self) -> float | dict[str, float]:
         """
         Abstract method to calculate the metric score.
         Should be implemented by subclasses.
@@ -107,84 +90,18 @@ class BaseMetric(abc.ABC):
         pass
 
 
-class PriorityFunction(abc.ABC):
-    """
-    Abstract base class for priority weighting functions.
-    """
-
-    @abc.abstractmethod
-    def calculate_priority_weight(self, priority: int) -> float:
-        """
-        Calculates the weight for a given priority.
-        Args:
-            priority (int): The priority value.
-        Returns:
-            float: The calculated weight.
-        """
-        pass
-
-
-class PFExponentialDecay(PriorityFunction):
-    """
-    Priority function using exponential decay.
-    """
-
-    def __init__(self, base_coefficient: int):
-        """
-        Initializes the exponential decay function.
-        Args:
-            base_coefficient (int): The base coefficient (> 1).
-        """
-        assert base_coefficient > 1
-        self.base_coefficient: int = base_coefficient
-
-    @typing.override
-    def calculate_priority_weight(self, priority: int) -> float:
-        """
-        Calculates the weight using exponential decay.
-        Args:
-            priority (int): The priority value.
-        Returns:
-            float: The calculated weight.
-        """
-        return self.base_coefficient ** -(priority - 1)
-
-
-class PFReciprocal(PriorityFunction):
-    """
-    Priority function using reciprocal weighting.
-    """
-
-    @typing.override
-    def calculate_priority_weight(self, priority: int) -> float:
-        """
-        Calculates the weight as the reciprocal of the priority.
-        Args:
-            priority (int): The priority value.
-        Returns:
-            float: The calculated weight.
-        """
-        return 1 / priority
-
-
-PRIORITY_FUNCTIONS: dict[str, typing.Type[PriorityFunction]] = {
-    "PFExponentialDecay": PFExponentialDecay,
-    "PFReciprocal": PFReciprocal,
-}
-
-
 class NetScoreCalculator:
     """
     Calculates the net score for a set of metrics using a priority function.
     """
 
-    def __init__(self, priority_function: typing.Type[PriorityFunction]):
+    def __init__(self, priority_function: PriorityFunction):
         """
         Initializes the NetScoreCalculator.
         Args:
             priority_function (Type[PriorityFunction]): The priority function class to use.
         """
-        self.priority_function: typing.Type[PriorityFunction] = priority_function
+        self.priority_function: PriorityFunction = priority_function
 
     def calculate_net_score(self, metrics: list[BaseMetric]):
         """
@@ -220,6 +137,24 @@ class NetScoreCalculator:
 
         return net_score
 
+    def average_dict_score(self, score: dict[str, float]) -> float:
+        num_variations = len(score)
+        sum_scores = sum(list(score.values()))
+
+        return sum_scores / num_variations
+
+    def validate_scores_norm(self, score: float | dict[str, float]):
+        if isinstance(score, dict):
+            for value in score.values():
+                assert value >= 0 and value <= 1
+        else: assert score >= 0 and score <= 1
+
+    def get_metric_score(self, score: float | dict[str, float]) -> float:
+        if isinstance(score, dict):
+            return self.average_dict_score(score)
+        else:
+            return score
+
     def generate_scores_priority_dict(self, metrics: list[BaseMetric]) -> SortedDict:
         """
         Organizes metric scores by their priority.
@@ -230,11 +165,12 @@ class NetScoreCalculator:
         """
         priority_organized_scores: SortedDict = SortedDict()
         for metric in metrics:
-            assert metric.score >= 0 and metric.score <= 1
+            self.validate_scores_norm(metric.score)
+            score: float = self.get_metric_score(metric.score)
             if metric.priority in priority_organized_scores:
-                priority_organized_scores[metric.priority].append(metric.score)
+                priority_organized_scores[metric.priority].append(score)
             else:
-                priority_organized_scores[metric.priority] = [metric.score]
+                priority_organized_scores[metric.priority] = [score]
 
         return priority_organized_scores
 
@@ -299,7 +235,7 @@ class AnalyzerOutput:
 
     def __init__(
         self,
-        priority_function: typing.Type[PriorityFunction],
+        priority_function: PriorityFunction,
         metrics: list[BaseMetric],
         model_metadata: ModelURLs,
     ):
@@ -310,7 +246,8 @@ class AnalyzerOutput:
             metrics (list[BaseMetric]): The list of metric instances.
             model_metadata (ModelURLs): Metadata for the model.
         """
-        self.individual_scores: dict[str, float] = {
+        self.metrics: list[BaseMetric] = metrics
+        self.individual_scores: dict[str, float | dict[str, float]] = {
             metric.metric_name: metric.score for metric in metrics
         }
         self.model_metadata: ModelURLs = model_metadata

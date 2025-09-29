@@ -9,7 +9,7 @@ from metric import BaseMetric
 
 
 class CodeQualityMetric(BaseMetric):
-    metric_name: str = "CodeQuality"
+    metric_name: str = "code_quality"
 
     def __init__(self):
         super().__init__()
@@ -17,10 +17,9 @@ class CodeQualityMetric(BaseMetric):
 
     @override
     def setup_resources(self):
-        for root, _, files in os.walk(self.local_directory):
+        for root, _, files in os.walk(self.local_directory.codebase):
             for file in files:
                 if file.endswith(".py"):
-                    # print(file)
                     self.file_list.append(os.path.join(root, file))
 
     @override
@@ -34,10 +33,11 @@ class CodeQualityMetric(BaseMetric):
         reporter: TextReporter = TextReporter(output_stream)
 
         Run(
-            ["--disable=line-too- long"] + self.file_list, reporter=reporter, exit=False
+            ["--disable=line-too-long", "--disable=bad-indentation", "--disable=import-error"] + self.file_list, reporter=reporter, exit=False
         )
-
         match = re.search(r"rated at ([0-9]+\.[0-9]+)/10", output_stream.getvalue())
+
         if match is None:
             return 0.0
+
         return float(match.group(1)) / 10

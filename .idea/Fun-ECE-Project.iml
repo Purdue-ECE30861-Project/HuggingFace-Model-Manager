@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.13 virtualenv at ~/Desktop/ECE 30861/HuggingFace-Model-Manager/venv" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 (HuggingFace-Model-Manager)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

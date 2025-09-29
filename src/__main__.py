@@ -4,9 +4,9 @@ import subprocess
 import sys
 import json
 import os
+import time
 import logging
 from typing import List
-from metric import ModelURLs
 from database import (
     SQLiteAccessor,
     FloatMetric,
@@ -14,14 +14,19 @@ from database import (
     ModelStats,
     PROD_DATABASE_PATH,
 )
-from workflow import MetricStager, ConfigContract, run_workflow
+from workflow import MetricStager, run_workflow
+from config import *
 from metrics.performance_claims import PerformanceClaimsMetric
 from metrics.dataset_and_code import DatasetAndCodeScoreMetric
 from metrics.bus_factor import BusFactorMetric
 from metrics.ramp_up_time import RampUpMetric
 from metrics.license import LicenseMetric
 from metrics.code_quality import CodeQualityMetric
-from metrics.size_score import SizeScoreMetric
+from metrics.size_metric import SizeMetric
+from metrics.dataset_quality import DatasetQualityMetric
+from url_parser import read_url_csv
+from download_manager import DownloadManager
+from infer_dataset import get_linked_dataset_metrics
 
 
 def setup_logging():
@@ -31,20 +36,29 @@ def setup_logging():
     log_level = int(os.environ.get("LOG_LEVEL", 0))
     log_file = os.environ.get("LOG_FILE")
 
-    if log_level == 0:
-        logging.disable(logging.CRITICAL)
-        return
+    logging.getLogger().handlers.clear()
 
-    level = logging.INFO if log_level == 1 else logging.DEBUG
+    logging.disable(logging.NOTSET)
+
+    # Determine the logging level
+    if log_level == 0:
+        level = logging.WARNING
+    elif log_level == 1:
+        level = logging.INFO
+    elif log_level == 2:
+        level = logging.DEBUG
 
     if log_file:
         logging.basicConfig(
             filename=log_file,
             level=level,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            filemode="w",
         )
     else:
-        logging.basicConfig(level=level)
+        logging.basicConfig(
+            level=level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
 
 
 def parse_url_file(url_file: Path) -> List[ModelURLs]:
@@ -52,49 +66,10 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
     Parses a file containing comma-separated URLs and returns ModelURLs objects.
     Format: code_link, dataset_link, model_link (per line)
     """
-    try:
-        model_groups = []
+    try:  # NEED A WAY TO INFER CODE AND DATASETS FROM THE MODEL CARD METADATA BEFORE JUST SETTING TO NONE
+        urls: list[ModelURLs] = read_url_csv(url_file)
 
-        lines = url_file.read_text().splitlines()
-        for line_num, line in enumerate(lines, 1):
-            line = line.strip()
-            if not line:
-                continue
-
-            # Split by comma and clean up whitespace
-            parts = [part.strip() for part in line.split(",")]
-
-            code_link, dataset_link, model_link = parts[0], parts[1], parts[2]
-
-            # Clean up empty strings and "blank" indicators
-            code_link = (
-                code_link
-                if code_link and code_link.lower() not in ["", "blank", "none", "n/a"]
-                else None
-            )
-            dataset_link = (
-                dataset_link
-                if dataset_link
-                and dataset_link.lower() not in ["", "blank", "none", "n/a"]
-                else None
-            )
-            model_link = (
-                model_link
-                if model_link and model_link.lower() not in ["", "blank", "none", "n/a"]
-                else None
-            )
-
-            if not model_link:
-                logging.warning(f"Line {line_num}: No model link found, skipping")
-                continue
-
-            model_urls = ModelURLs(
-                model=model_link, dataset=dataset_link, codebase=code_link
-            )
-            model_groups.append(model_urls)
-
-        logging.info(f"Parsed {len(model_groups)} models from {url_file}")
-        return model_groups
+        return urls
 
     except FileNotFoundError:
         typer.echo(f"Error: URL file '{url_file}' not found.", err=True)
@@ -104,81 +79,48 @@ def parse_url_file(url_file: Path) -> List[ModelURLs]:
         raise typer.Exit(code=1)
 
 
-def calculate_metrics(model_urls: ModelURLs) -> ModelStats:
+def stage_metrics(config: ConfigContract):
+    stager = MetricStager(config)
+
+    stager.attach_metric(RampUpMetric(1.0, "cpu"), 4)
+    stager.attach_metric(BusFactorMetric(), 2)
+    stager.attach_metric(PerformanceClaimsMetric(), 2)
+    stager.attach_metric(LicenseMetric(), 1)
+    stager.attach_metric(SizeMetric(), 3)
+    stager.attach_metric(DatasetAndCodeScoreMetric(), 2)
+    stager.attach_metric(DatasetQualityMetric(), 1)
+    stager.attach_metric(CodeQualityMetric(), 1)
+
+    return stager
+
+
+def calculate_metrics(
+    model_urls: ModelURLs, config: ConfigContract, stager: MetricStager
+) -> ModelStats:  # do we have a funciton to infer urls?
     """
     Calculate all metrics for a given model
     """
-    # Using these values for now, will have to use config file to actually configure
-    config = ConfigContract(
-        num_processes=1, priority_function="PFReciprocal", target_platform="desktop_pc"
-    )
+    model_paths: ModelPaths = generate_model_paths(config, model_urls)
+    # check for database URLs already analyzed
 
-    metrics = [
-        RampUpMetric(),
-        BusFactorMetric(),
-        PerformanceClaimsMetric(),
-        LicenseMetric(),
-        SizeScoreMetric(),
-        DatasetAndCodeScoreMetric(),
-        CodeQualityMetric(),
-    ]
-    model_name = (
-        model_urls.model.split("/")[-1] if "/" in model_urls.model else model_urls.model
-    )
+    start_time: float = time.time()
 
-    for metric in metrics:
-        # Set dataset URL for metrics that need it
-        if hasattr(metric, "dataset_url") and model_urls.dataset:
-            metric.dataset_url = model_urls.dataset
-
-        # Set codebase URL for metrics that need it
-        if hasattr(metric, "codebase_url") and model_urls.codebase:
-            metric.codebase_url = model_urls.codebase
-
-    stager = MetricStager(config)
-
-    stager.attach_metric("model", metrics[0], 1)
-    stager.attach_metric("model", metrics[1], 2)
-    stager.attach_metric("model", metrics[2], 2)
-    stager.attach_metric("model", metrics[3], 1)
-    stager.attach_metric("model", metrics[4], 3)
-    stager.attach_metric("model", metrics[5], 2)
-
-    if model_urls.codebase:
-        stager.attach_metric("codebase", metrics[6], 2)
-
-    analyzer_output = run_workflow(stager, model_urls, config)
-
+    analyzer_output = run_workflow(stager, model_urls, model_paths, config)
     db_metrics = []
-    for metric in metrics:
-        metric_name = metric.metric_name
-        if metric_name == "size_score":
-            # Handle special case for size_score (returns dictionary)
-            size_scores = analyzer_output.individual_scores.get(
-                metric_name,
-                {
-                    "raspberry_pi": 0.0,
-                    "jetson_nano": 0.0,
-                    "desktop_pc": 0.0,
-                    "aws_server": 0.0,
-                },
-            )
-            latency_ms = int(metric.runtime * 1000) if hasattr(metric, "runtime") else 0
-            db_metrics.append(DictMetric(metric_name, size_scores, latency_ms))
+
+    for metric in analyzer_output.metrics:
+        latency_ms = int(metric.runtime * 1000)
+        if isinstance(metric.score, dict):
+            db_metrics.append(DictMetric(metric.metric_name, metric.score, latency_ms))
         else:
-            # Regular float metrics
-            score = analyzer_output.individual_scores.get(metric_name, 0.0)
-            latency_ms = int(metric.runtime * 1000) if hasattr(metric, "runtime") else 0
-            db_metrics.append(FloatMetric(metric_name, score, latency_ms))
-
+            db_metrics.append(FloatMetric(metric.metric_name, metric.score, latency_ms))
     # Calculate net score latency
-    net_latency = sum(m.latency for m in db_metrics)
-
+    net_latency: float = time.time() - start_time
     return ModelStats(
         model_url=model_urls.model,
         database_url=model_urls.dataset,
         code_url=model_urls.codebase,
-        name=model_name,
+        name=extract_model_repo_id(model_urls.model),
         net_score=analyzer_output.score,
         net_score_latency=net_latency,
         metrics=db_metrics,
@@ -193,7 +135,7 @@ def install():
     """
     Installs necessary dependencies from dependencies.txt
     """
-    typer.echo("Installing dependencies...")
+    logging.info("Installing dependencies...")
     try:
         deps_file = Path(__file__).parent.parent / "dependencies.txt"
         if deps_file.exists():
@@ -204,7 +146,7 @@ def install():
                     err=True,
                 )
                 raise typer.Exit(code=1)
-            typer.echo("Dependencies installed successfully.")
+            logging.info("Dependencies installed successfully.")
     except Exception as e:
         typer.echo(f"An unexpected error occurred: {e}", err=True)
         raise typer.Exit(code=1)
@@ -212,55 +154,63 @@ def install():
 
 @app.command()
 def test():
+    setup_logging()
+    
     import unittest
-    import os
+    import io
 
-    src_path = Path(__file__).parent.parent / "src"
-    if str(src_path) not in sys.path:
-        sys.path.insert(0, str(src_path))
-
-    tests_path = Path(__file__).parent.parent / "tests"
-    if str(tests_path) not in sys.path:
-        sys.path.insert(0, str(tests_path))
+    src_path = (Path(__file__).parent.parent / "src").resolve()
+    tests_path = (Path(__file__).parent.parent / "tests").resolve()
 
     try:
         import coverage
 
-        cov = coverage.Coverage(source=[str(src_path)])
+        cov = coverage.Coverage(
+            source=[str(src_path)],  # Only measure files in src/
+            omit=[
+                "*/tests/*",
+                "*/test_*",
+                "*/__pycache__/*",
+                "*/venv/*",
+                "*/env/*",
+                "*/site-packages/*",
+                "*/.venv/*",
+            ]
+        )
         cov.start()
+        
+        setup_logging()
 
         loader = unittest.TestLoader()
         start_dir = str(tests_path)
-        suite = loader.discover(start_dir, pattern="*.py")
-        total_tests = 0
+        suite = loader.discover(start_dir, pattern="test*.py")
+        total_tests = suite.countTestCases()
+        
+        logging.debug(f"Test discovery starting from: {start_dir}")
+        logging.debug(f"Tests discovered: {total_tests}")
 
-        # Count total tests
-        def count_tests(test_suite):
-            nonlocal total_tests
-            for test in test_suite:
-                if isinstance(test, unittest.TestSuite):
-                    count_tests(test)
-                else:
-                    total_tests += 1
-
-        count_tests(suite)
         runner = unittest.TextTestRunner(verbosity=0, stream=open(os.devnull, "w"))
         result = runner.run(suite)
+        
         cov.stop()
         cov.save()
-        coverage_report = cov.report(show_missing=False, file=open(os.devnull, "w"))
+        
+        report_output = io.StringIO()
+        coverage_percent = cov.report(file=report_output, show_missing=False)
+        
+        # Get the detailed report for logging
+        report_content = report_output.getvalue()
+        logging.debug("Coverage report:")
+        logging.debug(report_content)
+        
         coverage_data = cov.get_data()
+        measured_files = coverage_data.measured_files()
+        logging.debug(f"Files measured for coverage: {len(measured_files)}")
+        
+        # Log all measured files
+        for filename in measured_files:
+            logging.debug(f"Measured file: {filename}")
 
-        # Find line coverage
-        total_lines = 0
-        covered_lines = 0
-        for filename in coverage_data.measured_files():
-            if str(src_path) in filename:
-                analysis = cov.analysis2(filename)
-                total_lines += len(analysis[1]) + len(analysis[2])
-                covered_lines += len(analysis[1])
-
-        coverage_percent = (covered_lines / total_lines * 100) if total_lines > 0 else 0
         passed_tests = total_tests - len(result.failures) - len(result.errors)
         typer.echo(
             f"{passed_tests}/{total_tests} test cases passed. {coverage_percent:.0f}% line coverage achieved."
@@ -268,15 +218,14 @@ def test():
 
         if result.failures or result.errors:
             raise typer.Exit(code=1)
-        raise typer.Exit(code=1)
+        else:
+            raise typer.Exit(code=0)
+
     except ImportError:
         typer.echo(
             "Error: 'coverage' package not installed. Please run 'install' command first.",
             err=True,
         )
-        raise typer.Exit(code=1)
-    except Exception as e:
-        typer.echo(f"Error running tests: {e}", file=sys.stderr)
         raise typer.Exit(code=1)
 
 
@@ -286,16 +235,28 @@ def analyze(url_file: Path):
     Analyzes models based on URLs provided in a file.
     Will add model to database if not already present.
     """
-    typer.echo("Analyzing model...")
+
+    config: ConfigContract = ConfigContract(
+        num_processes=5,
+        run_multi=True,  # TODO: user False for debug, use True for production
+        priority_function="PFReciprocal",
+        target_platform="desktop_pc",
+        local_storage_directory=os.path.dirname(os.path.abspath(__file__))
+        + "local_storage",
+        model_path_name="models",
+        code_path_name="code",
+        dataset_path_name="dataset",
+    )
+
+    metric_stager: MetricStager = stage_metrics(config)
 
     try:
         model_groups = parse_url_file(url_file)
         if not model_groups:
-            typer.echo("Error: No valid model URLs found in file.", err=True)
+            typer.echo("No valid model URLs found in file.")
             raise typer.Exit(code=1)
 
         setup_logging()
-
         basic_schema = [
             FloatMetric("ramp_up_time", 0.0, 0),
             FloatMetric("bus_factor", 0.0, 0),
@@ -311,7 +272,7 @@ def analyze(url_file: Path):
                 },
                 0,
             ),
-            FloatMetric("dataset_and_code score", 0.0, 0),
+            FloatMetric("dataset_and_code_score", 0.0, 0),
             FloatMetric("dataset_quality", 0.0, 0),
             FloatMetric("code_quality", 0.0, 0),
         ]
@@ -331,7 +292,33 @@ def analyze(url_file: Path):
                 logging.info(f"Analyzing model {model_url}...")
 
                 # Calculate metrics and add to database
-                stats = calculate_metrics(model_urls)
+                logging.info(f"Downloading resources for {model_url}...")
+                try:
+                    local_dir = Path(config.local_storage_directory)
+                    download_manager = DownloadManager(
+                        str(local_dir / config.model_path_name),
+                        str(local_dir / config.code_path_name),
+                        str(local_dir / config.dataset_path_name),
+                    )
+                    download_manager.download_model_resources(model_urls)
+                    logging.info("Download completed successfully.")
+                except Exception as e:
+                    typer.echo(f"Error downloading resources: {e}")
+                    continue
+
+                # check for pre-existing datasets
+                model_path = generate_model_paths(config, model_urls).model
+                if model_path is not None:
+                    dataset_check = get_linked_dataset_metrics(
+                        model_path / "README.md",
+                        db,
+                        [FloatMetric("dataset_quality", 0.0, 0)],
+                    )
+                    if dataset_check is not None:
+                        model_urls.dataset = dataset_check[0]
+                logging.debug(f"Starting metric calculation for {model_url}")
+                stats = calculate_metrics(model_urls, config, metric_stager)
+                logging.debug(f"Adding results to database for {model_url}")
                 db.add_to_db(stats)
 
             results = {
@@ -343,16 +330,16 @@ def analyze(url_file: Path):
 
             for metric in stats.metrics:
                 if isinstance(metric, FloatMetric):
-                    results[metric.metric_name] = metric.data
-                    results[f"{metric.metric_name}_latency"] = metric.latency
+                    results[metric.name] = metric.data
+                    results[f"{metric.name}_latency"] = metric.latency
                 elif isinstance(metric, DictMetric):
-                    results[metric.metric_name] = metric.data
-                    results[f"{metric.metric_name}_latency"] = metric.latency
+                    results[metric.name] = metric.data
+                    results[f"{metric.name}_latency"] = metric.latency
 
             typer.echo(json.dumps(results))
 
     except Exception as e:
-        typer.echo(f"An error occurred during analysis: {e}", err=True)
+        typer.echo(f"An error occurred during analysis: {e}")
         raise typer.Exit(code=1)
 
 

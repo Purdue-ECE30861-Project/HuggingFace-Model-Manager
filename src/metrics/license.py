@@ -10,7 +10,7 @@ license_link_pattern = re.compile(r"\[.+\]\(LICENSE.*\)")
 # full huggingface license list
 license_score: dict[str, float] = {
     # 0.0 means either non-commercial or incompatible with LGPL v2.1 (see https://www.gnu.org/licenses/license-list.html)
-    "apache-2.0": 0.0,  # only compatible with gpl v3
+    "apache-2.0": 1.0,  # only compatible with gpl v3
     "mit": 1.0,
     # all incompatible because they impose restrictions on reuse not present in the LGPL
     "openrail": 0.0,
@@ -174,9 +174,9 @@ class LicenseMetric(BaseMetric):
         return 0.0  # pragma: no cover
 
     def calculate_score(self) -> float:
-        if self.local_directory is None:
-            raise ValueError("Local directory not specified")
-        self.model_dir = Path(self.local_directory)
+        if self.local_directory is None or self.local_directory.model is None:
+            raise ValueError("Local model directory not specified")
+        self.model_dir = Path(self.local_directory.model)
         self.license_file = self.model_dir / "LICENSE"
         if not self.license_file.exists():
             self.license_file = self.model_dir / "LICENSE.md"
