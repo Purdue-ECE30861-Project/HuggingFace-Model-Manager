@@ -29,6 +29,9 @@ from download_manager import DownloadManager
 from infer_dataset import get_linked_dataset_metrics
 
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 def setup_logging():
     """
     Setup logging based on environment variables
