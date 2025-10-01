@@ -1,0 +1,21 @@
+<map id="src.metric.AnalyzerOutput" name="src.metric.AnalyzerOutput">
+<area shape="rect" id="Node000001" title="Stores the output of an analysis, including individual metric scores, model metadata,..." alt="" coords="204,459,366,549"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1metric_1_1BaseMetric.html" title="Abstract base class for defining a metric." alt="" coords="108,168,249,387"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="231,386,254,434,258,442,253,444,249,436,226,388"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="83,5,151,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="132,88,153,168,147,169,127,89"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="14,5,49,75"/>
+<area shape="poly" id="edge10_Node000001_Node000004" title=" " alt="" coords="25,75,14,138,8,219,10,262,17,305,30,347,50,385,78,417,112,443,150,463,189,478,187,483,148,468,109,448,74,421,45,388,25,349,12,307,5,263,3,219,9,137,20,74"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="43,74,55,108,71,143,99,185,95,188,66,145,50,110,38,75"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="175,5,200,75"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="185,75,182,99,179,151,174,151,177,98,179,74"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="301,5,360,75"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="303,62,281,80,261,100,235,154,230,151,257,97,277,76,299,58"/>
+<area shape="rect" id="Node000008" href="$classsrc_1_1config_1_1ModelURLs.html" title="Stores URLs related to a model, including model, codebase, and dataset URLs." alt="" coords="292,221,465,333"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="358,73,370,98,382,151,385,204,379,205,376,152,365,100,353,76"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="489,243,521,312"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="503,312,497,343,485,377,468,409,443,437,414,456,383,472,380,467,411,452,439,433,463,406,480,374,492,341,498,311"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="358,334,312,444,307,442,353,332"/>
+<area shape="rect" id="Node000009" href="$classBaseModel.html" title=" " alt="" coords="451,5,527,75"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="478,89,457,145,415,223,411,220,452,143,473,88"/>
+</map>

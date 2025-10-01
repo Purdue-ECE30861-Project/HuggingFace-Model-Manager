@@ -1,0 +1,107 @@
+\doxysection{src.\+config Namespace Reference}
+\hypertarget{namespacesrc_1_1config}{}\label{namespacesrc_1_1config}\index{src.config@{src.config}}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}}
+\item 
+class \mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}}
+\item 
+class \mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}}
+\item 
+class \mbox{\hyperlink{classsrc_1_1config_1_1PFExponentialDecay}{PFExponential\+Decay}}
+\item 
+class \mbox{\hyperlink{classsrc_1_1config_1_1PFReciprocal}{PFReciprocal}}
+\item 
+class \mbox{\hyperlink{classsrc_1_1config_1_1PriorityFunction}{Priority\+Function}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+str \mbox{\hyperlink{namespacesrc_1_1config_ac80aa94cc407c3a02dc6702e2a65ff17}{extract\+\_\+model\+\_\+repo\+\_\+id}} (str model\+\_\+url)
+\item 
+str \mbox{\hyperlink{namespacesrc_1_1config_a46ae670effc309a39351a12d728e8150}{extract\+\_\+dataset\+\_\+repo\+\_\+id}} (str dataset\+\_\+url)
+\item 
+str \mbox{\hyperlink{namespacesrc_1_1config_ad8eff1630a2aaebf76840e8bdaaeb3ee}{extract\+\_\+code\+\_\+repo\+\_\+name}} (str code\+\_\+url)
+\item 
+\mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}} \mbox{\hyperlink{namespacesrc_1_1config_a4672e4e67d1a2a8db012b012d9473e93}{generate\+\_\+model\+\_\+paths}} (\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}} contract, \mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}} urls)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+str \mbox{\hyperlink{namespacesrc_1_1config_a7b0f7a33bb05430bfbc74352b1d03a20}{DATASET}} = "{}dataset"{}
+\item 
+str \mbox{\hyperlink{namespacesrc_1_1config_a648d847d3fe1375035c9af7b143d99c0}{CODEBASE}} = "{}codebase"{}
+\item 
+str \mbox{\hyperlink{namespacesrc_1_1config_ade8941581500fdf9eb9dcdb7bf479165}{MODEL}} = "{}model"{}
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{namespacesrc_1_1config_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacesrc_1_1config_ad8eff1630a2aaebf76840e8bdaaeb3ee}\index{src.config@{src.config}!extract\_code\_repo\_name@{extract\_code\_repo\_name}}
+\index{extract\_code\_repo\_name@{extract\_code\_repo\_name}!src.config@{src.config}}
+\doxysubsubsection{\texorpdfstring{extract\_code\_repo\_name()}{extract\_code\_repo\_name()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1config_ad8eff1630a2aaebf76840e8bdaaeb3ee} 
+ str extract\+\_\+code\+\_\+repo\+\_\+name (\begin{DoxyParamCaption}\item[{str}]{code\+\_\+url}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Args:
+    code_url: Git repository URL
+
+Returns:
+    Repository name
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1config_a46ae670effc309a39351a12d728e8150}\index{src.config@{src.config}!extract\_dataset\_repo\_id@{extract\_dataset\_repo\_id}}
+\index{extract\_dataset\_repo\_id@{extract\_dataset\_repo\_id}!src.config@{src.config}}
+\doxysubsubsection{\texorpdfstring{extract\_dataset\_repo\_id()}{extract\_dataset\_repo\_id()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1config_a46ae670effc309a39351a12d728e8150} 
+ str extract\+\_\+dataset\+\_\+repo\+\_\+id (\begin{DoxyParamCaption}\item[{str}]{dataset\+\_\+url}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Args:
+    dataset_url: HuggingFace dataset URL
+
+Returns:
+    Dataset repository ID (e.g., "username/dataset-name")
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1config_ac80aa94cc407c3a02dc6702e2a65ff17}\index{src.config@{src.config}!extract\_model\_repo\_id@{extract\_model\_repo\_id}}
+\index{extract\_model\_repo\_id@{extract\_model\_repo\_id}!src.config@{src.config}}
+\doxysubsubsection{\texorpdfstring{extract\_model\_repo\_id()}{extract\_model\_repo\_id()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1config_ac80aa94cc407c3a02dc6702e2a65ff17} 
+ str extract\+\_\+model\+\_\+repo\+\_\+id (\begin{DoxyParamCaption}\item[{str}]{model\+\_\+url}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Args:
+    model_url: HuggingFace model URL
+
+Returns:
+    Repository ID (e.g., "username/model-name")
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1config_a4672e4e67d1a2a8db012b012d9473e93}\index{src.config@{src.config}!generate\_model\_paths@{generate\_model\_paths}}
+\index{generate\_model\_paths@{generate\_model\_paths}!src.config@{src.config}}
+\doxysubsubsection{\texorpdfstring{generate\_model\_paths()}{generate\_model\_paths()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1config_a4672e4e67d1a2a8db012b012d9473e93} 
+ \mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}} generate\+\_\+model\+\_\+paths (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}}}]{contract}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}}}]{urls}{}\end{DoxyParamCaption})}
+
+
+
+\label{doc-var-members}
+\Hypertarget{namespacesrc_1_1config_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacesrc_1_1config_a648d847d3fe1375035c9af7b143d99c0}\index{src.config@{src.config}!CODEBASE@{CODEBASE}}
+\index{CODEBASE@{CODEBASE}!src.config@{src.config}}
+\doxysubsubsection{\texorpdfstring{CODEBASE}{CODEBASE}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1config_a648d847d3fe1375035c9af7b143d99c0} 
+str CODEBASE = "{}codebase"{}}
+
+\Hypertarget{namespacesrc_1_1config_a7b0f7a33bb05430bfbc74352b1d03a20}\index{src.config@{src.config}!DATASET@{DATASET}}
+\index{DATASET@{DATASET}!src.config@{src.config}}
+\doxysubsubsection{\texorpdfstring{DATASET}{DATASET}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1config_a7b0f7a33bb05430bfbc74352b1d03a20} 
+str DATASET = "{}dataset"{}}
+
+\Hypertarget{namespacesrc_1_1config_ade8941581500fdf9eb9dcdb7bf479165}\index{src.config@{src.config}!MODEL@{MODEL}}
+\index{MODEL@{MODEL}!src.config@{src.config}}
+\doxysubsubsection{\texorpdfstring{MODEL}{MODEL}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1config_ade8941581500fdf9eb9dcdb7bf479165} 
+str MODEL = "{}model"{}}
+

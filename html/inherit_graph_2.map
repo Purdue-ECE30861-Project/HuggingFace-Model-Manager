@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classBaseModel.html" title=" " alt="" coords="5,56,92,83"/>
+<area shape="rect" id="Node000001" href="$classsrc_1_1config_1_1ConfigContract.html" title=" " alt="" coords="140,5,310,32"/>
+<area shape="poly" id="edge13_Node000000_Node000001" title=" " alt="" coords="106,50,175,30,177,35,107,55"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1config_1_1ModelPaths.html" title=" " alt="" coords="149,56,300,83"/>
+<area shape="poly" id="edge14_Node000000_Node000002" title=" " alt="" coords="107,67,149,67,149,72,107,72"/>
+<area shape="rect" id="Node000003" href="$classsrc_1_1config_1_1ModelURLs.html" title="Stores URLs related to a model, including model, codebase, and dataset URLs." alt="" coords="149,107,300,133"/>
+<area shape="poly" id="edge15_Node000000_Node000003" title=" " alt="" coords="107,83,177,104,175,109,106,88"/>
+</map>

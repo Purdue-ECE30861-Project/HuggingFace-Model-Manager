@@ -1,0 +1,18 @@
+<map id="src.metrics.size_metric.SizeMetric" name="src.metrics.size_metric.SizeMetric">
+<area shape="rect" id="Node000001" title="Metric that evaluates model size against target device capabilities." alt="" coords="346,480,522,885"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1metric_1_1BaseMetric.html" title="Abstract base class for defining a metric." alt="" coords="95,168,236,387"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="247,396,348,548,344,551,242,399"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="67,5,134,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="116,88,138,168,133,169,111,89"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,5,41,75"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="32,74,41,108,56,143,87,189,83,192,51,145,36,110,27,75"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="324,5,349,75"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="351,74,358,98,371,179,377,242,380,305,388,386,399,463,394,464,383,387,375,306,371,242,366,179,353,99,346,75"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="326,62,272,146,249,177,244,174,268,142,322,59"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="158,5,216,75"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="176,75,169,99,164,152,159,151,164,98,171,73"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="517,243,543,312"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="524,312,499,411,486,464,481,463,494,410,519,311"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="601,243,632,312"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="618,312,610,380,602,419,590,457,564,510,534,560,529,557,560,507,585,455,597,418,605,379,613,312"/>
+</map>

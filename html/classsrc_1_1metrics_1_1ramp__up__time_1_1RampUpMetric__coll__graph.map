@@ -1,0 +1,18 @@
+<map id="src.metrics.ramp_up_time.RampUpMetric" name="src.metrics.ramp_up_time.RampUpMetric">
+<area shape="rect" id="Node000001" title=" " alt="" coords="238,459,376,624"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1metric_1_1BaseMetric.html" title="Abstract base class for defining a metric." alt="" coords="197,168,338,387"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="289,401,297,458,292,459,283,402"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="357,5,424,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,90,384,118,374,145,364,158,353,170,340,185,336,181,349,166,360,155,370,143,379,116,385,89"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="30,5,66,75"/>
+<area shape="poly" id="edge8_Node000001_Node000004" title=" " alt="" coords="39,75,22,137,10,218,8,261,12,304,22,346,40,385,56,409,76,430,122,467,173,494,222,514,220,519,170,499,119,471,72,434,52,412,35,388,17,348,7,305,3,261,4,217,17,136,34,74"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="68,68,96,105,132,142,156,154,180,166,187,171,184,176,177,170,153,158,129,146,92,109,63,71"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="170,5,195,75"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="192,74,210,143,213,151,208,153,205,145,187,75"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="239,5,297,75"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="271,74,271,151,265,151,265,74"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="363,243,389,312"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="371,312,353,387,338,443,333,442,348,386,366,311"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="444,243,489,312"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="470,312,463,372,454,405,440,436,417,465,391,490,387,486,413,462,435,433,449,403,458,371,464,311"/>
+</map>

@@ -1,0 +1,116 @@
+\doxysection{SQLite\+Accessor Class Reference}
+\hypertarget{classsrc_1_1database_1_1SQLiteAccessor}{}\label{classsrc_1_1database_1_1SQLiteAccessor}\index{SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_a8d5a77d973bc57b1b996275372b63709}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, db\+\_\+location, list \mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_a946de51b0db3155615614a53e6077e88}{metric\+\_\+schema}}, bool create\+\_\+if\+\_\+missing=True)
+\item 
+\mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_ab3c211d2b7f3c35d46e368b2202f9477}{\+\_\+\+\_\+del\+\_\+\+\_\+}} (self)
+\item 
+bool \mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_a0d354ab0c57a558b9806c61ec1de307a}{db\+\_\+exists}} (self)
+\item 
+\mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_af511d8447f0b034862404e85d7f89074}{init\+\_\+database}} (self)
+\item 
+\mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_af9c940ed07ef7c0697acc6e89add3e5d}{get\+\_\+database\+\_\+metrics\+\_\+if\+\_\+exists}} (self, str url, list schema)
+\item 
+bool \mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_ae0c714a0b58bad88a07f405fd51e12a4}{check\+\_\+entry\+\_\+in\+\_\+db}} (self, str url)
+\item 
+\mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_a7e07df9fcd0be839b36195984df325ff}{add\+\_\+to\+\_\+db}} (self, \mbox{\hyperlink{classsrc_1_1database_1_1ModelStats}{Model\+Stats}} model\+\_\+stats)
+\item 
+\mbox{\hyperlink{classsrc_1_1database_1_1ModelStats}{Model\+Stats}} \mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_a2c9f68326496d0d6388bf5752f9e0042}{get\+\_\+model\+\_\+statistics}} (self, str model\+\_\+url)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+sqlite3.\+Connection \mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_a0d0c929d79a3de803847659a4cb9f6e3}{connection}} = sqlite3.\+connect("{}\+:memory\+:"{})
+\item 
+sqlite3.\+Cursor \mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_a0758a9d440f8b5f5929306957da28aa6}{cursor}} = self.\+connection.\+cursor()
+\item 
+\mbox{\hyperlink{classsrc_1_1database_1_1SQLiteAccessor_a946de51b0db3155615614a53e6077e88}{metric\+\_\+schema}} = metric\+\_\+schema
+\end{DoxyCompactItemize}
+
+
+\label{doc-constructors}
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_a8d5a77d973bc57b1b996275372b63709}\index{SQLiteAccessor@{SQLiteAccessor}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_a8d5a77d973bc57b1b996275372b63709} 
+\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{db\+\_\+location}{, }\item[{list}]{metric\+\_\+schema}{, }\item[{bool }]{create\+\_\+if\+\_\+missing}{ = {\ttfamily True}}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_ab3c211d2b7f3c35d46e368b2202f9477}\index{SQLiteAccessor@{SQLiteAccessor}!\_\_del\_\_@{\_\_del\_\_}}
+\index{\_\_del\_\_@{\_\_del\_\_}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{\_\_del\_\_()}{\_\_del\_\_()}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_ab3c211d2b7f3c35d46e368b2202f9477} 
+\+\_\+\+\_\+del\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+
+
+\label{doc-func-members}
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_a7e07df9fcd0be839b36195984df325ff}\index{SQLiteAccessor@{SQLiteAccessor}!add\_to\_db@{add\_to\_db}}
+\index{add\_to\_db@{add\_to\_db}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{add\_to\_db()}{add\_to\_db()}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_a7e07df9fcd0be839b36195984df325ff} 
+add\+\_\+to\+\_\+db (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{\mbox{\hyperlink{classsrc_1_1database_1_1ModelStats}{Model\+Stats}}}]{model\+\_\+stats}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_ae0c714a0b58bad88a07f405fd51e12a4}\index{SQLiteAccessor@{SQLiteAccessor}!check\_entry\_in\_db@{check\_entry\_in\_db}}
+\index{check\_entry\_in\_db@{check\_entry\_in\_db}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{check\_entry\_in\_db()}{check\_entry\_in\_db()}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_ae0c714a0b58bad88a07f405fd51e12a4} 
+ bool check\+\_\+entry\+\_\+in\+\_\+db (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{url}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_a0d354ab0c57a558b9806c61ec1de307a}\index{SQLiteAccessor@{SQLiteAccessor}!db\_exists@{db\_exists}}
+\index{db\_exists@{db\_exists}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{db\_exists()}{db\_exists()}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_a0d354ab0c57a558b9806c61ec1de307a} 
+ bool db\+\_\+exists (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_af9c940ed07ef7c0697acc6e89add3e5d}\index{SQLiteAccessor@{SQLiteAccessor}!get\_database\_metrics\_if\_exists@{get\_database\_metrics\_if\_exists}}
+\index{get\_database\_metrics\_if\_exists@{get\_database\_metrics\_if\_exists}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{get\_database\_metrics\_if\_exists()}{get\_database\_metrics\_if\_exists()}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_af9c940ed07ef7c0697acc6e89add3e5d} 
+get\+\_\+database\+\_\+metrics\+\_\+if\+\_\+exists (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{url}{, }\item[{list     }]{schema}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_a2c9f68326496d0d6388bf5752f9e0042}\index{SQLiteAccessor@{SQLiteAccessor}!get\_model\_statistics@{get\_model\_statistics}}
+\index{get\_model\_statistics@{get\_model\_statistics}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{get\_model\_statistics()}{get\_model\_statistics()}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_a2c9f68326496d0d6388bf5752f9e0042} 
+ \mbox{\hyperlink{classsrc_1_1database_1_1ModelStats}{Model\+Stats}} get\+\_\+model\+\_\+statistics (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{model\+\_\+url}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_af511d8447f0b034862404e85d7f89074}\index{SQLiteAccessor@{SQLiteAccessor}!init\_database@{init\_database}}
+\index{init\_database@{init\_database}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{init\_database()}{init\_database()}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_af511d8447f0b034862404e85d7f89074} 
+init\+\_\+database (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+
+
+\label{doc-variable-members}
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_a0d0c929d79a3de803847659a4cb9f6e3}\index{SQLiteAccessor@{SQLiteAccessor}!connection@{connection}}
+\index{connection@{connection}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{connection}{connection}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_a0d0c929d79a3de803847659a4cb9f6e3} 
+sqlite3.\+Connection connection = sqlite3.\+connect("{}\+:memory\+:"{})}
+
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_a0758a9d440f8b5f5929306957da28aa6}\index{SQLiteAccessor@{SQLiteAccessor}!cursor@{cursor}}
+\index{cursor@{cursor}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{cursor}{cursor}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_a0758a9d440f8b5f5929306957da28aa6} 
+sqlite3.\+Cursor cursor = self.\+connection.\+cursor()}
+
+\Hypertarget{classsrc_1_1database_1_1SQLiteAccessor_a946de51b0db3155615614a53e6077e88}\index{SQLiteAccessor@{SQLiteAccessor}!metric\_schema@{metric\_schema}}
+\index{metric\_schema@{metric\_schema}!SQLiteAccessor@{SQLiteAccessor}}
+\doxysubsubsection{\texorpdfstring{metric\_schema}{metric\_schema}}
+{\footnotesize\ttfamily \label{classsrc_1_1database_1_1SQLiteAccessor_a946de51b0db3155615614a53e6077e88} 
+metric\+\_\+schema = metric\+\_\+schema}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{database_8py}{database.\+py}}\end{DoxyCompactItemize}

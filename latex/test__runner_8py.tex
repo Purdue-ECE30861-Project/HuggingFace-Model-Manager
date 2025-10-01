@@ -1,0 +1,42 @@
+\doxysection{test\+\_\+runner.\+py File Reference}
+\hypertarget{test__runner_8py}{}\label{test__runner_8py}\index{test\_runner.py@{test\_runner.py}}
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacetest__runner}{test\+\_\+runner}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}{test\+\_\+runner.\+project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+resolve()
+\item 
+str \mbox{\hyperlink{namespacetest__runner_a228924e33ce39345209a2a52a1c3ade3}{test\+\_\+runner.\+src\+\_\+path}} = \mbox{\hyperlink{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}{project\+\_\+root}} / "{}src"{}
+\item 
+str \mbox{\hyperlink{namespacetest__runner_a758e40e1de9a834ee7937b591af43278}{test\+\_\+runner.\+tests\+\_\+path}} = \mbox{\hyperlink{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}{project\+\_\+root}} / "{}tests"{}
+\item 
+\mbox{\hyperlink{namespacetest__runner_a2bb58579e1c13e57178d2a82482bf912}{test\+\_\+runner.\+buffer}} = io.\+String\+IO()
+\item 
+\mbox{\hyperlink{namespacetest__runner_ad15a6273adc0537ef02869498a28285a}{test\+\_\+runner.\+cov}}
+\item 
+\mbox{\hyperlink{namespacetest__runner_a47a285d373692588eade5e8887ee0794}{test\+\_\+runner.\+loader}} = unittest.\+Test\+Loader()
+\item 
+\mbox{\hyperlink{namespacetest__runner_af3c83f179e498932d0cc45ae93fd2d1c}{test\+\_\+runner.\+suite}} = loader.\+discover(start\+\_\+dir=str(\mbox{\hyperlink{namespacetest__runner_a758e40e1de9a834ee7937b591af43278}{tests\+\_\+path}}), pattern="{}test\+\_\+\texorpdfstring{$\ast$}{*}.py"{})
+\item 
+\mbox{\hyperlink{namespacetest__runner_a1afd85a0534de97fdc34b4c46374114e}{test\+\_\+runner.\+total\+\_\+tests}} = suite.\+count\+Test\+Cases()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a09eb075c6621d5110e23aaa0dfd1cbd9}{test\+\_\+runner.\+runner}} = unittest.\+Text\+Test\+Runner(verbosity=2)
+\item 
+\mbox{\hyperlink{namespacetest__runner_a739fe9137b58327dd857a5513c3dcccb}{test\+\_\+runner.\+result}} = runner.\+run(\mbox{\hyperlink{namespacetest__runner_af3c83f179e498932d0cc45ae93fd2d1c}{suite}})
+\item 
+\mbox{\hyperlink{namespacetest__runner_aae0b89279d3ad8a939c7487917459a6c}{test\+\_\+runner.\+report\+\_\+output}} = io.\+String\+IO()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a8122c86408ac21be472df40b2c34673c}{test\+\_\+runner.\+coverage\+\_\+percent}} = cov.\+report(file=\mbox{\hyperlink{namespacetest__runner_aae0b89279d3ad8a939c7487917459a6c}{report\+\_\+output}}, show\+\_\+missing=False)
+\item 
+\mbox{\hyperlink{namespacetest__runner_a377ddb47d8fa56531068ddbdd2aa8048}{test\+\_\+runner.\+report\+\_\+content}} = report\+\_\+output.\+getvalue()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a70120f4fd72088c530aba74e2ccd6c55}{test\+\_\+runner.\+coverage\+\_\+data}} = cov.\+get\+\_\+data()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a737bac88d78b6e532cd3d1949b06ef3c}{test\+\_\+runner.\+measured\+\_\+files}} = coverage\+\_\+data.\+measured\+\_\+files()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a6ee58147baf1427fab8b0d6994d9b969}{test\+\_\+runner.\+passed\+\_\+tests}} = \mbox{\hyperlink{namespacetest__runner_a1afd85a0534de97fdc34b4c46374114e}{total\+\_\+tests}} -\/ len(result.\+failures) -\/ len(result.\+errors)
+\end{DoxyCompactItemize}

@@ -1,0 +1,88 @@
+\doxysection{Metric\+Runner Class Reference}
+\hypertarget{classsrc_1_1workflow_1_1MetricRunner}{}\label{classsrc_1_1workflow_1_1MetricRunner}\index{MetricRunner@{MetricRunner}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner_a236b765efac63a85ea2bf026aa79a8e6}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]} \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner_a9c0858900c4998dcfee52aed35775443}{metrics}})
+\item 
+list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]} \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner_a4b098fafcf883068e2e72c35489f8219}{run}} (self)
+\item 
+typing\+\_\+extensions.\+Self \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner_a7e27773be8a0d7b17da6b9b4c586c3f8}{set\+\_\+num\+\_\+processes}} (self, int num\+\_\+processes)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]} \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner_a9c0858900c4998dcfee52aed35775443}{metrics}} = metrics
+\item 
+Optional\mbox{[}Pool\mbox{]} \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner_a549d4a7b5fc9ad68a2f6016ee768aeee}{multiprocessing\+\_\+pool}} = None
+\item 
+bool \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner_abe2ff0a63d28eb0016e45dd5f62c45ef}{run\+\_\+multi}} = True
+\end{DoxyCompactItemize}
+
+
+\label{doc-constructors}
+\Hypertarget{classsrc_1_1workflow_1_1MetricRunner_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classsrc_1_1workflow_1_1MetricRunner_a236b765efac63a85ea2bf026aa79a8e6}\index{MetricRunner@{MetricRunner}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!MetricRunner@{MetricRunner}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricRunner_a236b765efac63a85ea2bf026aa79a8e6} 
+\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]}}]{metrics}{}\end{DoxyParamCaption})}
+
+
+
+\label{doc-func-members}
+\Hypertarget{classsrc_1_1workflow_1_1MetricRunner_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsrc_1_1workflow_1_1MetricRunner_a4b098fafcf883068e2e72c35489f8219}\index{MetricRunner@{MetricRunner}!run@{run}}
+\index{run@{run}!MetricRunner@{MetricRunner}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricRunner_a4b098fafcf883068e2e72c35489f8219} 
+ list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]} run (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Runs all metrics using the configured multiprocessing pool.
+Returns:
+    list[BaseMetric]: List of processed metric instances.
+Raises:
+    Exception: If no multiprocessing pool has been created.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1workflow_1_1MetricRunner_a7e27773be8a0d7b17da6b9b4c586c3f8}\index{MetricRunner@{MetricRunner}!set\_num\_processes@{set\_num\_processes}}
+\index{set\_num\_processes@{set\_num\_processes}!MetricRunner@{MetricRunner}}
+\doxysubsubsection{\texorpdfstring{set\_num\_processes()}{set\_num\_processes()}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricRunner_a7e27773be8a0d7b17da6b9b4c586c3f8} 
+ typing\+\_\+extensions.\+Self set\+\_\+num\+\_\+processes (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{num\+\_\+processes}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Sets the number of processes for multiprocessing.
+Args:
+    num_processes (int): Number of processes to use.
+Returns:
+    Self: The MetricRunner instance with updated pool.
+\end{DoxyVerb}
+ 
+
+\label{doc-variable-members}
+\Hypertarget{classsrc_1_1workflow_1_1MetricRunner_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classsrc_1_1workflow_1_1MetricRunner_a9c0858900c4998dcfee52aed35775443}\index{MetricRunner@{MetricRunner}!metrics@{metrics}}
+\index{metrics@{metrics}!MetricRunner@{MetricRunner}}
+\doxysubsubsection{\texorpdfstring{metrics}{metrics}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricRunner_a9c0858900c4998dcfee52aed35775443} 
+list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]} metrics = metrics}
+
+\Hypertarget{classsrc_1_1workflow_1_1MetricRunner_a549d4a7b5fc9ad68a2f6016ee768aeee}\index{MetricRunner@{MetricRunner}!multiprocessing\_pool@{multiprocessing\_pool}}
+\index{multiprocessing\_pool@{multiprocessing\_pool}!MetricRunner@{MetricRunner}}
+\doxysubsubsection{\texorpdfstring{multiprocessing\_pool}{multiprocessing\_pool}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricRunner_a549d4a7b5fc9ad68a2f6016ee768aeee} 
+Optional\mbox{[}Pool\mbox{]} multiprocessing\+\_\+pool = None}
+
+\Hypertarget{classsrc_1_1workflow_1_1MetricRunner_abe2ff0a63d28eb0016e45dd5f62c45ef}\index{MetricRunner@{MetricRunner}!run\_multi@{run\_multi}}
+\index{run\_multi@{run\_multi}!MetricRunner@{MetricRunner}}
+\doxysubsubsection{\texorpdfstring{run\_multi}{run\_multi}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricRunner_abe2ff0a63d28eb0016e45dd5f62c45ef} 
+bool run\+\_\+multi = True}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{workflow_8py}{workflow.\+py}}\end{DoxyCompactItemize}

@@ -1,0 +1,9 @@
+<map id="src.workflow.MetricRunner" name="src.workflow.MetricRunner">
+<area shape="rect" id="Node000001" title=" " alt="" coords="26,147,191,259"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,33,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="29,74,47,122,52,131,48,134,42,124,24,75"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="79,5,138,75"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="111,74,111,129,106,129,106,74"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="260,5,295,75"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="274,75,265,101,251,124,230,144,207,161,204,157,227,140,246,121,260,98,269,74"/>
+</map>

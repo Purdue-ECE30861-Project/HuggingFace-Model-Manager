@@ -1,0 +1,11 @@
+<map id="src.database.MetricStats" name="src.database.MetricStats">
+<area shape="rect" id="Node000001" title=" " alt="" coords="90,123,246,256"/>
+<area shape="rect" id="Node000004" href="$classsrc_1_1database_1_1DictMetric.html" title=" " alt="" coords="5,304,155,373"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="124,270,102,305,98,303,119,267"/>
+<area shape="rect" id="Node000005" href="$classsrc_1_1database_1_1FloatMetric.html" title=" " alt="" coords="179,304,334,373"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="217,267,239,303,234,305,213,270"/>
+<area shape="rect" id="Node000002" href="$classGeneric.html" title=" " alt="" coords="110,5,165,75"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,89,157,123,152,124,145,90"/>
+<area shape="rect" id="Node000003" href="$classT.html" title=" " alt="" coords="190,5,208,75"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="191,90,184,124,179,123,186,89"/>
+</map>

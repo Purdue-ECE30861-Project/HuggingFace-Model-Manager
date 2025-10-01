@@ -1,0 +1,9 @@
+<map id="T" name="T">
+<area shape="rect" id="Node000001" title=" " alt="" coords="159,5,178,75"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1database_1_1MetricStats.html" title=" " alt="" coords="90,123,246,256"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,90,171,123,166,123,166,90"/>
+<area shape="rect" id="Node000003" href="$classsrc_1_1database_1_1DictMetric.html" title=" " alt="" coords="5,304,155,373"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="124,270,102,305,98,303,119,267"/>
+<area shape="rect" id="Node000004" href="$classsrc_1_1database_1_1FloatMetric.html" title=" " alt="" coords="179,304,334,373"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="217,267,239,303,234,305,213,270"/>
+</map>

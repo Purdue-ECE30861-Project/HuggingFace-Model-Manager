@@ -1,0 +1,17 @@
+<map id="src.metrics.code_quality.CodeQualityMetric" name="src.metrics.code_quality.CodeQualityMetric">
+<area shape="rect" id="Node000001" title=" " alt="" coords="189,459,345,587"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1metric_1_1BaseMetric.html" title="Abstract base class for defining a metric." alt="" coords="89,168,230,387"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,399,242,458,237,460,211,402"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,5,73,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="65,87,106,167,102,169,61,89"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="97,5,133,75"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="116,74,116,108,119,144,120,151,115,152,114,144,110,108,110,74"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="192,5,217,75"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="201,75,186,152,181,151,195,74"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="260,5,319,75"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="283,76,255,145,241,170,236,167,250,143,278,74"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="254,243,280,312"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="270,312,270,442,264,442,264,312"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="375,243,402,312"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="391,312,384,372,375,405,362,436,355,447,350,444,357,433,370,403,378,371,385,311"/>
+</map>

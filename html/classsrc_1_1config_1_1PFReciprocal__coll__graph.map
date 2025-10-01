@@ -1,0 +1,9 @@
+<map id="src.config.PFReciprocal" name="src.config.PFReciprocal">
+<area shape="rect" id="Node000001" title="Priority function using reciprocal weighting." alt="" coords="71,281,222,367"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1config_1_1PriorityFunction.html" title="Abstract base class for priority weighting functions." alt="" coords="5,124,168,209"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,222,133,280,128,282,106,224"/>
+<area shape="rect" id="Node000003" href="$classABC.html" title=" " alt="" coords="67,5,106,75"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="89,90,89,124,84,124,84,90"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="192,132,224,201"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="197,202,172,267,167,265,192,200"/>
+</map>

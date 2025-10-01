@@ -1,0 +1,49 @@
+\doxysection{src.\+workflow Namespace Reference}
+\hypertarget{namespacesrc_1_1workflow}{}\label{namespacesrc_1_1workflow}\index{src.workflow@{src.workflow}}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner}{Metric\+Runner}}
+\item 
+class \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager}{Metric\+Stager}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}} \mbox{\hyperlink{namespacesrc_1_1workflow_acfd972f8c9234594d73f3af101e6ffac}{run\+\_\+metric}} (\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}} metric)
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1AnalyzerOutput}{Analyzer\+Output}} \mbox{\hyperlink{namespacesrc_1_1workflow_a8e7799ae004e21a48d316fa3402cb0a9}{run\+\_\+workflow}} (\mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager}{Metric\+Stager}} metric\+\_\+stager, \mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}} input\+\_\+urls, \mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}} input\+\_\+paths, \mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}} config)
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{namespacesrc_1_1workflow_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacesrc_1_1workflow_acfd972f8c9234594d73f3af101e6ffac}\index{src.workflow@{src.workflow}!run\_metric@{run\_metric}}
+\index{run\_metric@{run\_metric}!src.workflow@{src.workflow}}
+\doxysubsubsection{\texorpdfstring{run\_metric()}{run\_metric()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1workflow_acfd972f8c9234594d73f3af101e6ffac} 
+ \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}} run\+\_\+metric (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}}]{metric}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Runs a single metric by calling its run method.
+Args:
+    metric (BaseMetric): The metric instance to run.
+Returns:
+    BaseMetric: The metric instance after running.
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1workflow_a8e7799ae004e21a48d316fa3402cb0a9}\index{src.workflow@{src.workflow}!run\_workflow@{run\_workflow}}
+\index{run\_workflow@{run\_workflow}!src.workflow@{src.workflow}}
+\doxysubsubsection{\texorpdfstring{run\_workflow()}{run\_workflow()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1workflow_a8e7799ae004e21a48d316fa3402cb0a9} 
+ \mbox{\hyperlink{classsrc_1_1metric_1_1AnalyzerOutput}{Analyzer\+Output}} run\+\_\+workflow (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager}{Metric\+Stager}}}]{metric\+\_\+stager}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}}}]{input\+\_\+urls}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}}}]{input\+\_\+paths}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}}}]{config}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Runs the complete workflow: attaches URLs, sets up multiprocessing, runs metrics,
+and returns the analysis output.
+Args
+    metric_stager (MetricStager): The metric stager with staged metrics.
+    input_urls (ModelURLs): The input model URLs.
+    config (ConfigContract): The workflow configuration.
+Returns:
+    AnalyzerOutput: The output of the analysis.
+\end{DoxyVerb}
+ 

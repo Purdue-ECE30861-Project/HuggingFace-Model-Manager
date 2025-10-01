@@ -1,0 +1,153 @@
+\doxysection{test\+\_\+runner Namespace Reference}
+\hypertarget{namespacetest__runner}{}\label{namespacetest__runner}\index{test\_runner@{test\_runner}}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}{project\+\_\+root}} = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+resolve()
+\item 
+str \mbox{\hyperlink{namespacetest__runner_a228924e33ce39345209a2a52a1c3ade3}{src\+\_\+path}} = \mbox{\hyperlink{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}{project\+\_\+root}} / "{}src"{}
+\item 
+str \mbox{\hyperlink{namespacetest__runner_a758e40e1de9a834ee7937b591af43278}{tests\+\_\+path}} = \mbox{\hyperlink{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}{project\+\_\+root}} / "{}tests"{}
+\item 
+\mbox{\hyperlink{namespacetest__runner_a2bb58579e1c13e57178d2a82482bf912}{buffer}} = io.\+String\+IO()
+\item 
+\mbox{\hyperlink{namespacetest__runner_ad15a6273adc0537ef02869498a28285a}{cov}}
+\item 
+\mbox{\hyperlink{namespacetest__runner_a47a285d373692588eade5e8887ee0794}{loader}} = unittest.\+Test\+Loader()
+\item 
+\mbox{\hyperlink{namespacetest__runner_af3c83f179e498932d0cc45ae93fd2d1c}{suite}} = loader.\+discover(start\+\_\+dir=str(\mbox{\hyperlink{namespacetest__runner_a758e40e1de9a834ee7937b591af43278}{tests\+\_\+path}}), pattern="{}test\+\_\+\texorpdfstring{$\ast$}{*}.py"{})
+\item 
+\mbox{\hyperlink{namespacetest__runner_a1afd85a0534de97fdc34b4c46374114e}{total\+\_\+tests}} = suite.\+count\+Test\+Cases()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a09eb075c6621d5110e23aaa0dfd1cbd9}{runner}} = unittest.\+Text\+Test\+Runner(verbosity=2)
+\item 
+\mbox{\hyperlink{namespacetest__runner_a739fe9137b58327dd857a5513c3dcccb}{result}} = runner.\+run(\mbox{\hyperlink{namespacetest__runner_af3c83f179e498932d0cc45ae93fd2d1c}{suite}})
+\item 
+\mbox{\hyperlink{namespacetest__runner_aae0b89279d3ad8a939c7487917459a6c}{report\+\_\+output}} = io.\+String\+IO()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a8122c86408ac21be472df40b2c34673c}{coverage\+\_\+percent}} = cov.\+report(file=\mbox{\hyperlink{namespacetest__runner_aae0b89279d3ad8a939c7487917459a6c}{report\+\_\+output}}, show\+\_\+missing=False)
+\item 
+\mbox{\hyperlink{namespacetest__runner_a377ddb47d8fa56531068ddbdd2aa8048}{report\+\_\+content}} = report\+\_\+output.\+getvalue()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a70120f4fd72088c530aba74e2ccd6c55}{coverage\+\_\+data}} = cov.\+get\+\_\+data()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a737bac88d78b6e532cd3d1949b06ef3c}{measured\+\_\+files}} = coverage\+\_\+data.\+measured\+\_\+files()
+\item 
+\mbox{\hyperlink{namespacetest__runner_a6ee58147baf1427fab8b0d6994d9b969}{passed\+\_\+tests}} = \mbox{\hyperlink{namespacetest__runner_a1afd85a0534de97fdc34b4c46374114e}{total\+\_\+tests}} -\/ len(result.\+failures) -\/ len(result.\+errors)
+\end{DoxyCompactItemize}
+
+
+\label{doc-var-members}
+\Hypertarget{namespacetest__runner_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacetest__runner_a2bb58579e1c13e57178d2a82482bf912}\index{test\_runner@{test\_runner}!buffer@{buffer}}
+\index{buffer@{buffer}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{buffer}{buffer}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a2bb58579e1c13e57178d2a82482bf912} 
+test\+\_\+runner.\+buffer = io.\+String\+IO()}
+
+\Hypertarget{namespacetest__runner_ad15a6273adc0537ef02869498a28285a}\index{test\_runner@{test\_runner}!cov@{cov}}
+\index{cov@{cov}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{cov}{cov}}
+{\footnotesize\ttfamily \label{namespacetest__runner_ad15a6273adc0537ef02869498a28285a} 
+test\+\_\+runner.\+cov}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ coverage.Coverage(}
+\DoxyCodeLine{00002\ \ \ \ \ \ \ \ \ source=[str(project\_root)],\ \ \textcolor{comment}{\#\ measure\ everything\ under\ project\ root}}
+\DoxyCodeLine{00003\ \ \ \ \ \ \ \ \ omit=[}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}*/\_\_pycache\_\_/*"{}},}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}*/venv/*"{}},}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}*/.venv/*"{}},}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}*/env/*"{}},}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}*/site-\/packages/*"{}},}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}*\_\_main\_\_.py"{}}}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ ],}
+\DoxyCodeLine{00011\ \ \ \ \ )}
+
+\end{DoxyCode}
+\Hypertarget{namespacetest__runner_a70120f4fd72088c530aba74e2ccd6c55}\index{test\_runner@{test\_runner}!coverage\_data@{coverage\_data}}
+\index{coverage\_data@{coverage\_data}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{coverage\_data}{coverage\_data}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a70120f4fd72088c530aba74e2ccd6c55} 
+test\+\_\+runner.\+coverage\+\_\+data = cov.\+get\+\_\+data()}
+
+\Hypertarget{namespacetest__runner_a8122c86408ac21be472df40b2c34673c}\index{test\_runner@{test\_runner}!coverage\_percent@{coverage\_percent}}
+\index{coverage\_percent@{coverage\_percent}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{coverage\_percent}{coverage\_percent}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a8122c86408ac21be472df40b2c34673c} 
+test\+\_\+runner.\+coverage\+\_\+percent = cov.\+report(file=\mbox{\hyperlink{namespacetest__runner_aae0b89279d3ad8a939c7487917459a6c}{report\+\_\+output}}, show\+\_\+missing=False)}
+
+\Hypertarget{namespacetest__runner_a47a285d373692588eade5e8887ee0794}\index{test\_runner@{test\_runner}!loader@{loader}}
+\index{loader@{loader}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{loader}{loader}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a47a285d373692588eade5e8887ee0794} 
+test\+\_\+runner.\+loader = unittest.\+Test\+Loader()}
+
+\Hypertarget{namespacetest__runner_a737bac88d78b6e532cd3d1949b06ef3c}\index{test\_runner@{test\_runner}!measured\_files@{measured\_files}}
+\index{measured\_files@{measured\_files}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{measured\_files}{measured\_files}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a737bac88d78b6e532cd3d1949b06ef3c} 
+test\+\_\+runner.\+measured\+\_\+files = coverage\+\_\+data.\+measured\+\_\+files()}
+
+\Hypertarget{namespacetest__runner_a6ee58147baf1427fab8b0d6994d9b969}\index{test\_runner@{test\_runner}!passed\_tests@{passed\_tests}}
+\index{passed\_tests@{passed\_tests}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{passed\_tests}{passed\_tests}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a6ee58147baf1427fab8b0d6994d9b969} 
+test\+\_\+runner.\+passed\+\_\+tests = \mbox{\hyperlink{namespacetest__runner_a1afd85a0534de97fdc34b4c46374114e}{total\+\_\+tests}} -\/ len(result.\+failures) -\/ len(result.\+errors)}
+
+\Hypertarget{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}\index{test\_runner@{test\_runner}!project\_root@{project\_root}}
+\index{project\_root@{project\_root}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{project\_root}{project\_root}}
+{\footnotesize\ttfamily \label{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61} 
+test\+\_\+runner.\+project\+\_\+root = Path(\+\_\+\+\_\+file\+\_\+\+\_\+).parent.\+resolve()}
+
+\Hypertarget{namespacetest__runner_a377ddb47d8fa56531068ddbdd2aa8048}\index{test\_runner@{test\_runner}!report\_content@{report\_content}}
+\index{report\_content@{report\_content}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{report\_content}{report\_content}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a377ddb47d8fa56531068ddbdd2aa8048} 
+test\+\_\+runner.\+report\+\_\+content = report\+\_\+output.\+getvalue()}
+
+\Hypertarget{namespacetest__runner_aae0b89279d3ad8a939c7487917459a6c}\index{test\_runner@{test\_runner}!report\_output@{report\_output}}
+\index{report\_output@{report\_output}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{report\_output}{report\_output}}
+{\footnotesize\ttfamily \label{namespacetest__runner_aae0b89279d3ad8a939c7487917459a6c} 
+test\+\_\+runner.\+report\+\_\+output = io.\+String\+IO()}
+
+\Hypertarget{namespacetest__runner_a739fe9137b58327dd857a5513c3dcccb}\index{test\_runner@{test\_runner}!result@{result}}
+\index{result@{result}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{result}{result}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a739fe9137b58327dd857a5513c3dcccb} 
+test\+\_\+runner.\+result = runner.\+run(\mbox{\hyperlink{namespacetest__runner_af3c83f179e498932d0cc45ae93fd2d1c}{suite}})}
+
+\Hypertarget{namespacetest__runner_a09eb075c6621d5110e23aaa0dfd1cbd9}\index{test\_runner@{test\_runner}!runner@{runner}}
+\index{runner@{runner}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{runner}{runner}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a09eb075c6621d5110e23aaa0dfd1cbd9} 
+test\+\_\+runner.\+runner = unittest.\+Text\+Test\+Runner(verbosity=2)}
+
+\Hypertarget{namespacetest__runner_a228924e33ce39345209a2a52a1c3ade3}\index{test\_runner@{test\_runner}!src\_path@{src\_path}}
+\index{src\_path@{src\_path}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{src\_path}{src\_path}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a228924e33ce39345209a2a52a1c3ade3} 
+str test\+\_\+runner.\+src\+\_\+path = \mbox{\hyperlink{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}{project\+\_\+root}} / "{}src"{}}
+
+\Hypertarget{namespacetest__runner_af3c83f179e498932d0cc45ae93fd2d1c}\index{test\_runner@{test\_runner}!suite@{suite}}
+\index{suite@{suite}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{suite}{suite}}
+{\footnotesize\ttfamily \label{namespacetest__runner_af3c83f179e498932d0cc45ae93fd2d1c} 
+test\+\_\+runner.\+suite = loader.\+discover(start\+\_\+dir=str(\mbox{\hyperlink{namespacetest__runner_a758e40e1de9a834ee7937b591af43278}{tests\+\_\+path}}), pattern="{}test\+\_\+\texorpdfstring{$\ast$}{*}.py"{})}
+
+\Hypertarget{namespacetest__runner_a758e40e1de9a834ee7937b591af43278}\index{test\_runner@{test\_runner}!tests\_path@{tests\_path}}
+\index{tests\_path@{tests\_path}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{tests\_path}{tests\_path}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a758e40e1de9a834ee7937b591af43278} 
+str test\+\_\+runner.\+tests\+\_\+path = \mbox{\hyperlink{namespacetest__runner_ac0fb8e0696c8f74a71fca3cbf8ee3b61}{project\+\_\+root}} / "{}tests"{}}
+
+\Hypertarget{namespacetest__runner_a1afd85a0534de97fdc34b4c46374114e}\index{test\_runner@{test\_runner}!total\_tests@{total\_tests}}
+\index{total\_tests@{total\_tests}!test\_runner@{test\_runner}}
+\doxysubsubsection{\texorpdfstring{total\_tests}{total\_tests}}
+{\footnotesize\ttfamily \label{namespacetest__runner_a1afd85a0534de97fdc34b4c46374114e} 
+test\+\_\+runner.\+total\+\_\+tests = suite.\+count\+Test\+Cases()}
+

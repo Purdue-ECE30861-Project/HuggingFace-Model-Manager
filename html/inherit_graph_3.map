@@ -1,0 +1,18 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classGeneric.html" title=" " alt="" coords="5,81,72,108"/>
+<area shape="rect" id="Node000001" href="$classsrc_1_1database_1_1MetricStats.html" title=" " alt="" coords="120,107,287,133"/>
+<area shape="poly" id="edge16_Node000000_Node000001" title=" " alt="" coords="88,99,120,104,119,110,87,105"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1database_1_1DictMetric.html" title=" " alt="" coords="338,81,498,108"/>
+<area shape="poly" id="edge17_Node000001_Node000002" title=" " alt="" coords="302,106,337,102,337,107,303,111"/>
+<area shape="rect" id="Node000005" href="$classsrc_1_1database_1_1FloatMetric.html" title=" " alt="" coords="335,132,500,159"/>
+<area shape="poly" id="edge18_Node000001_Node000005" title=" " alt="" coords="303,129,335,133,334,138,302,134"/>
+<area shape="rect" id="Node000007" href="$classT.html" title=" " alt="" coords="19,132,58,159"/>
+<area shape="poly" id="edge19_Node000007_Node000001" title=" " alt="" coords="72,138,119,130,120,136,73,143"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="182,5,224,32"/>
+<area shape="poly" id="edge20_Node000003_Node000002" title=" " alt="" coords="240,26,288,41,384,78,382,83,286,47,239,31"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="180,157,226,184"/>
+<area shape="poly" id="edge21_Node000004_Node000002" title=" " alt="" coords="241,158,286,143,334,118,365,106,367,111,336,122,288,148,243,163"/>
+<area shape="poly" id="edge22_Node000004_Node000005" title=" " alt="" coords="242,164,334,152,335,158,242,169"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="184,56,223,83"/>
+<area shape="poly" id="edge23_Node000006_Node000002" title=" " alt="" coords="238,71,337,83,337,88,238,76"/>
+</map>

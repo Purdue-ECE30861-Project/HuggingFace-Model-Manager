@@ -1,0 +1,77 @@
+\doxysection{PFExponential\+Decay Class Reference}
+\hypertarget{classsrc_1_1config_1_1PFExponentialDecay}{}\label{classsrc_1_1config_1_1PFExponentialDecay}\index{PFExponentialDecay@{PFExponentialDecay}}
+Inheritance diagram for PFExponential\+Decay\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classsrc_1_1config_1_1PFExponentialDecay}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsrc_1_1config_1_1PFExponentialDecay_aa18bfae69b2f526fb0604378a36ea306}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, int \mbox{\hyperlink{classsrc_1_1config_1_1PFExponentialDecay_a45f1a0c609a4b6324f85f226b6dca7ad}{base\+\_\+coefficient}})
+\item 
+float \mbox{\hyperlink{classsrc_1_1config_1_1PFExponentialDecay_a5672fbb2f79c92ba3ed8b3f389d62161}{calculate\+\_\+priority\+\_\+weight}} (self, int priority)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classsrc_1_1config_1_1PFExponentialDecay_a45f1a0c609a4b6324f85f226b6dca7ad}{base\+\_\+coefficient}} = base\+\_\+coefficient
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Priority function using exponential decay.
+\end{DoxyVerb}
+ 
+
+\label{doc-constructors}
+\Hypertarget{classsrc_1_1config_1_1PFExponentialDecay_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classsrc_1_1config_1_1PFExponentialDecay_aa18bfae69b2f526fb0604378a36ea306}\index{PFExponentialDecay@{PFExponentialDecay}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!PFExponentialDecay@{PFExponentialDecay}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classsrc_1_1config_1_1PFExponentialDecay_aa18bfae69b2f526fb0604378a36ea306} 
+\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{base\+\_\+coefficient}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializes the exponential decay function.
+Args:
+    base_coefficient (int): The base coefficient (> 1).
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classsrc_1_1config_1_1PFExponentialDecay_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsrc_1_1config_1_1PFExponentialDecay_a5672fbb2f79c92ba3ed8b3f389d62161}\index{PFExponentialDecay@{PFExponentialDecay}!calculate\_priority\_weight@{calculate\_priority\_weight}}
+\index{calculate\_priority\_weight@{calculate\_priority\_weight}!PFExponentialDecay@{PFExponentialDecay}}
+\doxysubsubsection{\texorpdfstring{calculate\_priority\_weight()}{calculate\_priority\_weight()}}
+{\footnotesize\ttfamily \label{classsrc_1_1config_1_1PFExponentialDecay_a5672fbb2f79c92ba3ed8b3f389d62161} 
+ float calculate\+\_\+priority\+\_\+weight (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{priority}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Calculates the weight using exponential decay.
+Args:
+    priority (int): The priority value.
+Returns:
+    float: The calculated weight.
+\end{DoxyVerb}
+ 
+
+Reimplemented from \mbox{\hyperlink{classsrc_1_1config_1_1PriorityFunction_a5672fbb2f79c92ba3ed8b3f389d62161}{Priority\+Function}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{classsrc_1_1config_1_1PFExponentialDecay_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classsrc_1_1config_1_1PFExponentialDecay_a45f1a0c609a4b6324f85f226b6dca7ad}\index{PFExponentialDecay@{PFExponentialDecay}!base\_coefficient@{base\_coefficient}}
+\index{base\_coefficient@{base\_coefficient}!PFExponentialDecay@{PFExponentialDecay}}
+\doxysubsubsection{\texorpdfstring{base\_coefficient}{base\_coefficient}}
+{\footnotesize\ttfamily \label{classsrc_1_1config_1_1PFExponentialDecay_a45f1a0c609a4b6324f85f226b6dca7ad} 
+int base\+\_\+coefficient = base\+\_\+coefficient}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{config_8py}{config.\+py}}\end{DoxyCompactItemize}

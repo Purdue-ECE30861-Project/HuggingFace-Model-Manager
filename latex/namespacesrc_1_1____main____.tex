@@ -1,0 +1,94 @@
+\doxysection{src.\+\_\+\+\_\+main\+\_\+\+\_\+ Namespace Reference}
+\hypertarget{namespacesrc_1_1____main____}{}\label{namespacesrc_1_1____main____}\index{src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacesrc_1_1____main_____ae2f20ba3630de0679f4ae044aa15d2ff}{setup\+\_\+logging}} ()
+\item 
+List\mbox{[}\mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}}\mbox{]} \mbox{\hyperlink{namespacesrc_1_1____main_____af4b31a57703f5d48af8091bec526db87}{parse\+\_\+url\+\_\+file}} (Path url\+\_\+file)
+\item 
+\mbox{\hyperlink{namespacesrc_1_1____main_____ac21131b58cd1c402fc10edc4fd88c7a1}{stage\+\_\+metrics}} (\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}} config)
+\item 
+\mbox{\hyperlink{classsrc_1_1database_1_1ModelStats}{Model\+Stats}} \mbox{\hyperlink{namespacesrc_1_1____main_____ace69d47dc6f12f0f21a3793208ac0664}{calculate\+\_\+metrics}} (\mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}} model\+\_\+urls, \mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}} config, \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager}{Metric\+Stager}} stager)
+\item 
+\mbox{\hyperlink{namespacesrc_1_1____main_____aa966adc12c56a4cc70da92207fa50929}{install}} ()
+\item 
+\mbox{\hyperlink{namespacesrc_1_1____main_____ad69dd4607977cae05ebe19d1ae604fb1}{test}} ()
+\item 
+\mbox{\hyperlink{namespacesrc_1_1____main_____a75b50c2c31acf9f8d3c86bdfba260e08}{analyze}} (Path url\+\_\+file)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacesrc_1_1____main_____afe63fea7be31b0200b496d08bc6b517d}{app}} = typer.\+Typer()
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{namespacesrc_1_1____main_____doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacesrc_1_1____main_____a75b50c2c31acf9f8d3c86bdfba260e08}\index{src.\_\_main\_\_@{src.\_\_main\_\_}!analyze@{analyze}}
+\index{analyze@{analyze}!src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection{\texorpdfstring{analyze()}{analyze()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1____main_____a75b50c2c31acf9f8d3c86bdfba260e08} 
+analyze (\begin{DoxyParamCaption}\item[{Path}]{url\+\_\+file}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Analyzes models based on URLs provided in a file.
+Will add model to database if not already present.
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1____main_____ace69d47dc6f12f0f21a3793208ac0664}\index{src.\_\_main\_\_@{src.\_\_main\_\_}!calculate\_metrics@{calculate\_metrics}}
+\index{calculate\_metrics@{calculate\_metrics}!src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection{\texorpdfstring{calculate\_metrics()}{calculate\_metrics()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1____main_____ace69d47dc6f12f0f21a3793208ac0664} 
+ \mbox{\hyperlink{classsrc_1_1database_1_1ModelStats}{Model\+Stats}} calculate\+\_\+metrics (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}}}]{model\+\_\+urls}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}}}]{config}{, }\item[{\mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager}{Metric\+Stager}} }]{stager}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Calculate all metrics for a given model
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1____main_____aa966adc12c56a4cc70da92207fa50929}\index{src.\_\_main\_\_@{src.\_\_main\_\_}!install@{install}}
+\index{install@{install}!src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection{\texorpdfstring{install()}{install()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1____main_____aa966adc12c56a4cc70da92207fa50929} 
+install (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Installs necessary dependencies from dependencies.txt
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1____main_____af4b31a57703f5d48af8091bec526db87}\index{src.\_\_main\_\_@{src.\_\_main\_\_}!parse\_url\_file@{parse\_url\_file}}
+\index{parse\_url\_file@{parse\_url\_file}!src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection{\texorpdfstring{parse\_url\_file()}{parse\_url\_file()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1____main_____af4b31a57703f5d48af8091bec526db87} 
+ List\mbox{[}\mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}}\mbox{]} parse\+\_\+url\+\_\+file (\begin{DoxyParamCaption}\item[{Path}]{url\+\_\+file}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Parses a file containing comma-separated URLs and returns ModelURLs objects.
+Format: code_link, dataset_link, model_link (per line)
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1____main_____ae2f20ba3630de0679f4ae044aa15d2ff}\index{src.\_\_main\_\_@{src.\_\_main\_\_}!setup\_logging@{setup\_logging}}
+\index{setup\_logging@{setup\_logging}!src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection{\texorpdfstring{setup\_logging()}{setup\_logging()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1____main_____ae2f20ba3630de0679f4ae044aa15d2ff} 
+setup\+\_\+logging (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Setup logging based on environment variables
+\end{DoxyVerb}
+ \Hypertarget{namespacesrc_1_1____main_____ac21131b58cd1c402fc10edc4fd88c7a1}\index{src.\_\_main\_\_@{src.\_\_main\_\_}!stage\_metrics@{stage\_metrics}}
+\index{stage\_metrics@{stage\_metrics}!src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection{\texorpdfstring{stage\_metrics()}{stage\_metrics()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1____main_____ac21131b58cd1c402fc10edc4fd88c7a1} 
+stage\+\_\+metrics (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}}}]{config}{}\end{DoxyParamCaption})}
+
+\Hypertarget{namespacesrc_1_1____main_____ad69dd4607977cae05ebe19d1ae604fb1}\index{src.\_\_main\_\_@{src.\_\_main\_\_}!test@{test}}
+\index{test@{test}!src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection{\texorpdfstring{test()}{test()}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1____main_____ad69dd4607977cae05ebe19d1ae604fb1} 
+test (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+\label{doc-var-members}
+\Hypertarget{namespacesrc_1_1____main_____doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacesrc_1_1____main_____afe63fea7be31b0200b496d08bc6b517d}\index{src.\_\_main\_\_@{src.\_\_main\_\_}!app@{app}}
+\index{app@{app}!src.\_\_main\_\_@{src.\_\_main\_\_}}
+\doxysubsubsection{\texorpdfstring{app}{app}}
+{\footnotesize\ttfamily \label{namespacesrc_1_1____main_____afe63fea7be31b0200b496d08bc6b517d} 
+app = typer.\+Typer()}
+

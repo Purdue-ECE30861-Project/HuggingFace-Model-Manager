@@ -1,0 +1,148 @@
+\doxysection{Net\+Score\+Calculator Class Reference}
+\hypertarget{classsrc_1_1metric_1_1NetScoreCalculator}{}\label{classsrc_1_1metric_1_1NetScoreCalculator}\index{NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_ab92ceb224cc768064ec258fe82f94a7a}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classsrc_1_1config_1_1PriorityFunction}{Priority\+Function}} \mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_a1436e43657645c52c29e32715a10f163}{priority\+\_\+function}})
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_a17ed53c89e1156afb631eafdd9d560fb}{calculate\+\_\+net\+\_\+score}} (self, list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]} metrics)
+\item 
+float \mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_aa05056ea495b780c07839ad661182696}{average\+\_\+dict\+\_\+score}} (self, dict\mbox{[}str, float\mbox{]} score)
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_a04700100497cedcdc457039175b02cdb}{validate\+\_\+scores\+\_\+norm}} (self, score)
+\item 
+float \mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_a3d149e57f4c40e12b930a8f77e627726}{get\+\_\+metric\+\_\+score}} (self, score)
+\item 
+Sorted\+Dict \mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_abf403348c967525f516f180234193e5c}{generate\+\_\+scores\+\_\+priority\+\_\+dict}} (self, list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]} metrics)
+\item 
+float \mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_a14f06c334e16c4905a30a081fb69cc6e}{sum\+\_\+scores}} (self, list\mbox{[}float\mbox{]} scores)
+\item 
+list\mbox{[}list\mbox{[}float\mbox{]}\mbox{]} \mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_ad12e070575b9965425ffc0b121469aff}{compress\+\_\+priorities}} (self, Sorted\+Dict priority\+\_\+organized\+\_\+scores)
+\item 
+list\mbox{[}float\mbox{]} \mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_aae71d13f536b1bb2624c611d23b12e25}{get\+\_\+priority\+\_\+weights}} (self, list\mbox{[}list\mbox{[}float\mbox{]}\mbox{]} compressed\+\_\+scores, int total\+\_\+size)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsrc_1_1config_1_1PriorityFunction}{Priority\+Function}} \mbox{\hyperlink{classsrc_1_1metric_1_1NetScoreCalculator_a1436e43657645c52c29e32715a10f163}{priority\+\_\+function}} = priority\+\_\+function
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Calculates the net score for a set of metrics using a priority function.
+\end{DoxyVerb}
+ 
+
+\label{doc-constructors}
+\Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_ab92ceb224cc768064ec258fe82f94a7a}\index{NetScoreCalculator@{NetScoreCalculator}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_ab92ceb224cc768064ec258fe82f94a7a} 
+\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1PriorityFunction}{Priority\+Function}}}]{priority\+\_\+function}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializes the NetScoreCalculator.
+Args:
+    priority_function (Type[PriorityFunction]): The priority function class to use.
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_aa05056ea495b780c07839ad661182696}\index{NetScoreCalculator@{NetScoreCalculator}!average\_dict\_score@{average\_dict\_score}}
+\index{average\_dict\_score@{average\_dict\_score}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{average\_dict\_score()}{average\_dict\_score()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_aa05056ea495b780c07839ad661182696} 
+ float average\+\_\+dict\+\_\+score (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{dict\mbox{[}str, float\mbox{]}}]{score}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_a17ed53c89e1156afb631eafdd9d560fb}\index{NetScoreCalculator@{NetScoreCalculator}!calculate\_net\_score@{calculate\_net\_score}}
+\index{calculate\_net\_score@{calculate\_net\_score}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{calculate\_net\_score()}{calculate\_net\_score()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_a17ed53c89e1156afb631eafdd9d560fb} 
+calculate\+\_\+net\+\_\+score (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]}}]{metrics}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Calculates the net score for a list of metrics.
+Args:
+    metrics (list[BaseMetric]): The list of metric instances.
+Returns:
+    float: The calculated net score.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_ad12e070575b9965425ffc0b121469aff}\index{NetScoreCalculator@{NetScoreCalculator}!compress\_priorities@{compress\_priorities}}
+\index{compress\_priorities@{compress\_priorities}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{compress\_priorities()}{compress\_priorities()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_ad12e070575b9965425ffc0b121469aff} 
+ list\mbox{[}list\mbox{[}float\mbox{]}\mbox{]} compress\+\_\+priorities (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{Sorted\+Dict     }]{priority\+\_\+organized\+\_\+scores}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Compresses priorities to remove gaps and outputs a list where the index corresponds to the priority.
+Args:
+    priority_organized_scores (SortedDict[int, list[float]]): Scores organized by priority.
+Returns:
+    list[list[float]]: Compressed list of scores by priority.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_abf403348c967525f516f180234193e5c}\index{NetScoreCalculator@{NetScoreCalculator}!generate\_scores\_priority\_dict@{generate\_scores\_priority\_dict}}
+\index{generate\_scores\_priority\_dict@{generate\_scores\_priority\_dict}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{generate\_scores\_priority\_dict()}{generate\_scores\_priority\_dict()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_abf403348c967525f516f180234193e5c} 
+ Sorted\+Dict generate\+\_\+scores\+\_\+priority\+\_\+dict (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{list\mbox{[}\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}\mbox{]}}]{metrics}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Organizes metric scores by their priority.
+Args:
+    metrics (list[BaseMetric]): The list of metric instances.
+Returns:
+    SortedDict[int, list[float]]: Scores organized by priority.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_a3d149e57f4c40e12b930a8f77e627726}\index{NetScoreCalculator@{NetScoreCalculator}!get\_metric\_score@{get\_metric\_score}}
+\index{get\_metric\_score@{get\_metric\_score}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{get\_metric\_score()}{get\_metric\_score()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_a3d149e57f4c40e12b930a8f77e627726} 
+ float get\+\_\+metric\+\_\+score (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{score}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_aae71d13f536b1bb2624c611d23b12e25}\index{NetScoreCalculator@{NetScoreCalculator}!get\_priority\_weights@{get\_priority\_weights}}
+\index{get\_priority\_weights@{get\_priority\_weights}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{get\_priority\_weights()}{get\_priority\_weights()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_aae71d13f536b1bb2624c611d23b12e25} 
+ list\mbox{[}float\mbox{]} get\+\_\+priority\+\_\+weights (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{list\mbox{[}list\mbox{[}float\mbox{]}\mbox{]}}]{compressed\+\_\+scores}{, }\item[{int     }]{total\+\_\+size}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Calculates normalized weights for each priority group.
+Args:
+    compressed_scores (list[list[float]]): Compressed scores by priority.
+    total_size (int): Total number of metrics.
+Returns:
+    list[float]: Normalized priority weights.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_a14f06c334e16c4905a30a081fb69cc6e}\index{NetScoreCalculator@{NetScoreCalculator}!sum\_scores@{sum\_scores}}
+\index{sum\_scores@{sum\_scores}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{sum\_scores()}{sum\_scores()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_a14f06c334e16c4905a30a081fb69cc6e} 
+ float sum\+\_\+scores (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{list\mbox{[}float\mbox{]}}]{scores}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Sums the scores, normalizing by the number of scores.
+Args:
+    scores (list[float]): The list of scores.
+Returns:
+    float: The summed score.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_a04700100497cedcdc457039175b02cdb}\index{NetScoreCalculator@{NetScoreCalculator}!validate\_scores\_norm@{validate\_scores\_norm}}
+\index{validate\_scores\_norm@{validate\_scores\_norm}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{validate\_scores\_norm()}{validate\_scores\_norm()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_a04700100497cedcdc457039175b02cdb} 
+validate\+\_\+scores\+\_\+norm (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{score}{}\end{DoxyParamCaption})}
+
+
+
+\label{doc-variable-members}
+\Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classsrc_1_1metric_1_1NetScoreCalculator_a1436e43657645c52c29e32715a10f163}\index{NetScoreCalculator@{NetScoreCalculator}!priority\_function@{priority\_function}}
+\index{priority\_function@{priority\_function}!NetScoreCalculator@{NetScoreCalculator}}
+\doxysubsubsection{\texorpdfstring{priority\_function}{priority\_function}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1NetScoreCalculator_a1436e43657645c52c29e32715a10f163} 
+\mbox{\hyperlink{classsrc_1_1config_1_1PriorityFunction}{Priority\+Function}} priority\+\_\+function = priority\+\_\+function}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{metric_8py}{metric.\+py}}\end{DoxyCompactItemize}

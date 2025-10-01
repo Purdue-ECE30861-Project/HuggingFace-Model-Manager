@@ -1,0 +1,68 @@
+\doxysection{PFReciprocal Class Reference}
+\hypertarget{classsrc_1_1config_1_1PFReciprocal}{}\label{classsrc_1_1config_1_1PFReciprocal}\index{PFReciprocal@{PFReciprocal}}
+Inheritance diagram for PFReciprocal\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classsrc_1_1config_1_1PFReciprocal}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+float \mbox{\hyperlink{classsrc_1_1config_1_1PFReciprocal_a5672fbb2f79c92ba3ed8b3f389d62161}{calculate\+\_\+priority\+\_\+weight}} (self, int priority)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+dict \mbox{\hyperlink{classsrc_1_1config_1_1PFReciprocal_a96827559e4ae28b6f5c10681a080f34c}{PRIORITY\+\_\+\+FUNCTIONS}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Priority function using reciprocal weighting.
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classsrc_1_1config_1_1PFReciprocal_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsrc_1_1config_1_1PFReciprocal_a5672fbb2f79c92ba3ed8b3f389d62161}\index{PFReciprocal@{PFReciprocal}!calculate\_priority\_weight@{calculate\_priority\_weight}}
+\index{calculate\_priority\_weight@{calculate\_priority\_weight}!PFReciprocal@{PFReciprocal}}
+\doxysubsubsection{\texorpdfstring{calculate\_priority\_weight()}{calculate\_priority\_weight()}}
+{\footnotesize\ttfamily \label{classsrc_1_1config_1_1PFReciprocal_a5672fbb2f79c92ba3ed8b3f389d62161} 
+ float calculate\+\_\+priority\+\_\+weight (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{priority}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Calculates the weight as the reciprocal of the priority.
+Args:
+    priority (int): The priority value.
+Returns:
+    float: The calculated weight.
+\end{DoxyVerb}
+ 
+
+Reimplemented from \mbox{\hyperlink{classsrc_1_1config_1_1PriorityFunction_a5672fbb2f79c92ba3ed8b3f389d62161}{Priority\+Function}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{classsrc_1_1config_1_1PFReciprocal_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classsrc_1_1config_1_1PFReciprocal_a96827559e4ae28b6f5c10681a080f34c}\index{PFReciprocal@{PFReciprocal}!PRIORITY\_FUNCTIONS@{PRIORITY\_FUNCTIONS}}
+\index{PRIORITY\_FUNCTIONS@{PRIORITY\_FUNCTIONS}!PFReciprocal@{PFReciprocal}}
+\doxysubsubsection{\texorpdfstring{PRIORITY\_FUNCTIONS}{PRIORITY\_FUNCTIONS}}
+{\footnotesize\ttfamily \label{classsrc_1_1config_1_1PFReciprocal_a96827559e4ae28b6f5c10681a080f34c} 
+dict PRIORITY\+\_\+\+FUNCTIONS\hspace{0.3cm}{\ttfamily [static]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \ \{}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}PFExponentialDecay"{}}:\ PFExponentialDecay(2),}
+\DoxyCodeLine{\ \ \ \ \textcolor{stringliteral}{"{}PFReciprocal"{}}:\ PFReciprocal(),}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{config_8py}{config.\+py}}\end{DoxyCompactItemize}

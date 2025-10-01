@@ -1,0 +1,170 @@
+\doxysection{Base\+Metric Class Reference}
+\hypertarget{classsrc_1_1metric_1_1BaseMetric}{}\label{classsrc_1_1metric_1_1BaseMetric}\index{BaseMetric@{BaseMetric}}
+Inheritance diagram for Base\+Metric\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classsrc_1_1metric_1_1BaseMetric}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_abdd362d5f799ad16b5d6700efe590290}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self)
+\item 
+Self \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_af586efcacff35bc01bc3d632a329e34d}{run}} (self)
+\item 
+Self \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_a822b8fe24a16a6f08111df1cfacdd754}{set\+\_\+params}} (self, int \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_acec9ce2df15222151ad66fcb1d74eb9f}{priority}}, str platform)
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_af439feb57aff17638e7af92ec30a2516}{set\+\_\+url}} (self, \mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}} \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_afcd5a3e84f2adb7f83fa6c99911f31e4}{url}})
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_a3cc927b7244471f979d43f008e73157e}{set\+\_\+local\+\_\+directory}} (self, \mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}} \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_aa93c3ce75138e23ee185355fdd474c47}{local\+\_\+directory}})
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_a5871f334fd8e3cfaa26fb509395cd8a2}{setup\+\_\+resources}} (self)
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_a3f7177752bbbaf11437d92c736bea604}{calculate\+\_\+score}} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+float \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_a8c5cd9b525ee73a24b1d9d8e34982d1c}{score}} = 0.\+0
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_afcd5a3e84f2adb7f83fa6c99911f31e4}{url}} = None
+\item 
+int \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_acec9ce2df15222151ad66fcb1d74eb9f}{priority}} = 1
+\item 
+typing.\+Optional\mbox{[}str\mbox{]} \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_ae4421b55c03322fc8549f35a9974a752}{target\+\_\+platform}} = None
+\item 
+\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_aa93c3ce75138e23ee185355fdd474c47}{local\+\_\+directory}} = None
+\item 
+float \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric_abbc43f3195a3d343a7d2134811306d2b}{runtime}} = 0.\+0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Abstract base class for defining a metric.
+\end{DoxyVerb}
+ 
+
+\label{doc-constructors}
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_abdd362d5f799ad16b5d6700efe590290}\index{BaseMetric@{BaseMetric}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_abdd362d5f799ad16b5d6700efe590290} 
+\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializes the BaseMetric with default values.
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_a3f7177752bbbaf11437d92c736bea604}\index{BaseMetric@{BaseMetric}!calculate\_score@{calculate\_score}}
+\index{calculate\_score@{calculate\_score}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{calculate\_score()}{calculate\_score()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_a3f7177752bbbaf11437d92c736bea604} 
+calculate\+\_\+score (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Abstract method to calculate the metric score.
+Should be implemented by subclasses.
+Returns:
+    float: The calculated score.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1BaseMetric_af586efcacff35bc01bc3d632a329e34d}\index{BaseMetric@{BaseMetric}!run@{run}}
+\index{run@{run}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_af586efcacff35bc01bc3d632a329e34d} 
+ Self run (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Sets up resources and calculates the metric score.
+Returns:
+    Self: The metric instance with updated score.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1BaseMetric_a3cc927b7244471f979d43f008e73157e}\index{BaseMetric@{BaseMetric}!set\_local\_directory@{set\_local\_directory}}
+\index{set\_local\_directory@{set\_local\_directory}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{set\_local\_directory()}{set\_local\_directory()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_a3cc927b7244471f979d43f008e73157e} 
+set\+\_\+local\+\_\+directory (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}}}]{local\+\_\+directory}{}\end{DoxyParamCaption})}
+
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_a822b8fe24a16a6f08111df1cfacdd754}\index{BaseMetric@{BaseMetric}!set\_params@{set\_params}}
+\index{set\_params@{set\_params}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{set\_params()}{set\_params()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_a822b8fe24a16a6f08111df1cfacdd754} 
+ Self set\+\_\+params (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{priority}{, }\item[{str}]{platform}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Sets the priority and target platform for the metric.
+Args:
+    priority (int): The priority value (must be > 0).
+    platform (str): The target platform.
+Returns:
+    Self: The metric instance with updated parameters.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1BaseMetric_af439feb57aff17638e7af92ec30a2516}\index{BaseMetric@{BaseMetric}!set\_url@{set\_url}}
+\index{set\_url@{set\_url}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{set\_url()}{set\_url()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_af439feb57aff17638e7af92ec30a2516} 
+set\+\_\+url (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}}}]{url}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Sets the URL for the metric.
+Args:
+    url (str): The URL to set.
+Raises:
+    IOError: If the provided URL is invalid.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1metric_1_1BaseMetric_a5871f334fd8e3cfaa26fb509395cd8a2}\index{BaseMetric@{BaseMetric}!setup\_resources@{setup\_resources}}
+\index{setup\_resources@{setup\_resources}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{setup\_resources()}{setup\_resources()}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_a5871f334fd8e3cfaa26fb509395cd8a2} 
+setup\+\_\+resources (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Abstract method to set up necessary resources for the metric.
+Should be implemented by subclasses.
+\end{DoxyVerb}
+ 
+
+\label{doc-variable-members}
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_aa93c3ce75138e23ee185355fdd474c47}\index{BaseMetric@{BaseMetric}!local\_directory@{local\_directory}}
+\index{local\_directory@{local\_directory}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{local\_directory}{local\_directory}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_aa93c3ce75138e23ee185355fdd474c47} 
+local\+\_\+directory = None}
+
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_acec9ce2df15222151ad66fcb1d74eb9f}\index{BaseMetric@{BaseMetric}!priority@{priority}}
+\index{priority@{priority}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{priority}{priority}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_acec9ce2df15222151ad66fcb1d74eb9f} 
+int priority = 1}
+
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_abbc43f3195a3d343a7d2134811306d2b}\index{BaseMetric@{BaseMetric}!runtime@{runtime}}
+\index{runtime@{runtime}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{runtime}{runtime}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_abbc43f3195a3d343a7d2134811306d2b} 
+float runtime = 0.\+0}
+
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_a8c5cd9b525ee73a24b1d9d8e34982d1c}\index{BaseMetric@{BaseMetric}!score@{score}}
+\index{score@{score}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{score}{score}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_a8c5cd9b525ee73a24b1d9d8e34982d1c} 
+float score = 0.\+0}
+
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_ae4421b55c03322fc8549f35a9974a752}\index{BaseMetric@{BaseMetric}!target\_platform@{target\_platform}}
+\index{target\_platform@{target\_platform}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{target\_platform}{target\_platform}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_ae4421b55c03322fc8549f35a9974a752} 
+typing.\+Optional\mbox{[}str\mbox{]} target\+\_\+platform = None}
+
+\Hypertarget{classsrc_1_1metric_1_1BaseMetric_afcd5a3e84f2adb7f83fa6c99911f31e4}\index{BaseMetric@{BaseMetric}!url@{url}}
+\index{url@{url}!BaseMetric@{BaseMetric}}
+\doxysubsubsection{\texorpdfstring{url}{url}}
+{\footnotesize\ttfamily \label{classsrc_1_1metric_1_1BaseMetric_afcd5a3e84f2adb7f83fa6c99911f31e4} 
+url = None}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{metric_8py}{metric.\+py}}\end{DoxyCompactItemize}

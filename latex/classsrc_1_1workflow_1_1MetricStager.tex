@@ -1,0 +1,93 @@
+\doxysection{Metric\+Stager Class Reference}
+\hypertarget{classsrc_1_1workflow_1_1MetricStager}{}\label{classsrc_1_1workflow_1_1MetricStager}\index{MetricStager@{MetricStager}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager_a6979d0b87c6cf4592b93426191265392}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}} \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager_abf6e755ab8250174e9f0423446971538}{config}})
+\item 
+typing\+\_\+extensions.\+Self \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager_ae9d96d9beda797c4e1f6d514119b61b2}{attach\+\_\+metric}} (self, \mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}} metric, int priority)
+\item 
+\mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner}{Metric\+Runner}} \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager_a606f5132ee6f0b728e96ace680296fec}{attach\+\_\+model\+\_\+sources}} (self, \mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}} model\+\_\+urls, \mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}} model\+\_\+paths)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+list \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager_abcce662da2a75360795281c4d193ac56}{metrics}} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}} \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricStager_abf6e755ab8250174e9f0423446971538}{config}} = config
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Stages metrics by grouping them and attaching configuration and URLs.
+\end{DoxyVerb}
+ 
+
+\label{doc-constructors}
+\Hypertarget{classsrc_1_1workflow_1_1MetricStager_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classsrc_1_1workflow_1_1MetricStager_a6979d0b87c6cf4592b93426191265392}\index{MetricStager@{MetricStager}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!MetricStager@{MetricStager}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricStager_a6979d0b87c6cf4592b93426191265392} 
+\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}}}]{config}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializes the MetricStager.
+Args:
+    config (ConfigContract): Configuration for staging metrics.
+\end{DoxyVerb}
+ 
+
+\label{doc-func-members}
+\Hypertarget{classsrc_1_1workflow_1_1MetricStager_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsrc_1_1workflow_1_1MetricStager_ae9d96d9beda797c4e1f6d514119b61b2}\index{MetricStager@{MetricStager}!attach\_metric@{attach\_metric}}
+\index{attach\_metric@{attach\_metric}!MetricStager@{MetricStager}}
+\doxysubsubsection{\texorpdfstring{attach\_metric()}{attach\_metric()}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricStager_ae9d96d9beda797c4e1f6d514119b61b2} 
+ typing\+\_\+extensions.\+Self attach\+\_\+metric (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{\mbox{\hyperlink{classsrc_1_1metric_1_1BaseMetric}{Base\+Metric}}}]{metric}{, }\item[{int}]{priority}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Attaches a metric to a group with a given priority and platform.
+Args:
+    group (str): The group to attach the metric to ('dataset', 'codebase', or 'model').
+    metric (BaseMetric): The metric instance to attach.
+    priority (int): The priority value for the metric.
+Returns:
+    Self: The MetricStager instance with the metric attached.
+Raises:
+    KeyError: If the group is invalid.
+\end{DoxyVerb}
+ \Hypertarget{classsrc_1_1workflow_1_1MetricStager_a606f5132ee6f0b728e96ace680296fec}\index{MetricStager@{MetricStager}!attach\_model\_sources@{attach\_model\_sources}}
+\index{attach\_model\_sources@{attach\_model\_sources}!MetricStager@{MetricStager}}
+\doxysubsubsection{\texorpdfstring{attach\_model\_sources()}{attach\_model\_sources()}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricStager_a606f5132ee6f0b728e96ace680296fec} 
+ \mbox{\hyperlink{classsrc_1_1workflow_1_1MetricRunner}{Metric\+Runner}} attach\+\_\+model\+\_\+sources (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ModelURLs}{Model\+URLs}}}]{model\+\_\+urls}{, }\item[{\mbox{\hyperlink{classsrc_1_1config_1_1ModelPaths}{Model\+Paths}}     }]{model\+\_\+paths}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Attaches URLs from model metadata to the corresponding metrics.
+Args:
+    model_metadata (ModelURLs): The model metadata containing URLs.
+Returns:
+    MetricRunner: A MetricRunner instance with staged metrics.
+\end{DoxyVerb}
+ 
+
+\label{doc-variable-members}
+\Hypertarget{classsrc_1_1workflow_1_1MetricStager_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classsrc_1_1workflow_1_1MetricStager_abf6e755ab8250174e9f0423446971538}\index{MetricStager@{MetricStager}!config@{config}}
+\index{config@{config}!MetricStager@{MetricStager}}
+\doxysubsubsection{\texorpdfstring{config}{config}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricStager_abf6e755ab8250174e9f0423446971538} 
+\mbox{\hyperlink{classsrc_1_1config_1_1ConfigContract}{Config\+Contract}} config = config}
+
+\Hypertarget{classsrc_1_1workflow_1_1MetricStager_abcce662da2a75360795281c4d193ac56}\index{MetricStager@{MetricStager}!metrics@{metrics}}
+\index{metrics@{metrics}!MetricStager@{MetricStager}}
+\doxysubsubsection{\texorpdfstring{metrics}{metrics}}
+{\footnotesize\ttfamily \label{classsrc_1_1workflow_1_1MetricStager_abcce662da2a75360795281c4d193ac56} 
+metrics = \mbox{[}$\,$\mbox{]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{workflow_8py}{workflow.\+py}}\end{DoxyCompactItemize}
